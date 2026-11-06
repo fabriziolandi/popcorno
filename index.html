@@ -247,7 +247,7 @@ const SRC = {
   skyrom:{n:"Sky Cinema Romance",lcn:307,via:"now"}, skydra:{n:"Sky Cinema Drama",lcn:308,via:"now"}, skycom:{n:"Sky Cinema Comedy",lcn:309,via:"now"},
   skycin24:{n:"Sky Cinema Uno +24",lcn:310,via:"now"}, cinema:{n:"Al cinema",sala:1},
   netflix:{n:"Netflix"}, prime:{n:"Prime Video"}, disney:{n:"Disney+"}, hbo:{n:"HBO Max"}, apple:{n:"Apple TV+"},
-  paramount:{n:"Paramount+"}, now:{n:"Sky / NOW"}, dazn:{n:"DAZN"}
+  paramount:{n:"Paramount+"}, mubi:{n:"MUBI"}, now:{n:"Sky / NOW"}, dazn:{n:"DAZN"}
 };
 const PAL = window.PALINSESTO || {items:[],etichetta:"",aggiornato:"",data:""};
 const OD = [
@@ -266,7 +266,7 @@ const Q = {
   tempo:[["90","Un'ora e mezza"],["130","Circa 2 ore"],["999","Tutta la sera"]],
   chi:[["solo","Da solo"],["coppia","In coppia"],["famiglia","In famiglia"],["amici","Con gli amici"]],
   umore:[["risate","😂","Ridere"],["emozione","🥹","Emozione"],["tensione","😬","Tensione"],["relax","😌","Relax"],["sport","⚽","Sport"]],
-  tipo:[["tutto","Sorprendimi"],["film","Film"],["serie","Serie"],["show","Show"],["sport","Sport"],["cinema","🎟️ Al cinema"]]
+  tipo:[["tutto","Sorprendimi"],["film","Film"],["serie","Serie"],["show","Show"],["sport","Sport"],["cinema","🎟️ Al cinema"],["essai","🎞️ D'essai"]]
 };
 const GEN={horror:["👻 Horror",/horror/i],western:["🤠 Western",/western/i],commedia:["😂 Commedia",/commedia|satira|sitcom/i],
   azione:["💥 Azione",/azione|avventura|guerra/i],giallo:["🔎 Giallo e thriller",/giallo|thriller|crime|mistero|polizi|legal|cronaca/i],
@@ -278,6 +278,17 @@ const genOk = it => !st.gen.length || st.gen.some(k=>GEN[k][1].test(it.g));
 const MOODW={risate:"ridere",emozione:"emozionarti",tensione:"un po' di tensione",relax:"rilassarti",sport:"sport"};
 const CHIW={solo:"da solo",coppia:"in coppia",famiglia:"in famiglia",amici:"con gli amici"};
 const TEAMS=["Nessuna","Atalanta","Bologna","Cagliari","Como","Fiorentina","Frosinone","Genoa","Inter","Juventus","Lazio","Lecce","Milan","Monza","Napoli","Parma","Roma","Sassuolo","Torino","Udinese","Venezia","Italia"];
+const POP_LANG=new Set(["hi","te","ta","kn","ml"]);
+const ARTE=new Set(["Drammatico","Storico","Documentario","Guerra","Musicale","Mistero","Crime","Thriller","Commedia","Western","Giallo"]);
+const ARTE_EN=new Set(["Drammatico","Storico","Documentario","Guerra","Mistero","Crime","Musicale"]);
+function isEssai(it){
+  if(it.ty!=="film"&&it.ty!=="cinema") return false;
+  if(allSrc(it).includes("mubi")) return true;           // tutto il catalogo MUBI
+  if(!it.v||it.vc===undefined||!it.l) return false;
+  if((it.gs||[]).includes(10402) || POP_LANG.has(it.l)) return false;   // niente film-concerto né grandi produzioni commerciali
+  if(it.l!=="en") return ARTE.has(it.g) && it.v>=7.2 && it.vc>=50 && it.vc<=5000;   // cinema non anglofono d'autore
+  return ARTE_EN.has(it.g) && it.v>=7.6 && it.vc>=200 && it.vc<=3000;              // indipendente in inglese
+}
 const TYW={film:"Film",serie:"Serie",show:"Show",sport:"Sport in diretta",cinema:"Film in sala"};
 
 // ---------- STATO ----------
@@ -307,7 +318,7 @@ function renderAsk(){
       save();renderAsk();};
   });
   $("#sw-free").classList.toggle("on",st.free); $("#sw-free").setAttribute("aria-checked",st.free);
-  $("#q-citta").classList.toggle("hide",st.tipo!=="cinema"); $(".toggle").classList.toggle("hide",st.tipo==="cinema");
+  $("#q-citta").classList.toggle("hide",st.tipo!=="cinema"&&st.tipo!=="essai"); $(".toggle").classList.toggle("hide",st.tipo==="cinema");
 }
 $("#sw-free").onclick=()=>{st.free=!st.free;save();renderAsk()};
 
@@ -328,20 +339,22 @@ function score(it){
   if(st.seen.includes(it.t)) sc-=4;
   if(it.v){ sc+=(it.v-6.5)*0.8; if(it.v>=7.8) why.push("ha un voto alto, <b>"+it.v+"</b>"); }
   if(it.pop) sc+=Math.min(3,Math.log10(it.pop+1));
+  if(st.tipo==="essai" && it.v){ const ve=(it.v*(it.vc||0)+7*300)/((it.vc||0)+300); sc+=(ve-7)*6; }
+  if(st.tipo==="essai"){ if(allSrc(it).includes("mubi")) why.unshift("è nella selezione di <b>MUBI</b>"); else if(it.vc) why.unshift("è amato dalla critica (<b>"+it.vc+" voti</b>)"); }
   if(it.nuovo){ sc+=1; why.push("è appena uscito"); }
   return {sc,why};
 }
 function candidates(noTime){
   const tmax=noTime?9999:+st.tempo;
-  const pool = st.tipo==="cinema" ? CIN : C;
+  const pool = st.tipo==="cinema" ? CIN : st.tipo==="essai" ? C.concat(CIN).filter(isEssai) : C;
   return pool.filter(it=>{
     if(!available(it)) return false;
     if(st.free && st.tipo!=="cinema" && !isFree(it)) return false;
-    if(st.tipo!=="tutto" && it.ty!==st.tipo) return false;
+    if(st.tipo!=="tutto" && st.tipo!=="essai" && it.ty!==st.tipo) return false;
     if(st.tipo==="tutto" && it.ty==="sport" && !st.umore.includes("sport") && !(it.teams&&it.teams.includes(st.team))) return false;
     if(st.umore.length===1 && st.umore[0]==="sport" && it.ty!=="sport") return false;
     if(it.ty!=="serie" && it.dur && it.dur>tmax) return false;
-    if(it.cat && (it.v<6 || it.pop<4) && st.tipo!=="cinema") return false;
+    if(it.cat && (it.v<6 || it.pop<4) && st.tipo!=="cinema" && st.tipo!=="essai") return false;
     if(it.ty!=="sport" && !genOk(it)) return false;
     if(it.ty==="sport" && st.gen.length && !st.umore.includes("sport") && st.tipo!=="sport") return false;
     if(it.w.length===1 && it.w[0]==="famiglia" && st.chi!=="famiglia") return false;
@@ -365,6 +378,7 @@ function facts(it){
   if(it.dur) f.push(`<span><b>${it.ty==="serie"?it.dur+" min a episodio":it.dur+" min"}</b></span>`);
   f.push(`<span>${it.g}</span>`);
   if(isFree(it)) f.push(`<span class="free">Gratis</span>`);
+  if(isEssai(it)) f.push(`<span style="color:#c6f5dd;font-weight:700">D'essai</span>`);
   if(it.nuovo) f.push(`<span class="new">${it.ty==="cinema"?"Appena uscito":"Novità"}</span>`);
   if(it.uscita) f.push(`<span>In sala dal ${new Date(it.uscita).toLocaleDateString("it-IT",{day:"numeric",month:"long"})}</span>`);
   return f.join("");
@@ -386,7 +400,7 @@ function showRes(zap){
      <div class="screen" style="${bgOf(it,500)}">
        ${osd(it)}
        ${it.p?"":`<div class="big-emoji" aria-hidden="true">${it.e}</div>`}
-       <div><div class="kind">${L?"🍀 Scelto per te · ":""}${TYW[it.ty]}${it.time?" · "+PAL.etichetta:""}</div><div class="title">${it.t}</div></div>
+       <div><div class="kind">${L?"🍀 Scelto per te · ":""}${st.tipo==="essai"&&isEssai(it)?(it.ty==="cinema"?"D'essai in sala":"Film d'essai"):TYW[it.ty]}${it.time?" · "+PAL.etichetta:""}</div><div class="title">${it.t}</div></div>
      </div>
    </div>
    <div class="facts">${facts(it)}</div>
@@ -425,9 +439,17 @@ $("#go").onclick=()=>{pickNow();window.scrollTo({top:0})};
 let gf="tutti";
 function lcnBox(it){const k=mySrc(it)[0],s=SRC[k];return s.lcn?`<div class="lcn">${s.lcn}<small>${s.n}</small></div>`:`<div class="lcn app">${s.n}</div>`}
 function renderGuide(){
-  const F=[["tutti","Tutto"],["film","Film"],["serie","Serie"],["show","Show"],["sport","Sport"],["gratis","Solo gratis"],["nuovo","Novità streaming"],["cinema","Al cinema"]];
+  const F=[["tutti","Tutto"],["film","Film"],["serie","Serie"],["show","Show"],["sport","Sport"],["gratis","Solo gratis"],["nuovo","Novità streaming"],["essai","D'essai"],["cinema","Al cinema"]];
   $("#gfil").innerHTML=F.map(([v,l])=>`<button class="chip ${gf===v?'on':''}" data-v="${v}">${l}</button>`).join("");
   $("#gfil").onclick=e=>{const b=e.target.closest(".chip");if(b){gf=b.dataset.v;renderGuide()}};
+  if(gf==="essai"){
+    const es=C.concat(CIN).filter(it=>isEssai(it)&&(it.ty==="cinema"||available(it)));
+    es.sort((a,b)=>((b.v||0)*Math.log10((b.vc||10)+10))-((a.v||0)*Math.log10((a.vc||10)+10)));
+    $("#guide").innerHTML=es.length?`<p class="sub">Cinema d'autore: tutto MUBI e i film più apprezzati dalla critica sulle tue piattaforme, in TV e in sala.</p>`+es.slice(0,120).map((it,i)=>`<button class="row" data-i="${i}" style="width:100%;background:none;border:0;border-bottom:1px solid #2f377a88;text-align:left">${it.ty==="cinema"?`<div class="lcn app">🎟️<small>in sala</small></div>`:lcnBox(it)}<div><b>${it.t}</b><div class="ty">${it.g}${it.y?" · "+it.y:""}${it.time?" · stasera alle "+it.time:""}</div></div><div class="t st">${it.v?"★ "+it.v:""}</div></button>`).join("")
+      :`<div class="empty"><div class="e">SALA VUOTA</div><p>Aggiungi MUBI o altre piattaforme nel Profilo per vedere i film d'essai.</p></div>`;
+    $("#guide").querySelectorAll("button.row").forEach(b=>b.onclick=()=>showOne(es[+b.dataset.i]));
+    return;
+  }
   if(gf==="cinema"){
     const cs=[...CIN].sort((a,b)=>(b.pop||0)-(a.pop||0));
     $("#guide").innerHTML=cs.length?`<p class="sub">I film nelle sale italiane. Tocca un titolo per gli orari${st.citta?" a "+st.citta:""}.</p>`+cs.map(it=>`
@@ -504,12 +526,12 @@ const KIDG=new Set([16,10751,10762]);
 const byTmdb=new Map(); C.concat(CIN).forEach(it=>{ if(it.tmdb) byTmdb.set(it.tmdb,it); });
 let catCount=0;
 function fromRow(key,r){
-  const [id,tp,t,y,v,gs,pop,p,vc]=r, kind=tp?"tv":"movie", tm=kind+"/"+id;
+  const [id,tp,t,y,v,gs,pop,p,vc,l]=r, kind=tp?"tv":"movie", tm=kind+"/"+id;
   const ex=byTmdb.get(tm);
-  if(ex){ if(ex.s!==key && !(ex.also||[]).includes(key)) (ex.also=ex.also||[]).push(key); if(!ex.p&&p) ex.p=p; if(!ex.pop) ex.pop=pop; if(ex.vc===undefined) ex.vc=vc||0; return null; }
+  if(ex){ if(ex.s!==key && !(ex.also||[]).includes(key)) (ex.also=ex.also||[]).push(key); if(!ex.p&&p) ex.p=p; if(!ex.pop) ex.pop=pop; if(ex.vc===undefined) ex.vc=vc||0; if(!ex.l) ex.l=l||""; return null; }
   const g=GT[gs.find(x=>GT[x])]||["Varie",["relax"],"🎬",["#614385","#516395"]];
   const kids=gs.some(x=>KIDG.has(x)) && !gs.includes(27) && !gs.includes(53);
-  const it={t,ty:tp?"serie":"film",s:key,dur:0,m:g[1],w:kids?["famiglia","coppia","amici"]:(["Horror","Thriller","Crime"].includes(g[0])?["solo","coppia"]:["solo","coppia","amici"]),g:g[0],e:g[2],c:g[3],d:"",v,vc:vc||0,y,p,pop,tmdb:tm,cat:1};
+  const it={t,ty:tp?"serie":"film",s:key,dur:0,m:g[1],w:kids?["famiglia","coppia","amici"]:(["Horror","Thriller","Crime"].includes(g[0])?["solo","coppia"]:["solo","coppia","amici"]),g:g[0],e:g[2],c:g[3],d:"",v,vc:vc||0,l:l||"",gs,y,p,pop,tmdb:tm,cat:1};
   if(kids) it.kids=1;
   byTmdb.set(tm,it); return it;
 }
