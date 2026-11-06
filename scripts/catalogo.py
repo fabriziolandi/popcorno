@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Catalogo COMPLETO per l'Italia di ogni piattaforma streaming, da TMDB.
 Scrive data/catalogo/<chiave>.json in formato compatto:
-{"k":"netflix","agg":"AAAA-MM-GG","t":[[id,tipo,titolo,anno,voto,generi,popolarita,poster], ...]; trame in data/trame/<id%100>.json}
+{"k":"netflix","agg":"AAAA-MM-GG","t":[[id,tipo,titolo,anno,voto,generi,popolarita,poster,numero_voti], ...]; trame in data/trame/<id%100>.json}
 tipo: 0 film, 1 serie. Uso: TMDB_KEY=... python3 scripts/catalogo.py [cartella_uscita]"""
 import os, sys, json, time, urllib.request, urllib.parse
 from concurrent.futures import ThreadPoolExecutor
@@ -33,7 +33,7 @@ def short(t, n=160):
 def row(kind, r):
     return [r["id"], 0 if kind == "movie" else 1, r.get("title") or r.get("name") or "",
             (r.get("release_date") or r.get("first_air_date") or "")[:4], round(r.get("vote_average", 0), 1),
-            r.get("genre_ids", [])[:3], round(r.get("popularity", 0)), r.get("poster_path") or "", short(r.get("overview"))]
+            r.get("genre_ids", [])[:3], round(r.get("popularity", 0)), r.get("poster_path") or "", short(r.get("overview")), r.get("vote_count", 0)]
 
 def fetch(key, kind):
     pid, mon = PROV[key]
@@ -57,7 +57,7 @@ for key in PROV:
     rows.sort(key=lambda r: -r[6])
     for r in rows:
         if r[8]: trame[("m" if r[1] == 0 else "t") + str(r[0])] = r[8]
-    rows = [r[:8] for r in rows]
+    rows = [r[:8] + [r[9]] for r in rows]
     with open(os.path.join(OUT, key + ".json"), "w") as f:
         json.dump({"k": key, "agg": date.today().isoformat(), "t": rows}, f, ensure_ascii=False, separators=(",", ":"))
     tot += len(rows)

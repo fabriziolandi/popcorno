@@ -60,7 +60,7 @@ def add(kind, r, key, nuovo=False):
     y = (r.get("release_date") or r.get("first_air_date") or "")[:4]
     it = {"t": title, "ty": "film" if kind == "movie" else "serie", "s": key, "dur": 0, "m": g[1], "w": w,
           "g": g[0], "e": g[2], "c": g[3], "d": short(r.get("overview")) or f"{'Film' if kind=='movie' else 'Serie'} del {y}.",
-          "v": round(r.get("vote_average", 0), 1), "y": y, "tmdb": f"{kind}/{r['id']}", "p": r.get("poster_path") or ""}
+          "v": round(r.get("vote_average", 0), 1), "vc": r.get("vote_count", 0), "y": y, "tmdb": f"{kind}/{r['id']}", "p": r.get("poster_path") or ""}
     if kids: it["kids"] = 1
     if nuovo: it["nuovo"] = 1
     found[k] = it
@@ -93,7 +93,7 @@ for page in (1, 2, 3):
         it = {"t": r.get("title", ""), "ty": "cinema", "s": "cinema", "dur": 0, "m": g[1],
               "w": ["famiglia", "coppia", "amici"] if kids else ["solo", "coppia", "amici"],
               "g": g[0], "e": g[2], "c": g[3], "d": short(r.get("overview")) or "In sala ora.",
-              "v": round(r.get("vote_average", 0), 1), "y": rel[:4], "uscita": rel, "pop": round(r.get("popularity", 0)),
+              "v": round(r.get("vote_average", 0), 1), "vc": r.get("vote_count", 0), "y": rel[:4], "uscita": rel, "pop": round(r.get("popularity", 0)),
               "tmdb": f"movie/{r['id']}", "p": r.get("poster_path") or ""}
         if kids: it["kids"] = 1
         if rel and rel >= (today - timedelta(days=10)).isoformat(): it["nuovo"] = 1
@@ -109,6 +109,6 @@ tv_items = json.load(open(sys.argv[1])) if len(sys.argv) > 1 else []
 for t in [x["t"] for x in tv_items if x.get("ty") == "film"]:
     res = get("/search/movie", query=t).get("results", [])
     m = next((r for r in res if r.get("title", "").lower() == t.lower() and r.get("vote_count", 0) >= 20), None)
-    if m: voti[t] = {"v": round(m["vote_average"], 1), "y": (m.get("release_date") or "")[:4], "p": m.get("poster_path") or "", "tmdb": f"movie/{m['id']}"}
+    if m: voti[t] = {"v": round(m["vote_average"], 1), "vc": m.get("vote_count", 0), "y": (m.get("release_date") or "")[:4], "p": m.get("poster_path") or "", "tmdb": f"movie/{m['id']}"}
 
 print(json.dumps({"ondemand": list(found.values()), "cinema": cinema, "voti": voti}, ensure_ascii=False))

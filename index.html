@@ -67,6 +67,11 @@ h1.q-title{font:800 40px/1.02 "Bricolage Grotesque",sans-serif;letter-spacing:-1
 .sw{width:52px;height:30px;border-radius:99px;background:var(--bordo);position:relative;flex:none;border:0;transition:background .2s}
 .sw:after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
 .sw.on{background:var(--gratis)}.sw.on:after{left:25px}
+.lucky{width:100%;display:flex;align-items:center;gap:14px;text-align:left;padding:16px 18px;border-radius:22px;border:1.5px solid #7dfcb055;background:linear-gradient(135deg,#1f4a3c,#1d2358 70%);box-shadow:0 0 0 4px #7dfcb012,0 16px 34px -18px #7dfcb088;margin-bottom:12px}
+.lucky .clover{font-size:34px;line-height:1}
+.lucky b{display:block;font:800 21px/1.1 "Bricolage Grotesque",sans-serif;letter-spacing:-.4px}
+.lucky small{display:block;font-size:13px;color:#c6f5dd;margin-top:3px}
+.or{text-align:center;color:var(--muto);font-size:13px;margin:4px 0 22px}
 .power{width:100%;border:0;border-radius:22px;padding:20px;font:800 20px "Bricolage Grotesque",sans-serif;letter-spacing:-.3px;
   background:var(--luce);color:#2a1700;box-shadow:0 0 0 6px #ffb54722,0 18px 40px -12px #ffb547aa;display:flex;align-items:center;justify-content:center;gap:12px}
 .power svg{width:22px;height:22px}
@@ -178,6 +183,8 @@ nav button.on{background:var(--notte2);color:var(--testo);box-shadow:inset 0 0 0
     <div id="ask">
       <h1 class="q-title">Cosa guardiamo stasera?</h1>
       <p class="lead" id="banner"></p>
+      <button class="lucky" id="lucky"><span class="clover" aria-hidden="true">🍀</span><span><b>Mi sento fortunato</b><small>Una sola proposta per stasera, scelta in base ai tuoi gusti</small></span></button>
+      <p class="or">oppure rispondi a qualche domanda</p>
       <div class="q"><h3>Quanto tempo hai?</h3><div class="seg" data-k="tempo"></div></div>
       <div class="q"><h3>Con chi guardi?</h3><div class="seg" data-k="chi"></div></div>
       <div class="q"><h3>Che voglia hai? <span>anche più di una</span></h3><div class="moods" data-k="umore" data-multi="1"></div></div>
@@ -341,12 +348,12 @@ function candidates(noTime){
   }).map(it=>({it,...score(it)})).sort((a,b)=>b.sc-a.sc);
 }
 let list=[], idx=0;
-function pickNow(){ list=candidates(); if(!list.length){ list=candidates(true); list.forEach(x=>x.why.unshift("è il più adatto, anche se dura <b>più del tempo che hai</b>")); } idx=0; showRes(false); }
+function pickNow(){ luckyMode=false; list=candidates(); if(!list.length){ list=candidates(true); list.forEach(x=>x.why.unshift("è il più adatto, anche se dura <b>più del tempo che hai</b>")); } idx=0; showRes(false); }
 
 function osd(it){
   if(it.ty==="cinema") return `<div class="osd"><div><span class="chn" style="font-size:26px;margin:0">AL CINEMA</span><span class="chn">${st.citta||"in Italia"}</span></div><span class="when">IN SALA</span></div>`;
   const k=mySrc(it)[0], s=SRC[k];
-  const left = s.lcn ? `<span class="ch">${s.lcn}</span><span class="chn">${s.n}</span>` : `<span class="chn" style="font-size:24px;margin:0">${mySrc(it).map(x=>SRC[x].n).join(" / ")}</span>`;
+  const left = s.lcn ? `<span class="ch">${s.lcn}</span><span class="chn">${s.n}</span>` : `<span class="chn" style="font-size:24px;margin:0">${SRC[mySrc(it)[0]].n}${mySrc(it).length>1?` <small style="font-size:18px;opacity:.8">+${mySrc(it).length-1}</small>`:""}</span>`;
   const right = it.time ? `<span class="when live"><span class="dot"></span>${it.time}</span>` : `<span class="when">ON DEMAND</span>`;
   return `<div class="osd"><div>${left}</div>${right}</div>`;
 }
@@ -361,31 +368,33 @@ function facts(it){
   if(it.uscita) f.push(`<span>In sala dal ${new Date(it.uscita).toLocaleDateString("it-IT",{day:"numeric",month:"long"})}</span>`);
   return f.join("");
 }
+let luckyMode=false;
 function showRes(zap){
+  const L=luckyMode;
   $("#ask").classList.add("hide"); const r=$("#res"); r.classList.remove("hide");
   if(!list.length){
     r.innerHTML=`<button class="back" id="bk">‹ Cambia risposte</button><div class="empty"><div class="e">NO SEGNALE</div><p>Nessun titolo corrisponde alle tue risposte.<br>Togli qualche genere, scegli “Sorprendimi” o disattiva “Solo cose gratis”.</p></div>`;
     $("#bk").onclick=back; return;
   }
   const n=list.length, main=list[idx%n], it=main.it;
-  const alts=[1,2,3,4].map(i=>list[(idx+i)%n]).filter((a,i,arr)=>a!==main && arr.indexOf(a)===i);
+  const alts=L?[]:[1,2,3,4].map(i=>list[(idx+i)%n]).filter((a,i,arr)=>a!==main && arr.indexOf(a)===i);
   const fb=st.liked.includes(it.t)?"y":st.disliked.includes(it.t)?"n":"";
   r.innerHTML=`
-   <button class="back" id="bk">‹ Cambia risposte</button>
+   <button class="back" id="bk">${L?"‹ Indietro":"‹ Cambia risposte"}</button>
    <div class="tv ${zap?'zap':''}">
      <div class="screen" style="${bgOf(it,500)}">
        ${osd(it)}
        ${it.p?"":`<div class="big-emoji" aria-hidden="true">${it.e}</div>`}
-       <div><div class="kind">${TYW[it.ty]}${it.time?" · "+PAL.etichetta:""}</div><div class="title">${it.t}</div></div>
+       <div><div class="kind">${L?"🍀 Scelto per te · ":""}${TYW[it.ty]}${it.time?" · "+PAL.etichetta:""}</div><div class="title">${it.t}</div></div>
      </div>
    </div>
    <div class="facts">${facts(it)}</div>
    <p class="plot" id="plot">${it.d||"…"}</p>
    ${it.ty==="cinema"?`<a class="orari" target="_blank" rel="noopener" href="https://www.google.com/search?q=${encodeURIComponent(it.t+" orari cinema "+(st.citta||""))}">🎟️ Orari e sale${st.citta?" a "+st.citta:""}</a>`:""}
-   <p class="why">Te lo propongo perché ${main.why.slice(0,3).join(", ")||"è una buona scelta per stasera"}.</p>
+   <p class="why">${L?"L'ho scelto perché":"Te lo propongo perché"} ${main.why.slice(0,3).join(", ")||"è una buona scelta per stasera"}.</p>
    <div class="remote">
      <button class="rbtn yes ${fb==='y'?'sel':''}" id="yes" aria-label="Mi piace">👍</button>
-     <button class="zapbtn" id="other"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>${it.ty==="cinema"?"Un altro film":"Cambia canale"}</button>
+     <button class="zapbtn" id="other">${L?"🍿 Ok, si guarda!":`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>${it.ty==="cinema"?"Un altro film":"Cambia canale"}`}</button>
      <button class="rbtn no ${fb==='n'?'sel':''}" id="no" aria-label="Non mi piace">👎</button>
    </div>
    ${alts.length?`<h3 class="more-h">${it.ty==="cinema"?"Altri film in sala":"Sugli altri canali"}</h3><div class="strip">`+alts.map(a=>{const s=SRC[mySrc(a.it)[0]];return `
@@ -396,7 +405,7 @@ function showRes(zap){
   $("#rb").innerHTML=$("#banner").innerHTML;
   if(!it.d) loadPlot(it);
   $("#bk").onclick=back;
-  $("#other").onclick=()=>{idx++;showRes(true)};
+  $("#other").onclick=()=>{ if(L) feedback(it,1); else {idx++;showRes(true)} };
   $("#yes").onclick=()=>feedback(it,1);
   $("#no").onclick=()=>feedback(it,-1);
   r.querySelectorAll(".mini").forEach(el=>el.onclick=()=>{idx=list.findIndex(x=>x.it.t===el.dataset.t);showRes(true);window.scrollTo({top:0,behavior:"smooth"})});
@@ -404,7 +413,7 @@ function showRes(zap){
 function feedback(it,v){
   st.likes[it.g]=(st.likes[it.g]||0)+v;
   if(v>0){ if(!st.liked.includes(it.t)) st.liked.push(it.t); st.disliked=st.disliked.filter(x=>x!==it.t); if(!st.seen.includes(it.t)) st.seen.push(it.t); toast("Buona visione! Popcorno se lo ricorda"); save(); showRes(false); }
-  else { if(!st.disliked.includes(it.t)) st.disliked.push(it.t); st.liked=st.liked.filter(x=>x!==it.t); toast("Ok, meno "+it.g.toLowerCase()+" d'ora in poi"); save(); setTimeout(()=>{list=candidates();idx=0;showRes(true)},450); }
+  else { if(!st.disliked.includes(it.t)) st.disliked.push(it.t); st.liked=st.liked.filter(x=>x!==it.t); toast("Ok, meno "+it.g.toLowerCase()+" d'ora in poi"); save(); setTimeout(()=>{ if(luckyMode) lucky(); else {list=candidates();idx=0;showRes(true)} },450); }
 }
 function back(){ $("#res").classList.add("hide"); $("#ask").classList.remove("hide"); window.scrollTo({top:0}); }
 $("#go").onclick=()=>{pickNow();window.scrollTo({top:0})};
@@ -492,12 +501,12 @@ const KIDG=new Set([16,10751,10762]);
 const byTmdb=new Map(); C.concat(CIN).forEach(it=>{ if(it.tmdb) byTmdb.set(it.tmdb,it); });
 let catCount=0;
 function fromRow(key,r){
-  const [id,tp,t,y,v,gs,pop,p]=r, kind=tp?"tv":"movie", tm=kind+"/"+id;
+  const [id,tp,t,y,v,gs,pop,p,vc]=r, kind=tp?"tv":"movie", tm=kind+"/"+id;
   const ex=byTmdb.get(tm);
-  if(ex){ if(ex.s!==key && !(ex.also||[]).includes(key)) (ex.also=ex.also||[]).push(key); if(!ex.p&&p) ex.p=p; if(!ex.pop) ex.pop=pop; return null; }
+  if(ex){ if(ex.s!==key && !(ex.also||[]).includes(key)) (ex.also=ex.also||[]).push(key); if(!ex.p&&p) ex.p=p; if(!ex.pop) ex.pop=pop; if(ex.vc===undefined) ex.vc=vc||0; return null; }
   const g=GT[gs.find(x=>GT[x])]||["Varie",["relax"],"🎬",["#614385","#516395"]];
   const kids=gs.some(x=>KIDG.has(x)) && !gs.includes(27) && !gs.includes(53);
-  const it={t,ty:tp?"serie":"film",s:key,dur:0,m:g[1],w:kids?["famiglia","coppia","amici"]:(["Horror","Thriller","Crime"].includes(g[0])?["solo","coppia"]:["solo","coppia","amici"]),g:g[0],e:g[2],c:g[3],d:"",v,y,p,pop,tmdb:tm,cat:1};
+  const it={t,ty:tp?"serie":"film",s:key,dur:0,m:g[1],w:kids?["famiglia","coppia","amici"]:(["Horror","Thriller","Crime"].includes(g[0])?["solo","coppia"]:["solo","coppia","amici"]),g:g[0],e:g[2],c:g[3],d:"",v,vc:vc||0,y,p,pop,tmdb:tm,cat:1};
   if(kids) it.kids=1;
   byTmdb.set(tm,it); return it;
 }
@@ -521,6 +530,7 @@ async function loadPlot(it){
   const el=$("#plot"); if(el) el.textContent=it.d;
 }
 function showOne(it){
+  luckyMode=false;
   list=[{it,sc:99,why:["l'hai cercato tu"].concat(isFree(it)?["è <b>gratis</b>"]:[])}].concat(candidates().filter(x=>x.it!==it));
   idx=0; document.querySelector('nav button[data-v=scegli]').click(); showRes(false);
 }
@@ -535,6 +545,46 @@ $("#cerca").addEventListener("input",e=>{
 });
 if("serviceWorker" in navigator){ try{ navigator.serviceWorker.register("sw.js"); }catch(e){} }
 loadCatalogs();
+
+// ---------- MI SENTO FORTUNATO: una sola proposta dai gusti del profilo ----------
+const elenco=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" e "+a[a.length-1];
+function lucky(){
+  const d=new Date(), iso=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const now=nowHM(), live=PAL.data===iso;
+  const kidsOk=(st.likes["Animazione"]||0)>0||(st.likes["Famiglia"]||0)>0||(st.likes["Cartoni"]||0)>0;
+  const likedG=new Set(C.filter(x=>st.liked.includes(x.t)).map(x=>x.g));
+  const scored=[];
+  for(const it of C){
+    if(it.ty==="cinema"||!available(it)||st.disliked.includes(it.t)||st.seen.includes(it.t)) continue;
+    if(it.time){ if(!live) continue; const [hh,mm]=it.time.split(":").map(Number); const late=hh<5; if(!late && it.time<now && (Date.now()-new Date(d.getFullYear(),d.getMonth(),d.getDate(),hh,mm))>15*60000) continue; }
+    if(it.cat && (it.v<6.8 || it.pop<10)) continue;
+    if(it.w.length===1 && it.w[0]==="famiglia" && !kidsOk) continue;
+    let sc=0; const why=[];
+    const gl=st.likes[it.g]||0;
+    if(gl>0){ sc+=2.5*gl; why.push("ti piace il genere <b>"+it.g.toLowerCase()+"</b>"); } else if(gl<0) sc+=2*gl;
+    if(likedG.has(it.g) && gl<=0){ sc+=1.5; }
+    if(it.ty==="sport"){
+      if(it.teams && st.team!=="Nessuna" && it.teams.includes(st.team)){ sc+=14; why.unshift("gioca <b>"+st.team+"</b>"); }
+      else continue;
+    }
+    const ve = it.v ? (it.vc!==undefined ? (it.v*it.vc+6.5*150)/(it.vc+150) : it.v) : 0;   // voto pesato sul numero di voti
+    if(ve){ sc+=(ve-6.5)*2.2; if(ve>=7.3) why.push("ha un voto alto, <b>★ "+it.v+"</b>"); } else if(it.ty!=="sport") sc-=1.5;
+    if(it.pop) sc+=Math.min(2.5,Math.log10(it.pop+1)*0.8);
+    if(it.time){ sc+=1.5; why.push("va in onda stasera alle <b>"+it.time+"</b> su "+SRC[mySrc(it)[0]].n); }
+    else why.push("è disponibile su <b>"+elenco(mySrc(it).map(k=>SRC[k].n))+"</b>, che hai già");
+    if(it.nuovo){ sc+=1; why.push("è una <b>novità</b>"); }
+    if(isFree(it) && it.time) why.push("è <b>gratis</b>");
+    scored.push({it,sc,why});
+  }
+  scored.sort((a,b)=>b.sc-a.sc);
+  luckyMode=true;
+  if(!scored.length){ list=[]; showRes(false); return; }
+  const top=scored.slice(0,6), w=top.map((_,i)=>6-i), tot=w.reduce((a,b)=>a+b,0);
+  let r=Math.random()*tot, pick=top[0];
+  for(let i=0;i<top.length;i++){ r-=w[i]; if(r<=0){ pick=top[i]; break; } }
+  list=[pick]; idx=0; showRes(true); window.scrollTo({top:0});
+}
+$("#lucky").onclick=lucky;
 renderAsk();
 </script>
 </body>
