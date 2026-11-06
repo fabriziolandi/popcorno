@@ -1,0 +1,56 @@
+name: Aggiorna dati Popcorno
+
+on:
+  schedule:
+    - cron: "15 14 * * *"   # ogni giorno alle 15:15 ora italiana (inverno)
+  push:
+    paths:
+      - "data/tv.json"       # quando arriva la nuova guida TV di oggi
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aggiorna
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Pluto TV e Samsung TV Plus
+        run: |
+          OGGI=$(TZ=Europe/Rome date +%F)
+          curl -sfL -o /tmp/pluto.xml https://raw.githubusercontent.com/matthuisman/i.mjh.nz/master/PlutoTV/it.xml || true
+          curl -sfL -o /tmp/samsung.xml https://raw.githubusercontent.com/matthuisman/i.mjh.nz/master/SamsungTVPlus/it.xml || true
+          python3 scripts/epg.py "$OGGI" /tmp/pluto.xml /tmp/samsung.xml > /tmp/fast.json || echo "[]" > /tmp/fast.json
+          python3 - <<'PY'
+          import json
+          tv = json.load(open("data/tv.json"))
+          tv = [x for x in tv if x.get("s") not in ("pluto", "samsung")] + json.load(open("/tmp/fast.json"))
+          json.dump(tv, open("/tmp/items.json", "w"), ensure_ascii=False)
+          PY
+      - name: TMDB (piu' visti, novita', cinema, voti) e catalogo completo
+        env:
+          TMDB_KEY: ${{ secrets.TMDB_KEY }}
+        run: |
+          python3 scripts/tmdb.py /tmp/items.json > /tmp/tmdb.json || echo "{}" > /tmp/tmdb.json
+          python3 scripts/catalogo.py data/catalogo
+      - name: Componi data/oggi.js
+        run: |
+          python3 scripts/build.py data/meta.json /tmp/items.json /tmp/tmdb.json > data/oggi.js
+          node --check data/oggi.js
+          date -u +%s > data/versione.txt
+      - name: Salva
+        run: |
+          git config user.name "popcorno-bot"
+          git config user.email "popcorno-bot@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Dati aggiornati $(TZ=Europe/Rome date '+%d/%m %H:%M')"
+          git push

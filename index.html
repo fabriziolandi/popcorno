@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#151a44">
+<link rel="icon" type="image/png" href="icons/icon-180.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://image.tmdb.org">
+<meta name="apple-mobile-web-app-title" content="Popcorno">
+<title>Popcorno – cosa guardo stasera?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --notte:#151a44;      /* cielo della sera */
+  --notte2:#1d2358;     /* superfici */
+  --bordo:#2f377a;
+  --luce:#ffb547;       /* la lampada accanto al divano */
+  --onda:#ff4d6d;       /* in onda */
+  --gratis:#5fe0a8;
+  --testo:#f3f1ff;
+  --muto:#a3a8da;
+  --osd:#7dfcb0;        /* verde del menu del televisore */
+  --r-schermo:28px; --r-tasto:999px; --r-box:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--notte)}
+body{min-height:100vh;color:var(--testo);font:16px/1.45 Figtree,system-ui,sans-serif;
+  background:radial-gradient(120% 60% at 85% -10%,#3a2f7a 0%,transparent 55%),
+             radial-gradient(90% 50% at -10% 110%,#3b2a1a 0%,transparent 60%),var(--notte);
+  background-attachment:fixed;
+  padding:env(safe-area-inset-top) 0 calc(92px + env(safe-area-inset-bottom))}
+.wrap{max-width:480px;margin:0 auto;padding:16px 20px 24px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--luce);outline-offset:2px}
+.hide{display:none!important}
+
+/* intestazione: logo + orologio da televisore */
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.logo{font:800 26px/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.8px;display:flex;align-items:center;gap:8px}
+.logo svg{width:30px;height:30px;filter:drop-shadow(0 0 10px #ffb54755)}
+.clock{font:28px/1 VT323,monospace;color:var(--osd);text-shadow:0 0 8px #7dfcb066;text-align:right}
+.clock small{display:block;font:500 12px Figtree,sans-serif;color:var(--muto);text-shadow:none;text-transform:capitalize}
+
+/* domande */
+h1.q-title{font:800 40px/1.02 "Bricolage Grotesque",sans-serif;letter-spacing:-1.5px;margin-bottom:8px}
+.lead{color:var(--muto);font-size:14px;margin-bottom:26px}
+.lead b{color:var(--testo);font-weight:600}
+.q{margin-bottom:22px}
+.q h3{font:700 17px "Bricolage Grotesque",sans-serif;margin-bottom:10px}
+.q h3 span{font:500 13px Figtree,sans-serif;color:var(--muto)}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--bordo);background:transparent;padding:10px 15px;border-radius:var(--r-tasto);font-size:15px;font-weight:600;transition:background .15s,border-color .15s}
+.seg[data-k=gen] .chip{font-size:14px;padding:8px 12px;font-weight:500}
+.chip.on{background:var(--luce);border-color:var(--luce);color:#2a1700}
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.mood{border:1.5px solid var(--bordo);background:var(--notte2);border-radius:var(--r-box);padding:12px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muto)}
+.mood em{font-style:normal;font-size:26px;line-height:1;filter:grayscale(.7);opacity:.75}
+.mood.on{border-color:var(--luce);color:var(--testo);background:#3a3260}
+.mood.on em{filter:none;opacity:1}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;border-top:1px solid var(--bordo);border-bottom:1px solid var(--bordo);margin:6px 0 24px}
+.toggle b{font-weight:700}.toggle p{color:var(--muto);font-size:13px}
+.sw{width:52px;height:30px;border-radius:99px;background:var(--bordo);position:relative;flex:none;border:0;transition:background .2s}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+.sw.on{background:var(--gratis)}.sw.on:after{left:25px}
+.power{width:100%;border:0;border-radius:22px;padding:20px;font:800 20px "Bricolage Grotesque",sans-serif;letter-spacing:-.3px;
+  background:var(--luce);color:#2a1700;box-shadow:0 0 0 6px #ffb54722,0 18px 40px -12px #ffb547aa;display:flex;align-items:center;justify-content:center;gap:12px}
+.power svg{width:22px;height:22px}
+.power:active{transform:translateY(1px)}
+
+/* IL TELEVISORE: elemento protagonista */
+.tv{position:relative;border-radius:var(--r-schermo);padding:10px;background:linear-gradient(160deg,#2a2f5c,#0e1130);box-shadow:0 30px 60px -25px #000a,inset 0 1px 0 #ffffff22}
+.screen{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/3.2;display:flex;flex-direction:column;justify-content:space-between;padding:16px 18px 18px;isolation:isolate}
+.screen:before{content:"";position:absolute;inset:0;z-index:-1;background:repeating-linear-gradient(0deg,#0000 0 2px,#00000026 2px 3px)}
+.screen:after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(130% 90% at 50% 40%,transparent 45%,#0009 100%)}
+.osd{display:flex;justify-content:space-between;align-items:flex-start;font-family:VT323,monospace;color:var(--osd);text-shadow:0 0 6px #000,0 0 10px #7dfcb055}
+.osd .ch{font-size:44px;line-height:.8}
+.osd .chn{font-size:20px;line-height:1;display:block;margin-top:4px;color:#e9fff1}
+.osd .when{font-size:24px;text-align:right;line-height:1}
+.osd .when.live{color:#ff8fa3}
+.osd .when .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--onda);margin-right:6px;vertical-align:2px;box-shadow:0 0 8px var(--onda);animation:blink 1.6s steps(2) infinite}
+.big-emoji{position:absolute;right:14px;bottom:62px;font-size:84px;opacity:.22;z-index:-1;transform:rotate(-8deg)}
+.title{font:800 34px/1 "Bricolage Grotesque",sans-serif;letter-spacing:-1.2px;text-shadow:0 2px 18px #0009;text-wrap:balance}
+.kind{font-size:13px;font-weight:600;color:#ffffffcc;margin-bottom:6px}
+.zap .screen{animation:zap .32s steps(4)}
+@keyframes zap{0%{filter:brightness(3) contrast(3) saturate(0)}50%{filter:brightness(.4)}100%{filter:none}}
+@keyframes blink{50%{opacity:.2}}
+
+.facts{display:flex;flex-wrap:wrap;gap:6px 14px;margin:16px 4px 10px;font-size:14px;color:var(--muto)}
+.facts b{color:var(--testo);font-weight:600}
+.facts .star{color:var(--luce);font-weight:700}
+.facts .free{color:var(--gratis);font-weight:700}
+.facts .new{color:var(--onda);font-weight:700}
+.plot{margin:0 4px 14px;font-size:15px;color:#dcdaf3;max-width:62ch}
+.orari{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 18px;padding:15px;border-radius:16px;background:var(--onda);color:#fff;font:800 17px "Bricolage Grotesque",sans-serif;text-decoration:none}
+.why{margin:0 4px 20px;padding-left:12px;border-left:3px solid var(--luce);font-size:14px;color:var(--muto)}
+.why b{color:var(--testo);font-weight:600}
+
+/* telecomando */
+.remote{display:grid;grid-template-columns:64px 1fr 64px;gap:12px;align-items:center;margin-bottom:28px}
+.rbtn{height:64px;border-radius:50%;border:0;background:var(--notte2);box-shadow:inset 0 -3px 0 #0005,0 0 0 1.5px var(--bordo);font-size:24px}
+.rbtn.yes.sel{background:#1f5a45;box-shadow:inset 0 -3px 0 #0005,0 0 0 2px var(--gratis)}
+.rbtn.no.sel{background:#5a1f2e;box-shadow:inset 0 -3px 0 #0005,0 0 0 2px var(--onda)}
+.zapbtn{height:64px;border-radius:var(--r-tasto);border:0;background:var(--testo);color:var(--notte);font:800 17px "Bricolage Grotesque",sans-serif;display:flex;align-items:center;justify-content:center;gap:10px}
+.zapbtn svg{width:20px;height:20px}
+.back{background:none;border:0;color:var(--muto);font-size:14px;font-weight:600;margin-bottom:14px;padding:6px 0}
+
+/* altri canali: mini schermi */
+.more-h{font:700 17px "Bricolage Grotesque",sans-serif;margin:0 0 12px}
+.strip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:0 20px 6px}
+.mini{flex:0 0 46%;scroll-snap-align:start;border:0;background:none;text-align:left}
+.mini .ms{aspect-ratio:4/3;border-radius:14px;position:relative;overflow:hidden;padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 0 0 4px #20254f}
+.mini .ms:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,#0000 0 2px,#0000002a 2px 3px)}
+.mini .mo{font:20px/1 VT323,monospace;color:var(--osd);position:relative;text-shadow:0 0 4px #000}
+.mini .me{font-size:34px;position:relative;align-self:flex-end;opacity:.85}
+.mini b{display:block;font-size:14px;font-weight:700;margin-top:10px;line-height:1.2}
+.mini span{font-size:12px;color:var(--muto)}
+
+.empty{text-align:center;padding:48px 10px;color:var(--muto)}
+.empty .e{font:56px VT323,monospace;color:var(--osd);margin-bottom:10px}
+.banner{font-size:12px;color:var(--muto);margin-top:18px;text-align:center}
+.banner b{color:var(--testo)}
+
+/* guida */
+h2.sec{font:800 30px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-1px;margin-bottom:4px}
+.sub{color:var(--muto);font-size:13px;margin-bottom:16px}
+.filters{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 10px;padding:0 20px 4px}
+.filters .chip{flex:none;font-size:14px;padding:8px 13px}
+.row{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #2f377a88}
+.lcn{height:44px;border-radius:10px;background:#0e1233;display:flex;flex-direction:column;align-items:center;justify-content:center;font:26px/1 VT323,monospace;color:var(--osd)}
+.lcn small{font:9px/1 Figtree,sans-serif;color:var(--muto);margin-top:2px;max-width:54px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.lcn.app{font:700 11px/1.1 Figtree,sans-serif;color:var(--testo);text-align:center;padding:0 4px}
+.row b{display:block;font-size:15px;font-weight:700;line-height:1.25}
+.row .ty{font-size:12px;color:var(--muto)}
+.row .t{font:24px VT323,monospace;color:var(--luce)}
+.row .t.st{font:700 13px Figtree,sans-serif}
+.nowline{display:flex;align-items:center;gap:8px;font:20px VT323,monospace;color:var(--onda);margin:6px 0}
+.nowline:after{content:"";flex:1;height:2px;background:var(--onda);box-shadow:0 0 8px var(--onda)}
+
+/* profilo */
+.grp{margin-bottom:26px}
+.grp h3{font:700 18px "Bricolage Grotesque",sans-serif;margin-bottom:2px}
+.grp p{font-size:13px;color:var(--muto);margin-bottom:12px}
+.free-list{font-size:13px;color:var(--muto);line-height:1.7}
+#citta,select{width:100%;padding:14px;border-radius:14px;background:var(--notte2);color:var(--testo);border:1.5px solid var(--bordo);font:600 15px Figtree,sans-serif}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border:1.5px solid var(--bordo);border-radius:var(--r-box);padding:12px 14px}
+.stat b{font:36px/1 VT323,monospace;color:var(--osd)}
+.stat span{display:block;font-size:12px;color:var(--muto)}
+.credit{font-size:11px;color:var(--muto);margin-top:14px}
+.credit a{color:#01b4e4}
+
+/* barra in basso come un telecomando */
+nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));width:min(440px,calc(100% - 32px));
+  background:#0e1233ee;backdrop-filter:blur(14px);border-radius:999px;box-shadow:0 12px 30px -10px #000c,0 0 0 1px #ffffff14;display:flex;padding:6px}
+nav button{flex:1;border:0;background:none;border-radius:999px;padding:10px 0;font-size:13px;font-weight:700;color:var(--muto);display:flex;align-items:center;justify-content:center;gap:7px}
+nav svg{width:18px;height:18px}
+nav button.on{background:var(--notte2);color:var(--testo);box-shadow:inset 0 0 0 1px var(--bordo)}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--testo);color:var(--notte);padding:10px 18px;border-radius:99px;font-size:14px;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="10" cy="9" r="5" fill="#fff6dc"/><circle cx="17" cy="6.5" r="5.5" fill="#ffe7a3"/><circle cx="23" cy="9.5" r="4.8" fill="#fff6dc"/><circle cx="14" cy="12" r="4" fill="#ffd36b"/><path d="M5 12h22l-3 18H8z" fill="#fff"/><path d="M9.4 12h3.4l.9 18h-3.3zM19.2 12h3.4l-1.9 18h-3.3z" fill="#ff4d6d"/></svg>Popcorno</div>
+    <div class="clock" id="clock"></div>
+  </header>
+
+  <!-- SCEGLI -->
+  <section id="v-scegli">
+    <div id="ask">
+      <h1 class="q-title">Cosa guardiamo stasera?</h1>
+      <p class="lead" id="banner"></p>
+      <div class="q"><h3>Quanto tempo hai?</h3><div class="seg" data-k="tempo"></div></div>
+      <div class="q"><h3>Con chi guardi?</h3><div class="seg" data-k="chi"></div></div>
+      <div class="q"><h3>Che voglia hai? <span>anche più di una</span></h3><div class="moods" data-k="umore" data-multi="1"></div></div>
+      <div class="q"><h3>Film, serie o altro?</h3><div class="seg" data-k="tipo"></div></div>
+      <div class="q hide" id="q-citta"><h3>In che città?</h3><input id="citta" list="citta-list" placeholder="Scrivi la tua città" autocomplete="off"><datalist id="citta-list"></datalist></div>
+      <div class="q"><h3>Che genere? <span>se non scegli, vanno bene tutti</span></h3><div class="seg" data-k="gen" data-multi="1" data-empty="1"></div></div>
+      <div class="toggle"><div><b>Solo cose gratis</b><p>TV in chiaro, RaiPlay, Pluto TV e le altre app gratuite</p></div><button class="sw" id="sw-free" role="switch" aria-label="Solo cose gratis"></button></div>
+      <button class="power" id="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg>Accendi e scegli per me</button>
+    </div>
+    <div id="res" class="hide"></div>
+  </section>
+
+  <!-- GUIDA -->
+  <section id="v-onda" class="hide">
+    <h2 class="sec" id="gtitle">In onda</h2>
+    <p class="sub" id="gsub"></p>
+    <input id="cerca" type="search" placeholder="Cerca un film o una serie…" autocomplete="off" style="width:100%;padding:14px 16px;border-radius:14px;background:var(--notte2);color:var(--testo);border:1.5px solid var(--bordo);font:600 15px Figtree,sans-serif;margin-bottom:14px">
+    <div class="filters" id="gfil"></div>
+    <div id="guide"></div>
+  </section>
+
+  <!-- PROFILO -->
+  <section id="v-prof" class="hide">
+    <h2 class="sec" style="margin-bottom:20px">I tuoi gusti</h2>
+    <div class="grp"><h3>I tuoi abbonamenti</h3><p>Ti propongo solo quello che puoi vedere davvero.</p><div class="seg" id="subs"></div></div>
+    <div class="grp"><h3>La tua città</h3><p>Per gli orari dei film al cinema.</p><input id="citta2" list="citta-list" placeholder="Scrivi la tua città" autocomplete="off" style="width:100%;padding:14px;border-radius:14px;background:var(--notte2);color:var(--testo);border:1.5px solid var(--bordo);font:600 15px Figtree,sans-serif"></div>
+    <div class="grp"><h3>La tua squadra</h3><p>Quando gioca, la partita va in cima.</p><select id="team" aria-label="La tua squadra"></select></div>
+    <div class="grp"><h3>Cosa ho imparato di te</h3><div class="stats" id="stats"></div></div>
+    <div class="grp"><h3>Sempre inclusi, gratis</h3><p class="free-list" id="freesrc"></p>
+      <p class="credit">Catalogo streaming, voti e trame da <a href="https://www.themoviedb.org">TMDB</a>. Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.</p></div>
+  </section>
+</div>
+
+<nav aria-label="Sezioni">
+  <button class="on" data-v="scegli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg>Scegli</button>
+  <button data-v="onda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="m8 2 4 4 4-4"/></svg>Guida TV</button>
+  <button data-v="prof"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profilo</button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data/oggi.js"></script>
+<script>
+// ---------- FONTI (n = numero sul telecomando) ----------
+const SRC = {
+  rai1:{n:"Rai 1",free:1,lcn:1}, rai2:{n:"Rai 2",free:1,lcn:2}, rai3:{n:"Rai 3",free:1,lcn:3}, r4:{n:"Rete 4",free:1,lcn:4},
+  c5:{n:"Canale 5",free:1,lcn:5}, i1:{n:"Italia 1",free:1,lcn:6}, la7:{n:"La7",free:1,lcn:7}, tv8:{n:"TV8",free:1,lcn:8}, nove:{n:"Nove",free:1,lcn:9},
+  venti:{n:"20 Mediaset",free:1,lcn:20}, rai4:{n:"Rai 4",free:1,lcn:21}, iris:{n:"Iris",free:1,lcn:22}, rai5:{n:"Rai 5",free:1,lcn:23},
+  raimovie:{n:"Rai Movie",free:1,lcn:24}, raipremium:{n:"Rai Premium",free:1,lcn:25}, cielo:{n:"Cielo",free:1,lcn:26},
+  la5:{n:"La5",free:1,lcn:30}, realtime:{n:"Real Time",free:1,lcn:31}, cine34:{n:"Cine34",free:1,lcn:34}, focus:{n:"Focus",free:1,lcn:35},
+  giallo:{n:"Giallo",free:1,lcn:38}, topcrime:{n:"Top Crime",free:1,lcn:39}, boing:{n:"Boing",free:1,lcn:40}, raigulp:{n:"Rai Gulp",free:1,lcn:42},
+  raiyoyo:{n:"Rai YoYo",free:1,lcn:43}, cartoonito:{n:"Cartoonito",free:1,lcn:46}, italia2:{n:"Italia 2",free:1,lcn:49}, dmax:{n:"DMAX",free:1,lcn:52},
+  raistoria:{n:"Rai Storia",free:1,lcn:54}, raisport:{n:"Rai Sport",free:1,lcn:58},
+  raiplay:{n:"RaiPlay",free:1}, infinity:{n:"Mediaset Infinity",free:1}, pluto:{n:"Pluto TV",free:1}, samsung:{n:"Samsung TV Plus",free:1}, rakuten:{n:"Rakuten TV",free:1},
+  skyuno:{n:"Sky Uno",lcn:108,via:"now"}, skyatlantic:{n:"Sky Atlantic",lcn:111,via:"now"}, skyserie:{n:"Sky Serie",lcn:112,via:"now"},
+  skyinv:{n:"Sky Investigation",lcn:113,via:"now"}, skycrime:{n:"Sky Crime",lcn:115,via:"now"}, history:{n:"History",lcn:116,via:"now"},
+  skydocs:{n:"Sky Documentaries",lcn:117,via:"now"}, skynature:{n:"Sky Nature",lcn:119,via:"now"}, skyarte:{n:"Sky Arte",lcn:120,via:"now"},
+  skycin1:{n:"Sky Cinema Uno",lcn:301,via:"now"}, skycin2:{n:"Sky Cinema Due",lcn:302,via:"now"}, skycoll:{n:"Sky Cinema Collection",lcn:303,via:"now"},
+  skyfam:{n:"Sky Cinema Family",lcn:304,via:"now"}, skyact:{n:"Sky Cinema Action",lcn:305,via:"now"}, skysus:{n:"Sky Cinema Suspense",lcn:306,via:"now"},
+  skyrom:{n:"Sky Cinema Romance",lcn:307,via:"now"}, skydra:{n:"Sky Cinema Drama",lcn:308,via:"now"}, skycom:{n:"Sky Cinema Comedy",lcn:309,via:"now"},
+  skycin24:{n:"Sky Cinema Uno +24",lcn:310,via:"now"}, cinema:{n:"Al cinema",sala:1},
+  netflix:{n:"Netflix"}, prime:{n:"Prime Video"}, disney:{n:"Disney+"}, hbo:{n:"HBO Max"}, apple:{n:"Apple TV+"},
+  paramount:{n:"Paramount+"}, now:{n:"Sky / NOW"}, dazn:{n:"DAZN"}
+};
+const PAL = window.PALINSESTO || {items:[],etichetta:"",aggiornato:"",data:""};
+const OD = [
+ {t:"Up",ty:"film",s:"disney",dur:96,m:["emozione","risate"],w:["famiglia"],kids:1,g:"Animazione",e:"🎈",c:["#56ccf2","#2f80ed"],d:"Una casa che vola appesa ai palloncini."},
+ {t:"Mare fuori",ty:"serie",s:"raiplay",dur:50,m:["emozione","tensione"],w:["solo","coppia","amici"],g:"Drammatico",e:"🌊",c:["#1e3c72","#2a5298"],d:"Il carcere minorile di Napoli."},
+ {t:"Stranger Things",ty:"serie",s:"netflix",dur:50,m:["tensione","risate"],w:["amici","famiglia","solo"],g:"Fantascienza",e:"🚲",c:["#6a0000","#e52d27"],d:"Anni '80, mostri e amicizia."}
+];
+const CIN = (PAL.cinema||[]);
+const C = PAL.items.concat(PAL.ondemand && PAL.ondemand.length ? PAL.ondemand : OD);
+const allSrc = it => [it.s,...(it.also||[])].filter(k=>SRC[k]);
+const isFree = it => allSrc(it).some(k=>SRC[k].free);
+const has = k => SRC[k].free || SRC[k].sala || st.subs.includes(k) || (SRC[k].via && st.subs.includes(SRC[k].via));
+const mySrc = it => { const m=allSrc(it).filter(has); return m.length?m:allSrc(it); };
+
+const Q = {
+  tempo:[["90","Un'ora e mezza"],["130","Circa 2 ore"],["999","Tutta la sera"]],
+  chi:[["solo","Da solo"],["coppia","In coppia"],["famiglia","In famiglia"],["amici","Con gli amici"]],
+  umore:[["risate","😂","Ridere"],["emozione","🥹","Emozione"],["tensione","😬","Tensione"],["relax","😌","Relax"],["sport","⚽","Sport"]],
+  tipo:[["tutto","Sorprendimi"],["film","Film"],["serie","Serie"],["show","Show"],["sport","Sport"],["cinema","🎟️ Al cinema"]]
+};
+const GEN={horror:["👻 Horror",/horror/i],western:["🤠 Western",/western/i],commedia:["😂 Commedia",/commedia|satira|sitcom/i],
+  azione:["💥 Azione",/azione|avventura|guerra/i],giallo:["🔎 Giallo e thriller",/giallo|thriller|crime|mistero|polizi|legal|cronaca/i],
+  fanta:["🚀 Fantascienza e fantasy",/fantascienza|fantasy/i],romantico:["💕 Romantico",/romantic/i],drammatico:["🎭 Drammatico",/dramm/i],
+  animazione:["🧸 Animazione",/animazione|cartoni|bambini|ragazzi|famiglia/i],documentario:["🌍 Documentari",/document|viaggi|storic/i],
+  reality:["🏠 Reality e talent",/reality|talent|cucina/i]};
+Q.gen=Object.entries(GEN).map(([k,v])=>[k,v[0]]);
+const genOk = it => !st.gen.length || st.gen.some(k=>GEN[k][1].test(it.g));
+const MOODW={risate:"ridere",emozione:"emozionarti",tensione:"un po' di tensione",relax:"rilassarti",sport:"sport"};
+const CHIW={solo:"da solo",coppia:"in coppia",famiglia:"in famiglia",amici:"con gli amici"};
+const TEAMS=["Nessuna","Atalanta","Bologna","Cagliari","Como","Fiorentina","Frosinone","Genoa","Inter","Juventus","Lazio","Lecce","Milan","Monza","Napoli","Parma","Roma","Sassuolo","Torino","Udinese","Venezia","Italia"];
+const TYW={film:"Film",serie:"Serie",show:"Show",sport:"Sport in diretta",cinema:"Film in sala"};
+
+// ---------- STATO ----------
+let st = {tempo:"130",chi:"coppia",umore:["relax"],tipo:"tutto",gen:[],free:false,
+  subs:["netflix","prime","disney","dazn"], team:"Nessuna", citta:"", likes:{}, liked:[], disliked:[], seen:[]};
+try{const s=JSON.parse(localStorage.getItem("stasera")||"null"); if(s) st=Object.assign(st,s);}catch(e){}
+if(!Array.isArray(st.gen)) st.gen=[];
+const save=()=>{try{localStorage.setItem("stasera",JSON.stringify(st))}catch(e){}};
+const $=s=>document.querySelector(s);
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1700)};
+const nowHM=()=>{const d=new Date();return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
+function tick(){ $("#clock").innerHTML=nowHM()+`<small>${new Date().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"short"})}</small>` }
+tick(); setInterval(tick,30000);
+
+// ---------- DOMANDE ----------
+function renderAsk(){
+  document.querySelectorAll("#ask [data-k]").forEach(box=>{
+    const k=box.dataset.k, multi=box.dataset.multi, canEmpty=box.dataset.empty;
+    box.innerHTML=Q[k].map(q=>{
+      const v=q[0], on = multi? st[k].includes(v) : st[k]===v;
+      return k==="umore"
+        ? `<button class="mood ${on?'on':''}" data-v="${v}" aria-pressed="${on}"><em>${q[1]}</em>${q[2]}</button>`
+        : `<button class="chip ${on?'on':''}" data-v="${v}" aria-pressed="${on}">${q[1]}</button>`}).join("");
+    box.onclick=e=>{const b=e.target.closest("button");if(!b)return;const v=b.dataset.v;
+      if(multi){st[k]=st[k].includes(v)?st[k].filter(x=>x!==v):[...st[k],v]; if(!st[k].length && !canEmpty) st[k]=[v];}
+      else st[k]=v;
+      save();renderAsk();};
+  });
+  $("#sw-free").classList.toggle("on",st.free); $("#sw-free").setAttribute("aria-checked",st.free);
+  $("#q-citta").classList.toggle("hide",st.tipo!=="cinema"); $(".toggle").classList.toggle("hide",st.tipo==="cinema");
+}
+$("#sw-free").onclick=()=>{st.free=!st.free;save();renderAsk()};
+
+// ---------- MOTORE DI SCELTA ----------
+const available = it => allSrc(it).some(has);
+function score(it){
+  let sc=0, why=[];
+  const mm=it.m.filter(x=>st.umore.includes(x));
+  if(mm.length){sc+=3*mm.length; why.push("hai voglia di <b>"+mm.map(x=>MOODW[x]).join(" e ")+"</b>")}
+  if(st.gen.length && it.ty!=="sport" && genOk(it)) why.unshift("cercavi <b>"+st.gen.filter(k=>GEN[k][1].test(it.g)).map(k=>GEN[k][0].slice(3).toLowerCase()).join(" o ")+"</b>");
+  if(it.w.includes(st.chi)){sc+=2; why.push("va bene da guardare <b>"+CHIW[st.chi]+"</b>")}
+  if(st.chi==="famiglia" && it.kids){sc+=2}
+  if(it.teams && st.team!=="Nessuna" && it.teams.includes(st.team)){sc+=8; why.unshift("gioca <b>"+st.team+"</b>")}
+  if(it.time){sc+=1; why.push("inizia alle <b>"+it.time+"</b>")}
+  if(isFree(it)) why.push("è <b>gratis</b>");
+  const gl=st.likes[it.g]||0; if(gl){sc+=gl*1.5; if(gl>0) why.push("ti sono piaciuti altri titoli <b>"+it.g.toLowerCase()+"</b>")}
+  if(st.disliked.includes(it.t)) sc-=20;
+  if(st.seen.includes(it.t)) sc-=4;
+  if(it.v){ sc+=(it.v-6.5)*0.8; if(it.v>=7.8) why.push("ha un voto alto, <b>"+it.v+"</b>"); }
+  if(it.pop) sc+=Math.min(3,Math.log10(it.pop+1));
+  if(it.nuovo){ sc+=1; why.push("è appena uscito"); }
+  return {sc,why};
+}
+function candidates(noTime){
+  const tmax=noTime?9999:+st.tempo;
+  const pool = st.tipo==="cinema" ? CIN : C;
+  return pool.filter(it=>{
+    if(!available(it)) return false;
+    if(st.free && st.tipo!=="cinema" && !isFree(it)) return false;
+    if(st.tipo!=="tutto" && it.ty!==st.tipo) return false;
+    if(st.tipo==="tutto" && it.ty==="sport" && !st.umore.includes("sport") && !(it.teams&&it.teams.includes(st.team))) return false;
+    if(st.umore.length===1 && st.umore[0]==="sport" && it.ty!=="sport") return false;
+    if(it.ty!=="serie" && it.dur && it.dur>tmax) return false;
+    if(it.cat && (it.v<6 || it.pop<4) && st.tipo!=="cinema") return false;
+    if(it.ty!=="sport" && !genOk(it)) return false;
+    if(it.ty==="sport" && st.gen.length && !st.umore.includes("sport") && st.tipo!=="sport") return false;
+    if(it.w.length===1 && it.w[0]==="famiglia" && st.chi!=="famiglia") return false;
+    return true;
+  }).map(it=>({it,...score(it)})).sort((a,b)=>b.sc-a.sc);
+}
+let list=[], idx=0;
+function pickNow(){ list=candidates(); if(!list.length){ list=candidates(true); list.forEach(x=>x.why.unshift("è il più adatto, anche se dura <b>più del tempo che hai</b>")); } idx=0; showRes(false); }
+
+function osd(it){
+  if(it.ty==="cinema") return `<div class="osd"><div><span class="chn" style="font-size:26px;margin:0">AL CINEMA</span><span class="chn">${st.citta||"in Italia"}</span></div><span class="when">IN SALA</span></div>`;
+  const k=mySrc(it)[0], s=SRC[k];
+  const left = s.lcn ? `<span class="ch">${s.lcn}</span><span class="chn">${s.n}</span>` : `<span class="chn" style="font-size:24px;margin:0">${mySrc(it).map(x=>SRC[x].n).join(" / ")}</span>`;
+  const right = it.time ? `<span class="when live"><span class="dot"></span>${it.time}</span>` : `<span class="when">ON DEMAND</span>`;
+  return `<div class="osd"><div>${left}</div>${right}</div>`;
+}
+function facts(it){
+  const f=[];
+  if(it.v) f.push(`<span class="star">★ ${it.v}</span>`);
+  if(it.y) f.push(`<span>${it.y}</span>`);
+  if(it.dur) f.push(`<span><b>${it.ty==="serie"?it.dur+" min a episodio":it.dur+" min"}</b></span>`);
+  f.push(`<span>${it.g}</span>`);
+  if(isFree(it)) f.push(`<span class="free">Gratis</span>`);
+  if(it.nuovo) f.push(`<span class="new">${it.ty==="cinema"?"Appena uscito":"Novità"}</span>`);
+  if(it.uscita) f.push(`<span>In sala dal ${new Date(it.uscita).toLocaleDateString("it-IT",{day:"numeric",month:"long"})}</span>`);
+  return f.join("");
+}
+function showRes(zap){
+  $("#ask").classList.add("hide"); const r=$("#res"); r.classList.remove("hide");
+  if(!list.length){
+    r.innerHTML=`<button class="back" id="bk">‹ Cambia risposte</button><div class="empty"><div class="e">NO SEGNALE</div><p>Nessun titolo corrisponde alle tue risposte.<br>Togli qualche genere, scegli “Sorprendimi” o disattiva “Solo cose gratis”.</p></div>`;
+    $("#bk").onclick=back; return;
+  }
+  const n=list.length, main=list[idx%n], it=main.it;
+  const alts=[1,2,3,4].map(i=>list[(idx+i)%n]).filter((a,i,arr)=>a!==main && arr.indexOf(a)===i);
+  const fb=st.liked.includes(it.t)?"y":st.disliked.includes(it.t)?"n":"";
+  r.innerHTML=`
+   <button class="back" id="bk">‹ Cambia risposte</button>
+   <div class="tv ${zap?'zap':''}">
+     <div class="screen" style="${bgOf(it,500)}">
+       ${osd(it)}
+       ${it.p?"":`<div class="big-emoji" aria-hidden="true">${it.e}</div>`}
+       <div><div class="kind">${TYW[it.ty]}${it.time?" · "+PAL.etichetta:""}</div><div class="title">${it.t}</div></div>
+     </div>
+   </div>
+   <div class="facts">${facts(it)}</div>
+   <p class="plot" id="plot">${it.d||"…"}</p>
+   ${it.ty==="cinema"?`<a class="orari" target="_blank" rel="noopener" href="https://www.google.com/search?q=${encodeURIComponent(it.t+" orari cinema "+(st.citta||""))}">🎟️ Orari e sale${st.citta?" a "+st.citta:""}</a>`:""}
+   <p class="why">Te lo propongo perché ${main.why.slice(0,3).join(", ")||"è una buona scelta per stasera"}.</p>
+   <div class="remote">
+     <button class="rbtn yes ${fb==='y'?'sel':''}" id="yes" aria-label="Mi piace">👍</button>
+     <button class="zapbtn" id="other"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>${it.ty==="cinema"?"Un altro film":"Cambia canale"}</button>
+     <button class="rbtn no ${fb==='n'?'sel':''}" id="no" aria-label="Non mi piace">👎</button>
+   </div>
+   ${alts.length?`<h3 class="more-h">${it.ty==="cinema"?"Altri film in sala":"Sugli altri canali"}</h3><div class="strip">`+alts.map(a=>{const s=SRC[mySrc(a.it)[0]];return `
+     <button class="mini" data-t="${a.it.t.replace(/"/g,'&quot;')}">
+       <div class="ms" style="${bgOf(a.it,342)}"><span class="mo">${a.it.ty==="cinema"?"IN SALA":(s.lcn||s.n)}${a.it.time?" · "+a.it.time:""}</span><span class="me">${a.it.p?"":a.it.e}</span></div>
+       <b>${a.it.t}</b><span>${a.it.g}${a.it.v?" · ★ "+a.it.v:""}</span></button>`}).join("")+`</div>`:""}
+   <p class="banner" id="rb"></p>`;
+  $("#rb").innerHTML=$("#banner").innerHTML;
+  if(!it.d) loadPlot(it);
+  $("#bk").onclick=back;
+  $("#other").onclick=()=>{idx++;showRes(true)};
+  $("#yes").onclick=()=>feedback(it,1);
+  $("#no").onclick=()=>feedback(it,-1);
+  r.querySelectorAll(".mini").forEach(el=>el.onclick=()=>{idx=list.findIndex(x=>x.it.t===el.dataset.t);showRes(true);window.scrollTo({top:0,behavior:"smooth"})});
+}
+function feedback(it,v){
+  st.likes[it.g]=(st.likes[it.g]||0)+v;
+  if(v>0){ if(!st.liked.includes(it.t)) st.liked.push(it.t); st.disliked=st.disliked.filter(x=>x!==it.t); if(!st.seen.includes(it.t)) st.seen.push(it.t); toast("Buona visione! Popcorno se lo ricorda"); save(); showRes(false); }
+  else { if(!st.disliked.includes(it.t)) st.disliked.push(it.t); st.liked=st.liked.filter(x=>x!==it.t); toast("Ok, meno "+it.g.toLowerCase()+" d'ora in poi"); save(); setTimeout(()=>{list=candidates();idx=0;showRes(true)},450); }
+}
+function back(){ $("#res").classList.add("hide"); $("#ask").classList.remove("hide"); window.scrollTo({top:0}); }
+$("#go").onclick=()=>{pickNow();window.scrollTo({top:0})};
+
+// ---------- GUIDA TV ----------
+let gf="tutti";
+function lcnBox(it){const k=mySrc(it)[0],s=SRC[k];return s.lcn?`<div class="lcn">${s.lcn}<small>${s.n}</small></div>`:`<div class="lcn app">${s.n}</div>`}
+function renderGuide(){
+  const F=[["tutti","Tutto"],["film","Film"],["serie","Serie"],["show","Show"],["sport","Sport"],["gratis","Solo gratis"],["nuovo","Novità streaming"],["cinema","Al cinema"]];
+  $("#gfil").innerHTML=F.map(([v,l])=>`<button class="chip ${gf===v?'on':''}" data-v="${v}">${l}</button>`).join("");
+  $("#gfil").onclick=e=>{const b=e.target.closest(".chip");if(b){gf=b.dataset.v;renderGuide()}};
+  if(gf==="cinema"){
+    const cs=[...CIN].sort((a,b)=>(b.pop||0)-(a.pop||0));
+    $("#guide").innerHTML=cs.length?`<p class="sub">I film nelle sale italiane. Tocca un titolo per gli orari${st.citta?" a "+st.citta:""}.</p>`+cs.map(it=>`
+      <a class="row" style="color:inherit;text-decoration:none" target="_blank" rel="noopener" href="https://www.google.com/search?q=${encodeURIComponent(it.t+" orari cinema "+(st.citta||""))}"><div class="lcn app">🎟️<small>${it.dur} min</small></div><div><b>${it.t}</b><div class="ty">${it.g}${it.nuovo?" · appena uscito":""}</div></div><div class="t st">${it.v?"★ "+it.v:""}</div></a>`).join("")
+      :`<div class="empty"><div class="e">SALA VUOTA</div><p>L'elenco dei film in sala non è disponibile oggi.</p></div>`;
+    return;
+  }
+  if(gf==="nuovo"){
+    const nv=C.filter(it=>it.nuovo && available(it)).sort((a,b)=>(b.v||0)-(a.v||0));
+    $("#guide").innerHTML=nv.length?nv.map(it=>`
+      <div class="row">${lcnBox(it)}<div><b>${it.t}</b><div class="ty">${it.ty==="film"?"Film":"Serie"} · ${it.g}${it.y?" · "+it.y:""}</div></div><div class="t st">${it.v?"★ "+it.v:""}</div></div>`).join("")
+      :`<div class="empty"><div class="e">NESSUNA NOVITÀ</div><p>Aggiungi i tuoi abbonamenti nel Profilo per vedere le novità.</p></div>`;
+    return;
+  }
+  const rows=C.filter(it=>it.time).filter(it=> gf==="tutti"||(gf==="gratis"?isFree(it):it.ty===gf))
+    .filter(it=>available(it)).sort((a,b)=>a.time.localeCompare(b.time));
+  const today=new Date(), iso=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+  const now=nowHM(); let marked = PAL.data!==iso;
+  $("#guide").innerHTML=rows.length?rows.map(it=>{
+    let line=""; if(!marked && it.time>now){marked=true; line=`<div class="nowline">ORA ${now}</div>`;}
+    return line+`<div class="row">${lcnBox(it)}<div><b>${it.e} ${it.t}</b><div class="ty">${it.g} · ${it.dur} min${it.v?" · ★ "+it.v:""}${it.teams&&it.teams.includes(st.team)?" · la tua squadra":""}</div></div><div class="t">${it.time}</div></div>`}).join("")
+    :`<div class="empty"><div class="e">NO SEGNALE</div><p>Niente in onda con questo filtro. Prova “Tutto”.</p></div>`;
+}
+
+// ---------- PROFILO ----------
+function renderProf(){
+  const pay=Object.keys(SRC).filter(k=>!SRC[k].free&&!SRC[k].via&&!SRC[k].sala);
+  $("#subs").innerHTML=pay.map(k=>`<button class="chip ${st.subs.includes(k)?'on':''}" data-k="${k}" aria-pressed="${st.subs.includes(k)}">${SRC[k].n}</button>`).join("");
+  $("#subs").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const k=b.dataset.k;
+    st.subs=st.subs.includes(k)?st.subs.filter(x=>x!==k):[...st.subs,k];save();renderProf();if(st.subs.includes(k)) loadCatalogs();};
+  $("#freesrc").textContent=Object.keys(SRC).filter(k=>SRC[k].free).map(k=>SRC[k].n).join(", ");
+  $("#citta2").value=st.citta||""; $("#citta2").onchange=e=>{st.citta=e.target.value.trim();$("#citta").value=st.citta;save();toast(st.citta?"Città: "+st.citta:"Città rimossa")};
+  $("#team").innerHTML=TEAMS.map(t=>`<option ${st.team===t?'selected':''}>${t}</option>`).join("");
+  $("#team").onchange=e=>{st.team=e.target.value;save();toast(st.team==="Nessuna"?"Squadra rimossa":"Forza "+st.team+"!")};
+  const top=Object.entries(st.likes).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1])[0];
+  $("#stats").innerHTML=`
+    <div class="stat"><b>${st.liked.length}</b><span>titoli che ti sono piaciuti</span></div>
+    <div class="stat"><b>${st.disliked.length}</b><span>titoli scartati</span></div>
+    <div class="stat" style="grid-column:span 2"><b>${top?top[0]:"—"}</b><span>${top?"il genere che preferisci finora":"Metti qualche 👍 e imparo i tuoi gusti"}</span></div>`;
+}
+
+// ---------- NAV ----------
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
+  ["scegli","onda","prof"].forEach(v=>$("#v-"+v).classList.toggle("hide",v!==b.dataset.v));
+  if(b.dataset.v==="onda") renderGuide();
+  if(b.dataset.v==="prof") renderProf();
+  window.scrollTo({top:0});
+});
+
+// ---------- STATO DEI DATI ----------
+(function(){
+  const oggi=new Date(); const iso=oggi.getFullYear()+"-"+String(oggi.getMonth()+1).padStart(2,"0")+"-"+String(oggi.getDate()).padStart(2,"0");
+  const vecchio = PAL.data && PAL.data < iso;
+  $("#banner").innerHTML = !PAL.items.length ? "Guida TV non disponibile: ti propongo solo titoli in streaming."
+    : vecchio ? `La guida TV è ferma a <b>${PAL.etichetta}</b>: gli orari potrebbero non valere per stasera.`
+    : `Guida TV di <b>${PAL.etichetta}</b>, aggiornata il ${PAL.aggiornato}.<span id="cat-count"></span>`;
+  $("#gtitle").textContent = "Guida di " + (PAL.etichetta||"stasera");
+  $("#gsub").textContent = "Fonti: " + (PAL.fonti||[]).join(", ");
+})();
+const CITTA=["Roma","Milano","Napoli","Torino","Palermo","Genova","Bologna","Firenze","Bari","Catania","Venezia","Verona","Messina","Padova","Trieste","Brescia","Parma","Taranto","Prato","Modena","Reggio Calabria","Reggio Emilia","Perugia","Ravenna","Livorno","Cagliari","Foggia","Rimini","Salerno","Ferrara","Sassari","Latina","Monza","Siracusa","Pescara","Bergamo","Trento","Vicenza","Terni","Bolzano","Novara","Piacenza","Ancona","Andria","Udine","Arezzo","Cesena","Lecce","Pesaro","La Spezia","Como","Pisa","Lucca","Treviso","Varese","Caserta","Cosenza","Catanzaro","Potenza","L'Aquila","Campobasso","Aosta","Matera","Benevento","Avellino","Siena","Viterbo","Frosinone","Agrigento","Trapani","Ragusa"];
+$("#citta-list").innerHTML=CITTA.map(c=>`<option value="${c}">`).join("");
+$("#citta").value=st.citta||"";
+$("#citta").addEventListener("change",e=>{st.citta=e.target.value.trim();save();});
+
+// ---------- SITO: locandine, catalogo completo, trame, ricerca ----------
+const IMG = (p,w)=>`https://image.tmdb.org/t/p/w${w}${p}`;
+function bgOf(it,w){
+  const g=`linear-gradient(150deg,${it.c[0]},${it.c[1]})`;
+  return it.p ? `background:linear-gradient(180deg,#0006 0%,#0000 35%,#000c 100%),url('${IMG(it.p,w)}') center/cover,${g}` : `background:${g}`;
+}
+const GT={28:["Azione",["tensione"],"💥",["#cb2d3e","#ef473a"]],12:["Avventura",["emozione","tensione"],"🗺️",["#f7971e","#c94b4b"]],16:["Animazione",["risate","emozione"],"🎨",["#56ccf2","#2f80ed"]],35:["Commedia",["risate","relax"],"😂",["#f7971e","#ffd200"]],80:["Crime",["tensione"],"🕵️",["#232526","#414345"]],99:["Documentario",["relax"],"🌍",["#56ab2f","#a8e063"]],18:["Drammatico",["emozione"],"🎭",["#41295a","#2f0743"]],10751:["Famiglia",["risate","relax"],"👨‍👩‍👧",["#74ebd5","#9face6"]],14:["Fantasy",["emozione","tensione"],"🐉",["#3a1c71","#d76d77"]],36:["Storico",["emozione"],"📜",["#3e5151","#decba4"]],27:["Horror",["tensione"],"👻",["#1a0000","#7a0000"]],10402:["Musicale",["emozione","relax"],"🎵",["#c31432","#240b36"]],9648:["Mistero",["tensione"],"🔎",["#141e30","#243b55"]],10749:["Romantico",["emozione","relax"],"💕",["#a8577e","#f1a7a1"]],878:["Fantascienza",["tensione","emozione"],"🚀",["#0f2027","#2c5364"]],53:["Thriller",["tensione"],"😬",["#232526","#5b5e49"]],10752:["Guerra",["tensione","emozione"],"🎖️",["#3a3a1c","#6b6b3a"]],37:["Western",["tensione"],"🤠",["#8e5b2e","#d9a35b"]],10759:["Azione",["tensione"],"💥",["#cb2d3e","#ef473a"]],10762:["Per bambini",["risate","relax"],"🧸",["#56ccf2","#2f80ed"]],10765:["Fantascienza",["tensione","emozione"],"🚀",["#0f2027","#2c5364"]],10764:["Reality",["relax","risate"],"🏠",["#ff512f","#dd2476"]],10766:["Soap",["emozione","relax"],"💌",["#ee9ca7","#ffdde1"]],10768:["Politica",["tensione"],"🏛️",["#283048","#859398"]],10763:["Attualità",["relax"],"📰",["#283048","#859398"]],10767:["Talk show",["relax"],"🎙️",["#283048","#859398"]]};
+const KIDG=new Set([16,10751,10762]);
+const byTmdb=new Map(); C.concat(CIN).forEach(it=>{ if(it.tmdb) byTmdb.set(it.tmdb,it); });
+let catCount=0;
+function fromRow(key,r){
+  const [id,tp,t,y,v,gs,pop,p]=r, kind=tp?"tv":"movie", tm=kind+"/"+id;
+  const ex=byTmdb.get(tm);
+  if(ex){ if(ex.s!==key && !(ex.also||[]).includes(key)) (ex.also=ex.also||[]).push(key); if(!ex.p&&p) ex.p=p; if(!ex.pop) ex.pop=pop; return null; }
+  const g=GT[gs.find(x=>GT[x])]||["Varie",["relax"],"🎬",["#614385","#516395"]];
+  const kids=gs.some(x=>KIDG.has(x)) && !gs.includes(27) && !gs.includes(53);
+  const it={t,ty:tp?"serie":"film",s:key,dur:0,m:g[1],w:kids?["famiglia","coppia","amici"]:(["Horror","Thriller","Crime"].includes(g[0])?["solo","coppia"]:["solo","coppia","amici"]),g:g[0],e:g[2],c:g[3],d:"",v,y,p,pop,tmdb:tm,cat:1};
+  if(kids) it.kids=1;
+  byTmdb.set(tm,it); return it;
+}
+async function loadCatalogs(){
+  const keys=Object.keys(SRC).filter(k=>(SRC[k].free && !SRC[k].lcn && k!=="samsung") || (!SRC[k].free && !SRC[k].via && !SRC[k].sala && k!=="dazn" && st.subs.includes(k)));
+  for(const k of keys){
+    try{
+      const r=await fetch(`data/catalogo/${k}.json`); if(!r.ok) continue;
+      const j=await r.json(); let n=0;
+      for(const row of j.t){ const it=fromRow(k,row); if(it){C.push(it);n++;} }
+      catCount+=j.t.length;
+    }catch(e){}
+  }
+  const b=$("#cat-count"); if(b) b.textContent=catCount?` Catalogo streaming: ${catCount.toLocaleString("it-IT")} titoli.`:"";
+}
+const plotCache={};
+async function loadPlot(it){
+  if(!it.tmdb) return; const [kind,id]=it.tmdb.split("/"); const k=(kind==="tv"?"t":"m")+id, b=(+id)%100;
+  try{ plotCache[b]=plotCache[b]||await (await fetch(`data/trame/${b}.json`)).json(); }catch(e){ plotCache[b]={}; }
+  it.d=plotCache[b][k]||(it.ty==="film"?"Film":"Serie")+(it.y?" del "+it.y:"")+".";
+  const el=$("#plot"); if(el) el.textContent=it.d;
+}
+function showOne(it){
+  list=[{it,sc:99,why:["l'hai cercato tu"].concat(isFree(it)?["è <b>gratis</b>"]:[])}].concat(candidates().filter(x=>x.it!==it));
+  idx=0; document.querySelector('nav button[data-v=scegli]').click(); showRes(false);
+}
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+$("#cerca").addEventListener("input",e=>{
+  const q=norm(e.target.value.trim());
+  if(q.length<2){ renderGuide(); return; }
+  const res=C.concat(CIN).filter(it=>norm(it.t).includes(q)).sort((a,b)=>(norm(b.t).startsWith(q)-norm(a.t).startsWith(q))||((b.pop||0)-(a.pop||0))).slice(0,40);
+  $("#guide").innerHTML=res.length?res.map((it,i)=>`<button class="row" data-i="${i}" style="width:100%;background:none;border:0;border-bottom:1px solid #2f377a88;text-align:left">${lcnBox(it)}<div><b>${it.t}</b><div class="ty">${TYW[it.ty]||""} · ${it.g}${it.y?" · "+it.y:""}${available(it)?"":" · non nei tuoi abbonamenti"}</div></div><div class="t st">${it.v?"★ "+it.v:""}</div></button>`).join("")
+    :`<div class="empty"><div class="e">NIENTE</div><p>Nessun titolo con questo nome. Prova a scriverlo in modo diverso.</p></div>`;
+  $("#guide").querySelectorAll("button.row").forEach(b=>b.onclick=()=>showOne(res[+b.dataset.i]));
+});
+if("serviceWorker" in navigator){ try{ navigator.serviceWorker.register("sw.js"); }catch(e){} }
+loadCatalogs();
+renderAsk();
+</script>
+</body>
+</html>
