@@ -266,15 +266,17 @@ const Q = {
   tempo:[["90","Un'ora e mezza"],["130","Circa 2 ore"],["999","Tutta la sera"]],
   chi:[["solo","Da solo"],["coppia","In coppia"],["famiglia","In famiglia"],["amici","Con gli amici"]],
   umore:[["risate","😂","Ridere"],["emozione","🥹","Emozione"],["tensione","😬","Tensione"],["relax","😌","Relax"],["sport","⚽","Sport"]],
-  tipo:[["tutto","Sorprendimi"],["film","Film"],["serie","Serie"],["show","Show"],["sport","Sport"],["cinema","🎟️ Al cinema"],["essai","🎞️ D'essai"]]
+  tipo:[["tutto","Sorprendimi"],["film","Film"],["serie","Serie"],["show","Show"],["sport","Sport"],["cinema","🎟️ Al cinema"]]
 };
 const GEN={horror:["👻 Horror",/horror/i],western:["🤠 Western",/western/i],commedia:["😂 Commedia",/commedia|satira|sitcom/i],
   azione:["💥 Azione",/azione|avventura|guerra/i],giallo:["🔎 Giallo e thriller",/giallo|thriller|crime|mistero|polizi|legal|cronaca/i],
   fanta:["🚀 Fantascienza e fantasy",/fantascienza|fantasy/i],romantico:["💕 Romantico",/romantic/i],drammatico:["🎭 Drammatico",/dramm/i],
   animazione:["🧸 Animazione",/animazione|cartoni|bambini|ragazzi|famiglia/i],documentario:["🌍 Documentari",/document|viaggi|storic/i],
-  reality:["🏠 Reality e talent",/reality|talent|cucina/i]};
+  reality:["🏠 Reality e talent",/reality|talent|cucina/i],essai:["🎞️ D'essai",null]};
 Q.gen=Object.entries(GEN).map(([k,v])=>[k,v[0]]);
-const genOk = it => !st.gen.length || st.gen.some(k=>GEN[k][1].test(it.g));
+const genHit = (k,it) => k==="essai" ? isEssai(it) : GEN[k][1].test(it.g);
+const genOk = it => !st.gen.length || st.gen.some(k=>genHit(k,it));
+const wantEssai = () => st.gen.includes("essai");
 const MOODW={risate:"ridere",emozione:"emozionarti",tensione:"un po' di tensione",relax:"rilassarti",sport:"sport"};
 const CHIW={solo:"da solo",coppia:"in coppia",famiglia:"in famiglia",amici:"con gli amici"};
 const TEAMS=["Nessuna","Atalanta","Bologna","Cagliari","Como","Fiorentina","Frosinone","Genoa","Inter","Juventus","Lazio","Lecce","Milan","Monza","Napoli","Parma","Roma","Sassuolo","Torino","Udinese","Venezia","Italia"];
@@ -296,6 +298,7 @@ let st = {tempo:"130",chi:"coppia",umore:["relax"],tipo:"tutto",gen:[],free:fals
   subs:["netflix","prime","disney","dazn"], team:"Nessuna", citta:"", likes:{}, liked:[], disliked:[], seen:[]};
 try{const s=JSON.parse(localStorage.getItem("stasera")||"null"); if(s) st=Object.assign(st,s);}catch(e){}
 if(!Array.isArray(st.gen)) st.gen=[];
+if(st.tipo==="essai"){ st.tipo="film"; if(!st.gen.includes("essai")) st.gen.push("essai"); }
 const save=()=>{try{localStorage.setItem("stasera",JSON.stringify(st))}catch(e){}};
 const $=s=>document.querySelector(s);
 const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1700)};
@@ -318,7 +321,7 @@ function renderAsk(){
       save();renderAsk();};
   });
   $("#sw-free").classList.toggle("on",st.free); $("#sw-free").setAttribute("aria-checked",st.free);
-  $("#q-citta").classList.toggle("hide",st.tipo!=="cinema"&&st.tipo!=="essai"); $(".toggle").classList.toggle("hide",st.tipo==="cinema");
+  $("#q-citta").classList.toggle("hide",st.tipo!=="cinema"); $(".toggle").classList.toggle("hide",st.tipo==="cinema");
 }
 $("#sw-free").onclick=()=>{st.free=!st.free;save();renderAsk()};
 
@@ -328,7 +331,7 @@ function score(it){
   let sc=0, why=[];
   const mm=it.m.filter(x=>st.umore.includes(x));
   if(mm.length){sc+=3*mm.length; why.push("hai voglia di <b>"+mm.map(x=>MOODW[x]).join(" e ")+"</b>")}
-  if(st.gen.length && it.ty!=="sport" && genOk(it)) why.unshift("cercavi <b>"+st.gen.filter(k=>GEN[k][1].test(it.g)).map(k=>GEN[k][0].slice(3).toLowerCase()).join(" o ")+"</b>");
+  if(st.gen.length && it.ty!=="sport" && genOk(it)) why.unshift("cercavi <b>"+st.gen.filter(k=>genHit(k,it)).map(k=>k==="essai"?"un film d'essai":GEN[k][0].replace(/^\S+\s/,"").toLowerCase()).join(" o ")+"</b>");
   if(it.w.includes(st.chi)){sc+=2; why.push("va bene da guardare <b>"+CHIW[st.chi]+"</b>")}
   if(st.chi==="famiglia" && it.kids){sc+=2}
   if(it.teams && st.team!=="Nessuna" && it.teams.includes(st.team)){sc+=8; why.unshift("gioca <b>"+st.team+"</b>")}
@@ -339,22 +342,22 @@ function score(it){
   if(st.seen.includes(it.t)) sc-=4;
   if(it.v){ sc+=(it.v-6.5)*0.8; if(it.v>=7.8) why.push("ha un voto alto, <b>"+it.v+"</b>"); }
   if(it.pop) sc+=Math.min(3,Math.log10(it.pop+1));
-  if(st.tipo==="essai" && it.v){ const ve=(it.v*(it.vc||0)+7*300)/((it.vc||0)+300); sc+=(ve-7)*6; }
-  if(st.tipo==="essai"){ if(allSrc(it).includes("mubi")) why.unshift("è nella selezione di <b>MUBI</b>"); else if(it.vc) why.unshift("è amato dalla critica (<b>"+it.vc+" voti</b>)"); }
+  if(wantEssai() && isEssai(it) && it.v){ const ve=(it.v*(it.vc||0)+7*300)/((it.vc||0)+300); sc+=(ve-7)*6; }
+  if(wantEssai() && isEssai(it)){ if(allSrc(it).includes("mubi")) why.unshift("è nella selezione di <b>MUBI</b>"); else if(it.vc) why.unshift("è amato dalla critica (<b>"+it.vc+" voti</b>)"); }
   if(it.nuovo){ sc+=1; why.push("è appena uscito"); }
   return {sc,why};
 }
 function candidates(noTime){
   const tmax=noTime?9999:+st.tempo;
-  const pool = st.tipo==="cinema" ? CIN : st.tipo==="essai" ? C.concat(CIN).filter(isEssai) : C;
+  const pool = st.tipo==="cinema" ? CIN : C;
   return pool.filter(it=>{
     if(!available(it)) return false;
     if(st.free && st.tipo!=="cinema" && !isFree(it)) return false;
-    if(st.tipo!=="tutto" && st.tipo!=="essai" && it.ty!==st.tipo) return false;
+    if(st.tipo!=="tutto" && it.ty!==st.tipo) return false;
     if(st.tipo==="tutto" && it.ty==="sport" && !st.umore.includes("sport") && !(it.teams&&it.teams.includes(st.team))) return false;
     if(st.umore.length===1 && st.umore[0]==="sport" && it.ty!=="sport") return false;
     if(it.ty!=="serie" && it.dur && it.dur>tmax) return false;
-    if(it.cat && (it.v<6 || it.pop<4) && st.tipo!=="cinema" && st.tipo!=="essai") return false;
+    if(it.cat && (it.v<6 || it.pop<4) && st.tipo!=="cinema" && !(wantEssai() && isEssai(it))) return false;
     if(it.ty!=="sport" && !genOk(it)) return false;
     if(it.ty==="sport" && st.gen.length && !st.umore.includes("sport") && st.tipo!=="sport") return false;
     if(it.w.length===1 && it.w[0]==="famiglia" && st.chi!=="famiglia") return false;
@@ -400,7 +403,7 @@ function showRes(zap){
      <div class="screen" style="${bgOf(it,500)}">
        ${osd(it)}
        ${it.p?"":`<div class="big-emoji" aria-hidden="true">${it.e}</div>`}
-       <div><div class="kind">${L?"🍀 Scelto per te · ":""}${st.tipo==="essai"&&isEssai(it)?(it.ty==="cinema"?"D'essai in sala":"Film d'essai"):TYW[it.ty]}${it.time?" · "+PAL.etichetta:""}</div><div class="title">${it.t}</div></div>
+       <div><div class="kind">${L?"🍀 Scelto per te · ":""}${wantEssai()&&isEssai(it)?(it.ty==="cinema"?"D'essai in sala":"Film d'essai"):TYW[it.ty]}${it.time?" · "+PAL.etichetta:""}</div><div class="title">${it.t}</div></div>
      </div>
    </div>
    <div class="facts">${facts(it)}</div>
