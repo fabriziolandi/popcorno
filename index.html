@@ -71,6 +71,7 @@ h1.q-title{font:800 40px/1.02 "Bricolage Grotesque",sans-serif;letter-spacing:-1
 .lucky .clover{font-size:34px;line-height:1}
 .lucky b{display:block;font:800 21px/1.1 "Bricolage Grotesque",sans-serif;letter-spacing:-.4px}
 .lucky small{display:block;font-size:13px;color:#c6f5dd;margin-top:3px}
+.again{display:block;margin:-12px auto 28px;padding:12px 22px;border-radius:999px;border:1.5px solid #7dfcb055;background:transparent;color:#c6f5dd;font:700 15px Figtree,sans-serif}
 .or{text-align:center;color:var(--muto);font-size:13px;margin:4px 0 22px}
 .power{width:100%;border:0;border-radius:22px;padding:20px;font:800 20px "Bricolage Grotesque",sans-serif;letter-spacing:-.3px;
   background:var(--luce);color:#2a1700;box-shadow:0 0 0 6px #ffb54722,0 18px 40px -12px #ffb547aa;display:flex;align-items:center;justify-content:center;gap:12px}
@@ -397,6 +398,7 @@ function showRes(zap){
      <button class="zapbtn" id="other">${L?"🍿 Ok, si guarda!":`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>${it.ty==="cinema"?"Un altro film":"Cambia canale"}`}</button>
      <button class="rbtn no ${fb==='n'?'sel':''}" id="no" aria-label="Non mi piace">👎</button>
    </div>
+   ${L?`<button class="again" id="again">🍀 Un'altra proposta</button>`:""}
    ${alts.length?`<h3 class="more-h">${it.ty==="cinema"?"Altri film in sala":"Sugli altri canali"}</h3><div class="strip">`+alts.map(a=>{const s=SRC[mySrc(a.it)[0]];return `
      <button class="mini" data-t="${a.it.t.replace(/"/g,'&quot;')}">
        <div class="ms" style="${bgOf(a.it,342)}"><span class="mo">${a.it.ty==="cinema"?"IN SALA":(s.lcn||s.n)}${a.it.time?" · "+a.it.time:""}</span><span class="me">${a.it.p?"":a.it.e}</span></div>
@@ -407,13 +409,14 @@ function showRes(zap){
   $("#bk").onclick=back;
   $("#other").onclick=()=>{ if(L) feedback(it,1); else {idx++;showRes(true)} };
   $("#yes").onclick=()=>feedback(it,1);
+  if(L) $("#again").onclick=()=>{ luckySkip.add(it.t); lucky(); };
   $("#no").onclick=()=>feedback(it,-1);
   r.querySelectorAll(".mini").forEach(el=>el.onclick=()=>{idx=list.findIndex(x=>x.it.t===el.dataset.t);showRes(true);window.scrollTo({top:0,behavior:"smooth"})});
 }
 function feedback(it,v){
   st.likes[it.g]=(st.likes[it.g]||0)+v;
   if(v>0){ if(!st.liked.includes(it.t)) st.liked.push(it.t); st.disliked=st.disliked.filter(x=>x!==it.t); if(!st.seen.includes(it.t)) st.seen.push(it.t); toast("Buona visione! Popcorno se lo ricorda"); save(); showRes(false); }
-  else { if(!st.disliked.includes(it.t)) st.disliked.push(it.t); st.liked=st.liked.filter(x=>x!==it.t); toast("Ok, meno "+it.g.toLowerCase()+" d'ora in poi"); save(); setTimeout(()=>{ if(luckyMode) lucky(); else {list=candidates();idx=0;showRes(true)} },450); }
+  else { if(!st.disliked.includes(it.t)) st.disliked.push(it.t); st.liked=st.liked.filter(x=>x!==it.t); toast("Ok, meno "+it.g.toLowerCase()+" d'ora in poi"); save(); setTimeout(()=>{ if(luckyMode){ luckySkip.add(it.t); lucky(); return; } else {list=candidates();idx=0;showRes(true)} },450); }
 }
 function back(){ $("#res").classList.add("hide"); $("#ask").classList.remove("hide"); window.scrollTo({top:0}); }
 $("#go").onclick=()=>{pickNow();window.scrollTo({top:0})};
@@ -548,6 +551,7 @@ loadCatalogs();
 
 // ---------- MI SENTO FORTUNATO: una sola proposta dai gusti del profilo ----------
 const elenco=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" e "+a[a.length-1];
+const luckySkip=new Set();
 function lucky(){
   const d=new Date(), iso=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
   const now=nowHM(), live=PAL.data===iso;
@@ -555,7 +559,7 @@ function lucky(){
   const likedG=new Set(C.filter(x=>st.liked.includes(x.t)).map(x=>x.g));
   const scored=[];
   for(const it of C){
-    if(it.ty==="cinema"||!available(it)||st.disliked.includes(it.t)||st.seen.includes(it.t)) continue;
+    if(it.ty==="cinema"||!available(it)||st.disliked.includes(it.t)||st.seen.includes(it.t)||luckySkip.has(it.t)) continue;
     if(it.time){ if(!live) continue; const [hh,mm]=it.time.split(":").map(Number); const late=hh<5; if(!late && it.time<now && (Date.now()-new Date(d.getFullYear(),d.getMonth(),d.getDate(),hh,mm))>15*60000) continue; }
     if(it.cat && (it.v<6.8 || it.pop<10)) continue;
     if(it.w.length===1 && it.w[0]==="famiglia" && !kidsOk) continue;
@@ -584,7 +588,7 @@ function lucky(){
   for(let i=0;i<top.length;i++){ r-=w[i]; if(r<=0){ pick=top[i]; break; } }
   list=[pick]; idx=0; showRes(true); window.scrollTo({top:0});
 }
-$("#lucky").onclick=lucky;
+$("#lucky").onclick=()=>{ luckySkip.clear(); lucky(); };
 renderAsk();
 </script>
 </body>
