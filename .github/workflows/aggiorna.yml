@@ -1,17 +1,23 @@
 name: Aggiorna dati Popcorno
 
+# Legge guida TV, cataloghi, film e orari dei cinema e pubblica il sito.
+# I dati generati non vengono salvati nella cronologia del repository: vanno
+# direttamente nel sito. Si salvano solo data/tv.json e data/meta.json (piccoli),
+# cosi' se una lettura fallisce resta la guida precedente.
+
 on:
   schedule:
-    - cron: "40 6 * * *"    # 07:40 ora italiana (inverno)
+    - cron: "40 6 * * *"    # 07:40 ora italiana (inverno): anche orari dei cinema
     - cron: "10 14 * * *"   # 15:10: guida definitiva della sera
-    - cron: "20 17 * * *"   # 18:20: riserva, se le altre sono saltate
+    - cron: "20 17 * * *"   # 18:20: riserva
   push:
-    paths:
-      - "data/tv.json"       # quando arriva la nuova guida TV di oggi
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: aggiorna
@@ -20,44 +26,76 @@ concurrency:
 jobs:
   aggiorna:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Data di oggi
+        id: oggi
+        run: echo "d=$(TZ=Europe/Rome date +%F)" >> "$GITHUB_OUTPUT"
+
       - name: Guida TV di oggi (in chiaro, Sky, sport)
+        if: github.event_name != 'push'
         continue-on-error: true
         env:
           TMDB_KEY: ${{ secrets.TMDB_KEY }}
         run: python3 scripts/guida.py
+
       - name: Pluto TV e Samsung TV Plus
         run: |
-          OGGI=$(TZ=Europe/Rome date +%F)
           curl -sfL -o /tmp/pluto.xml https://raw.githubusercontent.com/matthuisman/i.mjh.nz/master/PlutoTV/it.xml || true
           curl -sfL -o /tmp/samsung.xml https://raw.githubusercontent.com/matthuisman/i.mjh.nz/master/SamsungTVPlus/it.xml || true
-          python3 scripts/epg.py "$OGGI" /tmp/pluto.xml /tmp/samsung.xml > /tmp/fast.json || echo "[]" > /tmp/fast.json
+          python3 scripts/epg.py "${{ steps.oggi.outputs.d }}" /tmp/pluto.xml /tmp/samsung.xml > /tmp/fast.json || echo "[]" > /tmp/fast.json
           python3 - <<'PY'
           import json
           tv = json.load(open("data/tv.json"))
           tv = [x for x in tv if x.get("s") not in ("pluto", "samsung")] + json.load(open("/tmp/fast.json"))
           json.dump(tv, open("/tmp/items.json", "w"), ensure_ascii=False)
           PY
+
       - name: TMDB (piu' visti, novita', cinema, voti) e catalogo completo
         env:
           TMDB_KEY: ${{ secrets.TMDB_KEY }}
         run: |
           python3 scripts/tmdb.py /tmp/items.json > /tmp/tmdb.json || echo "{}" > /tmp/tmdb.json
           python3 scripts/catalogo.py data/catalogo
+
+      # Orari dei cinema: letti una volta al giorno e tenuti in cache per le altre esecuzioni
+      - name: Orari dei cinema (cache del giorno)
+        id: cache-cinema
+        uses: actions/cache@v4
+        with:
+          path: data/cinema
+          key: cinema-${{ steps.oggi.outputs.d }}
+          restore-keys: cinema-
+      - name: Orari dei cinema (lettura)
+        if: steps.cache-cinema.outputs.cache-hit != 'true' && github.event_name != 'push'
+        continue-on-error: true
+        run: python3 scripts/cinema.py data/cinema
+
       - name: Componi data/oggi.js
         run: |
           python3 scripts/build.py data/meta.json /tmp/items.json /tmp/tmdb.json > data/oggi.js
           node --check data/oggi.js
-          date -u +%s > data/versione.txt
-      - name: Salva
+
+      - name: Salva la guida TV (solo i file piccoli)
+        if: github.event_name != 'push'
         run: |
           git config user.name "popcorno-bot"
           git config user.email "popcorno-bot@users.noreply.github.com"
-          git add data
-          git diff --cached --quiet || git commit -m "Dati aggiornati $(TZ=Europe/Rome date '+%d/%m %H:%M')"
+          git add data/tv.json data/meta.json
+          git diff --cached --quiet || git commit -m "Guida TV $(TZ=Europe/Rome date '+%d/%m %H:%M')"
           git pull --rebase origin main && git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Pubblica il sito
+        id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,7 @@
+# Dati generati ogni giorno dal workflow: vanno nel sito, non nella cronologia
+data/catalogo/
+data/trame/
+data/cinema/
+data/oggi.js
+data/versione.txt
+__pycache__/
