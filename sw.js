@@ -1,5 +1,5 @@
 // Popcorno: l'app si apre subito anche con poca rete.
-const SHELL = "popcorno-shell-v2", DATI = "popcorno-dati", IMG = "popcorno-img";
+const SHELL = "popcorno-shell-v3", DATI = "popcorno-dati", IMG = "popcorno-img";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon-180.png", "icons/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(n => n.startsWith("popcorno-shell") && n !== SHELL).map(n => caches.delete(n)))).then(() => self.clients.claim())); });

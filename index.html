@@ -23,8 +23,15 @@
 <meta property="og:image" content="https://popcorno.it/icons/icon-512.png">
 <meta name="twitter:card" content="summary">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Popcorno","url":"https://popcorno.it/","inLanguage":"it","applicationCategory":"EntertainmentApplication","operatingSystem":"Web","description":"Ti suggerisce cosa guardare stasera: film, serie e sport in TV, in streaming e al cinema in Italia.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(fonts/bricolage.woff2) format("woff2-variations"),url(fonts/bricolage.woff2) format("woff2")}
+@font-face{font-family:Figtree;font-style:normal;font-weight:400;font-display:swap;src:url(fonts/figtree-400.woff2) format("woff2")}
+@font-face{font-family:Figtree;font-style:normal;font-weight:500;font-display:swap;src:url(fonts/figtree-500.woff2) format("woff2")}
+@font-face{font-family:Figtree;font-style:normal;font-weight:600;font-display:swap;src:url(fonts/figtree-600.woff2) format("woff2")}
+@font-face{font-family:Figtree;font-style:normal;font-weight:700;font-display:swap;src:url(fonts/figtree-700.woff2) format("woff2")}
+@font-face{font-family:VT323;font-style:normal;font-weight:400;font-display:swap;src:url(fonts/vt323.woff2) format("woff2")}
+</style>
+<link rel="preload" href="fonts/figtree-400.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 :root{
   --notte:#151a44;      /* cielo della sera */
@@ -249,7 +256,7 @@ nav button.on{background:var(--notte2);color:var(--testo);box-shadow:inset 0 0 0
     <div class="grp"><h3>Sempre inclusi, gratis</h3><p class="free-list" id="freesrc"></p>
       </div>
     <div class="grp"><h3>Usa Popcorno su un altro dispositivo</h3><p>Copia il tuo link personale e aprilo sull'altro telefono o tablet: ritrovi abbonamenti, gusti, lista e serie.</p><button class="act" id="sync" style="width:100%">🔗 Copia il mio link</button><input id="sync-out" readonly class="hide" style="width:100%;margin-top:10px;padding:12px;border-radius:12px;background:var(--notte2);color:var(--testo);border:1.5px solid var(--bordo);font:500 12px Figtree,sans-serif">
-      <p class="credit">Catalogo streaming, voti e trame da <a href="https://www.themoviedb.org">TMDB</a>. Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.</p></div>
+      <p class="credit">Catalogo streaming, voti e trame da <a href="https://www.themoviedb.org">TMDB</a>. Questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB. · <a href="/privacy/">Privacy</a> · <a href="mailto:privacy@popcorno.it">privacy@popcorno.it</a></p></div>
   </section>
 </div>
 
