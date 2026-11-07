@@ -78,38 +78,6 @@
 "d": "Prima TV. Stagione 1 - Ep. 3. Dopo che una missione di alto profilo prende una brutta piega, Daniel \"Hondo\" Harrelson viene richiamato dal suo pensionamento forzato per guidare un'unità SWAT…"
 },
 {
-"t": "S.W.A.T. Exiles",
-"ty": "serie",
-"s": "rai2",
-"time": "22:10",
-"dur": 50,
-"m": [
-"emozione"
-],
-"g": "Drammatico",
-"e": "🎭",
-"c": [
-"#41295a",
-"#2f0743"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.1,
-"vc": 23,
-"l": "en",
-"gs": [
-18,
-80
-],
-"y": "2026",
-"p": "/pPiEujhVa2MBSowmvnNWqEzxH0x.jpg",
-"tmdb": "tv/292742",
-"d": "Dopo che una missione di alto profilo prende una brutta piega, Daniel \"Hondo\" Harrelson viene richiamato dal suo pensionamento forzato per guidare un'unità SWAT…"
-},
-{
 "t": "Sapiens Un solo pianeta",
 "ty": "show",
 "s": "rai3",
@@ -707,38 +675,6 @@
 "d": "Stagione 4 - Ep. 11. Andrea Fanti, un brillante primario di Medicina interna del Policlinico Ambrosanio. Ha una personalità autorevole, sicura di sé, preparata, in grado di prendere in mano…"
 },
 {
-"t": "Doc – Nelle tue mani",
-"ty": "serie",
-"s": "raipremium",
-"time": "22:25",
-"dur": 50,
-"m": [
-"emozione"
-],
-"g": "Drammatico",
-"e": "🎭",
-"c": [
-"#41295a",
-"#2f0743"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 8.1,
-"vc": 211,
-"l": "it",
-"gs": [
-18,
-10759
-],
-"y": "2020",
-"p": "/6yFfvnYMGXYmGbtmiIrRuRzJzUU.jpg",
-"tmdb": "tv/101048",
-"d": "Andrea Fanti, un brillante primario di Medicina interna del Policlinico Ambrosanio. Ha una personalità autorevole, sicura di sé, preparata, in grado di prendere in mano…"
-},
-{
 "t": "Friends",
 "ty": "serie",
 "s": "cielo",
@@ -1103,72 +1039,6 @@
 "d": "Nuova trasposizione ambientata ai giorni del classico calcistico degli anni '80. Tsubasa Oozora è un bambino con un amore nel calcio pari soltanto alla sua abilità;…"
 },
 {
-"t": "Captain Tsubasa",
-"ty": "serie",
-"s": "boing",
-"time": "21:10",
-"dur": 30,
-"m": [
-"risate",
-"emozione"
-],
-"g": "Animazione",
-"e": "🎨",
-"c": [
-"#56ccf2",
-"#2f80ed"
-],
-"kids": 1,
-"w": [
-"famiglia"
-],
-"v": 8.2,
-"vc": 753,
-"l": "ja",
-"gs": [
-16,
-35,
-18
-],
-"y": "2018",
-"p": "/l7lbjF4AN4xxbsLk7tmLN4l5MA7.jpg",
-"tmdb": "tv/77240",
-"d": "Nuova trasposizione ambientata ai giorni del classico calcistico degli anni '80. Tsubasa Oozora è un bambino con un amore nel calcio pari soltanto alla sua abilità;…"
-},
-{
-"t": "Captain Tsubasa",
-"ty": "serie",
-"s": "boing",
-"time": "21:40",
-"dur": 50,
-"m": [
-"risate",
-"emozione"
-],
-"g": "Animazione",
-"e": "🎨",
-"c": [
-"#56ccf2",
-"#2f80ed"
-],
-"kids": 1,
-"w": [
-"famiglia"
-],
-"v": 8.2,
-"vc": 753,
-"l": "ja",
-"gs": [
-16,
-35,
-18
-],
-"y": "2018",
-"p": "/l7lbjF4AN4xxbsLk7tmLN4l5MA7.jpg",
-"tmdb": "tv/77240",
-"d": "Nuova trasposizione ambientata ai giorni del classico calcistico degli anni '80. Tsubasa Oozora è un bambino con un amore nel calcio pari soltanto alla sua abilità;…"
-},
-{
 "t": "Fritzi e Sophie Amicizia oltre i confini",
 "ty": "serie",
 "s": "raigulp",
@@ -1243,7 +1113,7 @@
 "w": [
 "famiglia"
 ],
-"v": 0.0,
+"v": 0,
 "vc": 0,
 "l": "en",
 "gs": [
@@ -1316,39 +1186,6 @@
 "s": "cartoonito",
 "time": "21:35",
 "dur": 10,
-"m": [
-"risate",
-"emozione"
-],
-"g": "Animazione",
-"e": "🎨",
-"c": [
-"#56ccf2",
-"#2f80ed"
-],
-"kids": 1,
-"w": [
-"famiglia"
-],
-"v": 8.2,
-"vc": 12,
-"l": "fr",
-"gs": [
-16,
-10762,
-10751
-],
-"y": "2016",
-"p": "/wcoDTpylduKBQMkwCUwybXUyILc.jpg",
-"tmdb": "tv/79888",
-"d": "Serie in prima serata su Cartoonito."
-},
-{
-"t": "Simone",
-"ty": "serie",
-"s": "cartoonito",
-"time": "21:45",
-"dur": 50,
 "m": [
 "risate",
 "emozione"
@@ -1592,7 +1429,7 @@
 "coppia",
 "amici"
 ],
-"v": 6.0,
+"v": 0,
 "vc": 1,
 "l": "en",
 "gs": [
@@ -2604,8 +2441,8 @@
 "solo",
 "coppia"
 ],
-"g": "Calcio",
-"e": "⚽",
+"g": "Sport",
+"e": "🏟️",
 "c": [
 "#0b8793",
 "#360033"
@@ -2617,7 +2454,7 @@
 ]
 },
 {
-"t": "Francia - Figi Nations",
+"t": "Rugby · Francia - Figi",
 "ty": "sport",
 "s": "now",
 "time": "21:00",
@@ -2630,8 +2467,8 @@
 "solo",
 "coppia"
 ],
-"g": "Calcio",
-"e": "⚽",
+"g": "Rugby",
+"e": "🏉",
 "c": [
 "#0b8793",
 "#360033"
@@ -2639,7 +2476,7 @@
 "d": "In diretta su Sky Sport.",
 "teams": [
 "Francia",
-"Figi Nations"
+"Figi"
 ]
 },
 {
@@ -2656,8 +2493,8 @@
 "solo",
 "coppia"
 ],
-"g": "NBA",
-"e": "🏟️",
+"g": "Basket",
+"e": "🏀",
 "c": [
 "#0b8793",
 "#360033"
@@ -2711,31 +2548,5 @@
 "#360033"
 ],
 "d": "In diretta su Sky Sport."
-},
-{
-"t": "Brothers of the world - Argentina",
-"ty": "sport",
-"s": "now",
-"time": "21:00",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Calcio",
-"e": "⚽",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su Sky Sport.",
-"teams": [
-"Brothers of the world",
-"Argentina"
-]
 }
 ]
