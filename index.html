@@ -249,7 +249,7 @@ nav button.on{background:var(--notte2);color:var(--testo);box-shadow:inset 0 0 0
 </nav>
 <div class="toast" id="toast" role="status"></div>
 
-<script src="data/oggi.js"></script>
+<script>document.write('<script src="data/oggi.js?t='+Math.floor(Date.now()/600000)+'"><\/script>')</script>
 <script>
 // ---------- FONTI (n = numero sul telecomando) ----------
 const SRC = {
@@ -272,6 +272,7 @@ const SRC = {
   netflix:{n:"Netflix"}, prime:{n:"Prime Video"}, disney:{n:"Disney+"}, hbo:{n:"HBO Max"}, apple:{n:"Apple TV+"},
   paramount:{n:"Paramount+"}, mubi:{n:"MUBI"}, now:{n:"Sky / NOW"}, dazn:{n:"DAZN"}
 };
+const DV = () => "v="+encodeURIComponent((window.PALINSESTO&&window.PALINSESTO.aggiornato)||"0");
 const PAL = window.PALINSESTO || {items:[],etichetta:"",aggiornato:"",data:""};
 const OD = [
  {t:"Up",ty:"film",s:"disney",dur:96,m:["emozione","risate"],w:["famiglia"],kids:1,g:"Animazione",e:"🎈",c:["#56ccf2","#2f80ed"],d:"Una casa che vola appesa ai palloncini."},
@@ -577,12 +578,12 @@ let CINDEX=null, SHOWS=null;
 const nrm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
 async function loadCityShows(){
   SHOWS=null;
-  try{ if(!CINDEX) CINDEX=await (await fetch("data/cinema/index.json")).json(); }catch(e){ return; }
+  try{ if(!CINDEX) CINDEX=await (await fetch("data/cinema/index.json?"+DV())).json(); }catch(e){ return; }
   if(!st.citta) return;
   const want=nrm(st.citta);
   const slug=Object.keys(CINDEX.citta).find(k=>nrm(CINDEX.citta[k].n)===want||nrm(k)===want);
   if(!slug) return;
-  try{ SHOWS=await (await fetch(`data/cinema/${slug}.json`)).json(); }catch(e){ SHOWS=null; }
+  try{ SHOWS=await (await fetch(`data/cinema/${slug}.json?${DV()}`)).json(); }catch(e){ SHOWS=null; }
   if(SHOWS) $("#citta-list").innerHTML=Object.values(CINDEX.citta).map(c=>`<option value="${c.n}">`).join("");
 }
 function sameFilm(a,b){ const x=nrm(a), y=nrm(b); if(!x||!y) return false; if(x===y) return true; const s=x.length<y.length?x:y, l=x.length<y.length?y:x; return s.length>=6 && (l.startsWith(s+" ")||l.startsWith(s)); }
@@ -626,7 +627,7 @@ async function loadCatalogs(){
   const keys=Object.keys(SRC).filter(k=>(SRC[k].free && !SRC[k].lcn && k!=="samsung") || (!SRC[k].free && !SRC[k].via && !SRC[k].sala && k!=="dazn" && st.subs.includes(k)));
   for(const k of keys){
     try{
-      const r=await fetch(`data/catalogo/${k}.json`); if(!r.ok) continue;
+      const r=await fetch(`data/catalogo/${k}.json?${DV()}`); if(!r.ok) continue;
       const j=await r.json(); let n=0;
       for(const row of j.t){ const it=fromRow(k,row); if(it){C.push(it);n++;} }
       catCount+=j.t.length;
@@ -638,7 +639,7 @@ async function loadCatalogs(){
 const plotCache={};
 async function loadPlot(it){
   if(!it.tmdb) return; const [kind,id]=it.tmdb.split("/"); const k=(kind==="tv"?"t":"m")+id, b=(+id)%100;
-  try{ plotCache[b]=plotCache[b]||await (await fetch(`data/trame/${b}.json`)).json(); }catch(e){ plotCache[b]={}; }
+  try{ plotCache[b]=plotCache[b]||await (await fetch(`data/trame/${b}.json?${DV()}`)).json(); }catch(e){ plotCache[b]={}; }
   it.d=plotCache[b][k]||(it.ty==="film"?"Film":"Serie")+(it.y?" del "+it.y:"")+".";
   const el=$("#plot"); if(el) el.textContent=it.d;
 }
