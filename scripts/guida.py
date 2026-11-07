@@ -112,16 +112,17 @@ def mins(hm):
 
 
 def pick(progs):
-    """prima serata (inizio 20:25-22:15) e, se e' film o serie, il programma dopo (seconda serata)."""
-    res = []
+    """prima serata (inizio 20:25-22:15) e, se e' film o serie, il programma dopo (seconda serata).
+    Lo stesso titolo ripetuto sullo stesso canale (episodi di fila) vale una volta sola."""
+    res, titles = [], set()
     for k, (t, title, genre, extra) in enumerate(progs):
         nxt = progs[k + 1][0] if k + 1 < len(progs) else None
         dur = (mins(nxt) - mins(t)) if nxt else 0
         start = mins(t)
         prima = 20 * 60 + 25 <= start <= 22 * 60 + 15
         seconda = res and 22 * 60 + 15 < start <= 24 * 60 + 15 and genre in FILM | SERIE
-        if prima or seconda:
-            res.append((t, title, genre, extra, dur))
+        if (prima or seconda) and title.lower() not in titles:
+            titles.add(title.lower()); res.append((t, title, genre, extra, dur))
     return res
 
 
@@ -176,7 +177,7 @@ def make(src, t, title, genre, extra, dur):
         else:
             it["w"] = ["solo", "coppia"] if g[0] in ("Horror", "Thriller", "Crime") else ["solo", "coppia", "amici"]
         if r:
-            it.update({"v": round(r.get("vote_average", 0), 1), "vc": r.get("vote_count", 0), "l": r.get("original_language") or "",
+            it.update({"v": round(r.get("vote_average", 0), 1) if r.get("vote_count", 0) >= 10 else 0, "vc": r.get("vote_count", 0), "l": r.get("original_language") or "",
                        "gs": gids[:3], "y": (r.get("release_date") or r.get("first_air_date") or "")[:4],
                        "p": r.get("poster_path") or "", "tmdb": f"{kind}/{r['id']}"})
             d = short(r.get("overview"))
@@ -193,7 +194,7 @@ def make(src, t, title, genre, extra, dur):
 
 # ---------- sport ----------
 SKIP_SPORT = re.compile(r"Paddock|Studio|Show|Highlights|Today|Talk|Sport ?24|Diretta Gol|\bPre\b|\bPost\b|Magazine|Kampione|Saturday Night|Sunday|Calcio Show|Club|Speciale|Replica|Conf\. Stampa|Buffa", re.I)
-COMP = r"(Serie A|Serie B|Serie C|Champions League|Europa League|Conference League|Premier League|LaLiga|Liga|Bundesliga|Ligue 1|Eurolega|EuroCup|NBA|Coppa Italia|UEFA[\w ]*|ATP[\w ]*|WTA[\w ]*|Nations League)"
+COMP = r"(Nations|Serie A|Serie B|Serie C|Champions League|Europa League|Conference League|Premier League|LaLiga|Liga|Bundesliga|Ligue 1|Eurolega|EuroCup|NBA|Coppa Italia|UEFA[\w ]*|ATP[\w ]*|WTA[\w ]*|Nations League)"
 
 
 def sport_item(src, t, title):
@@ -210,8 +211,17 @@ def sport_item(src, t, title):
         src_main, also = "dazn", (["now"] if src == "now" else [])
     else:
         src_main, also = src, []
-    g = "Motori" if is_motor and not is_match else ("Calcio" if comp in ("Serie A", "Serie B", "Serie C", "Champions League", "Europa League", "Conference League", "Premier League", "LaLiga", "Liga", "Bundesliga", "Ligue 1", "Coppa Italia", "Nations League") or not comp else comp)
-    e = {"Motori": "🏎️", "Calcio": "⚽"}.get(g, "🏟️")
+    CALCIO = ("Serie A", "Serie B", "Serie C", "Champions League", "Europa League", "Conference League", "Premier League", "LaLiga", "Liga", "Bundesliga", "Ligue 1", "Coppa Italia")
+    if is_motor and not is_match: g = "Motori"
+    elif comp in CALCIO: g = "Calcio"
+    elif comp in ("Eurolega", "EuroCup", "NBA"): g = "Basket"
+    elif re.search(r"Nations|Rugby|Sei Nazioni", clean): g = "Rugby"
+    elif comp.startswith(("ATP", "WTA")): g = "Tennis"
+    else: g = "Sport"
+    if g == "Sport" and teams and not re.match(r"^[A-ZÀ-Ý][\w'.]+( [A-ZÀ-Ý][\w'.]+){0,3}$", teams[0]): return None
+    e = {"Motori": "🏎️", "Calcio": "⚽", "Basket": "🏀", "Rugby": "🏉", "Tennis": "🎾"}.get(g, "🏟️")
+    if comp == "Nations": comp = "Rugby"
+    teams = [re.sub(r"\s+(Nations|Rugby)$", "", x) for x in teams]
     nome = (comp + " · " if comp else "") + (" - ".join(teams) if teams else clean)
     it = {"t": nome, "ty": "sport", "s": src_main, "time": t, "dur": 110, "m": ["sport"], "w": ["amici", "solo", "coppia"],
           "g": g, "e": e, "c": ["#0b8793", "#360033"], "d": "In diretta su " + " e ".join(NOMI.get(x, x) for x in [src_main] + also) + "."}
