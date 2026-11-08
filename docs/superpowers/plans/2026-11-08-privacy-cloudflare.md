@@ -1,4 +1,4 @@
-# Pagina privacy: testo per il passaggio a Cloudflare (bozza da approvare)
+# Pagina privacy: testo per il passaggio a Cloudflare (approvato dal proprietario il 2026-11-08)
 
 Va online **insieme al cambio di dominio** (Task 11), non prima. Cambiano solo le parti qui sotto; il resto della pagina resta identico.
 
