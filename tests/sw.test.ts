@@ -2,7 +2,18 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { describe, expect, it } from "vitest";
-import { cachesToDelete } from "../src/lib/sw-caches";
+import { assetUrlsFromHtml, cachesToDelete } from "../src/lib/sw-caches";
+
+// Pagina SSR finta: i file con l'impronta in /assets/ e altri indirizzi da non salvare.
+const PAGINA = `<!DOCTYPE html><html><head>
+<link rel="stylesheet" href="/assets/app-abc.css"/>
+<link rel="modulepreload" href="/assets/routes-ghi.js"/>
+<link rel="icon" href="/icons/icon-180.png"/>
+<link rel="preconnect" href="https://image.tmdb.org/assets/x.js"/>
+<link rel="canonical" href="https://popcorno.it/"/>
+</head><body><script type="module" src="/assets/index-def.js"></script>
+<script src="//cdn.example/assets/y.js"></script><a href="/privacy/">Privacy</a></body></html>`;
+const ASSETS = ["/assets/app-abc.css", "/assets/routes-ghi.js", "/assets/index-def.js"];
 
 describe("cachesToDelete", () => {
   it("cancella solo le vecchie popcorno-* e tiene le locandine", () => {
@@ -15,6 +26,15 @@ describe("cachesToDelete", () => {
   });
 });
 
+describe("assetUrlsFromHtml", () => {
+  it("prende solo i file /assets/ dello stesso sito, da src e href, senza doppioni", () => {
+    expect(assetUrlsFromHtml(PAGINA + PAGINA, "https://popcorno.it")).toEqual(ASSETS);
+  });
+  it("pagina senza file /assets/: lista vuota", () => {
+    expect(assetUrlsFromHtml("<p>ciao</p>", "https://popcorno.it")).toEqual([]);
+  });
+});
+
 describe("public/sw.js", () => {
   it("passa node --check", () => {
     expect(() => execFileSync(process.execPath, ["--check", "public/sw.js"])).not.toThrow();
@@ -24,9 +44,10 @@ describe("public/sw.js", () => {
   function carica(rete: (url: string) => Response | Promise<Response>, esistenti: string[] = []) {
     const store = new Map<string, Map<string, Response>>(esistenti.map((n) => [n, new Map()]));
     const handlers: Record<string, (e: any) => void> = {};
-    const chiave = (r: any) => (typeof r === "string" ? r : r.url);
+    // Come la vera Cache API: gli indirizzi relativi valgono rispetto al sito.
+    const chiave = (r: any) => new URL(typeof r === "string" ? r : r.url, "https://popcorno.it/").href;
     const cacheObj = (m: Map<string, Response>) => ({
-      addAll: async (urls: string[]) => { for (const u of urls) m.set(new URL(u, "https://popcorno.it/").href, await rete(u)); },
+      addAll: async (urls: string[]) => { for (const u of urls) m.set(chiave(u), await rete(u)); },
       match: async (r: any) => m.get(chiave(r))?.clone(),
       put: async (r: any, res: Response) => { m.set(chiave(r), res); },
     });
@@ -45,7 +66,7 @@ describe("public/sw.js", () => {
     const ctx: any = {
       self, caches, URL, Response, Promise,
       location: { origin: "https://popcorno.it" },
-      fetch: async (r: any) => { const u = chiave(r); log.fetched.push(u); return rete(u); },
+      fetch: async (r: any) => { const u = typeof r === "string" ? r : r.url; log.fetched.push(u); return rete(u); },
     };
     vm.createContext(ctx);
     vm.runInContext(readFileSync("public/sw.js", "utf8"), ctx);
@@ -65,6 +86,40 @@ describe("public/sw.js", () => {
     expect([...sw.store.keys()]).toEqual(["popcorno-shell-v4"]);
     expect([...sw.store.get("popcorno-shell-v4")!.keys()]).toContain("https://popcorno.it/");
     expect(sw.log.skipWaiting).toBe(1);
+  });
+
+  it("install: salva anche i file /assets/ della pagina, non quelli di altri siti", async () => {
+    const sw = carica((u) => (u === "/" ? ok(PAGINA) : ok("file " + u)));
+    await sw.run("install");
+    const shell = sw.store.get("popcorno-shell-v4")!;
+    const attesi = [...["/", "/manifest.webmanifest", "/icons/icon-180.png", "/icons/icon-512.png"], ...ASSETS].map((u) => "https://popcorno.it" + u);
+    expect([...shell.keys()].sort()).toEqual(attesi.sort());
+    expect(await shell.get("https://popcorno.it/assets/index-def.js")!.clone().text()).toBe("file /assets/index-def.js");
+    expect(await shell.get("https://popcorno.it/")!.clone().text()).toBe(PAGINA);
+    expect(sw.log.fetched.filter((u) => u.includes("example") || u.includes("tmdb"))).toEqual([]);
+    expect(sw.log.skipWaiting).toBe(1);
+  });
+
+  it("install: riesce anche se la pagina non ha file /assets/", async () => {
+    const sw = carica(() => ok("<p>niente</p>"));
+    const [r] = await sw.run("install");
+    expect(r).toBeUndefined();
+    expect(sw.store.get("popcorno-shell-v4")!.size).toBe(4);
+  });
+
+  it("fetch: un file /assets/ salvato arriva dalla cache anche offline; uno nuovo va in rete e si salva", async () => {
+    let online = true;
+    const sw = carica((u) => { if (!online) throw new Error("offline"); return u === "/" ? ok(PAGINA) : ok("rete " + u); });
+    await sw.run("install");
+    online = false;
+    const [r1] = await sw.run("fetch", { request: sw.richiesta("https://popcorno.it/assets/index-def.js") });
+    expect(await r1.text()).toBe("rete /assets/index-def.js");
+    online = true;
+    const nuovo = "https://popcorno.it/assets/altro-xyz.js";
+    const [r2] = await sw.run("fetch", { request: sw.richiesta(nuovo) });
+    expect(await r2.text()).toBe("rete " + nuovo);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(sw.store.get("popcorno-shell-v4")!.has(nuovo)).toBe(true);
   });
 
   it("activate: toglie popcorno-shell-v3 e popcorno-dati, tiene popcorno-img e le altre", async () => {

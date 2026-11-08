@@ -25,6 +25,17 @@ describe("link profilo vs app vecchia", () => {
   });
 });
 
+describe("profilo molto grande", () => {
+  it("oltre 100 KB: nessun RangeError e torna uguale da parseProfileHash", () => {
+    const big: Stasera = { ...st, seen: Array.from({ length: 6000 }, (_, i) => "Titolo visto numero " + i + " – è così") };
+    const link = profileLink(big, "https://popcorno.it/");
+    expect(link.length).toBeGreaterThan(100_000);
+    const p = parseProfileHash(link.slice(link.indexOf("#")))!;
+    expect(p.seen).toEqual(big.seen);
+    expect(p.citta).toBe("Forlì");
+  });
+});
+
 describe("parseProfileHash", () => {
   it("hash estraneo: null", () => {
     expect(parseProfileHash("")).toBeNull();

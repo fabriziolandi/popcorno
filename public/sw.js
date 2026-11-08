@@ -3,7 +3,25 @@ const SHELL = "popcorno-shell-v4", DATI = "popcorno-dati-v2", IMG = "popcorno-im
 const FILES = ["/", "/manifest.webmanifest", "/icons/icon-180.png", "/icons/icon-512.png"];
 // Stessa logica di cachesToDelete in src/lib/sw-caches.ts.
 const cachesToDelete = (names, keep) => names.filter(n => n.startsWith("popcorno-") && !keep.includes(n));
-self.addEventListener("install", e => { e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES))); self.skipWaiting(); });
+// Stessa logica di assetUrlsFromHtml in src/lib/sw-caches.ts.
+const assetUrlsFromHtml = (html, origin) => {
+  const out = [];
+  for (const m of html.matchAll(/\s(?:src|href)=["']([^"']+)["']/g)) {
+    let u;
+    try { u = new URL(m[1], origin + "/"); } catch { continue; }
+    const p = u.pathname + u.search;
+    if (u.origin === origin && u.pathname.startsWith("/assets/") && !out.includes(p)) out.push(p);
+  }
+  return out;
+};
+// La pagina "/" si scarica una volta: si salva e se ne leggono i file /assets/ da salvare con gli altri.
+self.addEventListener("install", e => {
+  e.waitUntil(caches.open(SHELL).then(c => fetch("/").then(r => {
+    if (!r.ok) throw new Error("/ " + r.status);
+    return c.put("/", r.clone()).then(() => r.text());
+  }).then(html => c.addAll(FILES.filter(f => f !== "/").concat(assetUrlsFromHtml(html, location.origin))))));
+  self.skipWaiting();
+});
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(k => Promise.all(cachesToDelete(k, [SHELL, DATI, IMG]).map(n => caches.delete(n)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
   const u = new URL(e.request.url);

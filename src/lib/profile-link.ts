@@ -3,7 +3,12 @@ import type { Stasera } from "./types";
 export const SYNC_KEYS = ["subs", "team", "citta", "likes", "liked", "disliked", "seen", "watch", "serie", "gen", "chi", "tempo", "umore"] as const;
 
 // UTF-8 -> base64 e ritorno, equivalenti a btoa(unescape(encodeURIComponent(..))) dell'app vecchia
-const toB64 = (s: string): string => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+// (un carattere alla volta: con lo spread un profilo molto grande darebbe RangeError)
+const toB64 = (s: string): string => {
+  let bin = "";
+  for (const b of new TextEncoder().encode(s)) bin += String.fromCharCode(b);
+  return btoa(bin);
+};
 const fromB64 = (b: string): string => new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(atob(b), (c) => c.charCodeAt(0)));
 
 // `base` è origin + pathname (es. "https://popcorno.it/")

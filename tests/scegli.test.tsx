@@ -6,10 +6,10 @@ import { Shell } from "../src/components/Shell";
 import { allItems, loadCatalogs, loadCityShows, loadPalinsesto } from "../src/lib/data";
 import { lucky } from "../src/lib/lucky";
 import { pickNow } from "../src/lib/scoring";
-import { mySrc, SRC } from "../src/lib/sources";
+import { mySrc, OD as OD_ITEMS, SRC } from "../src/lib/sources";
 import { DEFAULT_STATE } from "../src/lib/state";
 import type { Stasera } from "../src/lib/types";
-import { defaultFiles, fixtureFetch, fixturePalinsesto, loadLegacy, settle } from "./legacy/harness";
+import { defaultFiles, fixtureFetch, fixturePalinsesto, legacyLucky, loadLegacy, settle } from "./legacy/harness";
 
 const NOW = new Date(2026, 10, 7, 21, 0); // data del palinsesto di prova, alle 21:00
 const $ = (s: string) => document.querySelector(s) as HTMLElement | null;
@@ -52,6 +52,61 @@ afterEach(() => {
   vi.unstubAllGlobals();
   Element.prototype.scrollIntoView = scrollIntoViewOrig;
   localStorage.clear();
+});
+
+// Come mount(), ma oggi.json arriva solo quando il test chiama release(): i gesti toccati prima
+// devono aspettare il palinsesto, non usare i 3 titoli predefiniti (OD) dell'app vecchia.
+const OD = OD_ITEMS.map((x) => x.t);
+async function mountSlow(prof: Partial<Stasera> = {}) {
+  const base = fixtureFetch(files());
+  let release!: () => void;
+  const gate = new Promise<void>((r) => { release = r; });
+  vi.stubGlobal("fetch", (url: string) => (/oggi\.json/.test(String(url)) ? gate.then(() => base(url)) : base(url)));
+  vi.stubGlobal("scrollTo", vi.fn());
+  localStorage.setItem("stasera", JSON.stringify({ ...DEFAULT_STATE, ...prof }));
+  render(<AppStateProvider><Shell /></AppStateProvider>);
+  await act(async () => { await new Promise((r) => setTimeout(r, 20)); });
+  return async () => {
+    await act(async () => { release(); });
+    await waitFor(() => expect(text("#cat-count")).toMatch(/Catalogo streaming/));
+  };
+}
+
+// L'app vecchia aveva il palinsesto già con la pagina, ma i cataloghi streaming arrivavano dopo:
+// un tocco anticipato dava la proposta calcolata sul palinsesto senza cataloghi. È quella attesa qui.
+describe("tocco prima che arrivi il palinsesto", () => {
+  it("Accendi aspetta oggi.json e propone il titolo dell'app vecchia toccata subito", async () => {
+    const w = loadLegacy(fixturePalinsesto(), {}, { files: files(), now: NOW });
+    w.pickNow(); // prima che arrivino i cataloghi
+    const legacy = w.eval("list")[0].it.t as string;
+    await settle();
+    const { st, pal, shows } = await expected({});
+    expect(pickNow(pal, st, shows, [])[0].it.t).toBe(legacy);
+    expect(OD).not.toContain(legacy);
+    const release = await mountSlow();
+    expect(text("#guide")).toBe(""); // niente NO SEGNALE mentre il palinsesto non c'è
+    await click("#go");
+    await release();
+    await waitFor(() => expect(text("#res .title")).toBe(legacy));
+    expect($("#ask")!.className).toBe("hide");
+    expect(text("#guide")).not.toBe("");
+  });
+
+  it("🍀 aspetta oggi.json e sceglie come l'app vecchia toccata subito", async () => {
+    const w = loadLegacy(fixturePalinsesto(), {}, { files: files(), now: NOW, random: () => 0.4 });
+    const legacy = legacyLucky(w)!; // prima che arrivino i cataloghi
+    await settle();
+    vi.spyOn(Math, "random").mockReturnValue(0.4);
+    const { st, pal } = await expected({});
+    const pick = lucky(allItems(pal, []), st, { now: new Date(), palDate: pal.data, skip: new Set(), random: () => 0.4 });
+    expect(pick!.it.t).toBe(legacy.it.t);
+    expect(OD).not.toContain(pick!.it.t);
+    const release = await mountSlow();
+    await click("#lucky");
+    await release();
+    await waitFor(() => expect(text("#res .title")).toBe(pick!.it.t));
+    expect(text("#res .kind")).toMatch(/^🍀 Scelto per te · /);
+  });
 });
 
 describe("Accendi e scegli per me", () => {

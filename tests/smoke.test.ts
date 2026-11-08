@@ -107,6 +107,12 @@ describe("pagina privacy", () => {
     expect(html).not.toContain("og:title");
   });
 
+  it("/index.html (vecchi segnalibri e icone sulla schermata Home) rimanda a / con 301", async () => {
+    const res = await get("/index.html");
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe("/");
+  });
+
   it("/privacy (senza barra) rimanda a /privacy/", async () => {
     const res = await get("/privacy");
     expect(res.status).toBeGreaterThanOrEqual(300);

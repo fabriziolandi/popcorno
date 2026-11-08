@@ -47,7 +47,7 @@ async function ours(prof: Partial<Stasera>, pal0: LegacyPalinsesto = fixturePali
 
 afterEach(() => vi.unstubAllGlobals());
 
-describe.each(Object.entries(PROFILES))("parità con l'app vecchia: %s", (_name, prof) => {
+describe.each(Object.entries(PROFILES))("parità con l'app vecchia: %s", (name, prof) => {
   // Una sola app vecchia per profilo: Math.random legge `r`, che ogni caso di lucky imposta.
   let r = 0.5;
   let w: any;
@@ -85,6 +85,11 @@ describe.each(Object.entries(PROFILES))("parità con l'app vecchia: %s", (_name,
     const legacy = legacyLucky(w);
     const { st, pal, extra } = await ours(prof);
     const mine = lucky(allItems(pal, extra), st, { now: NOW, palDate: pal.data, skip: new Set(), random: () => x });
+    // Col profilo predefinito c'è sempre una scelta: il confronto non passa perché entrambe sono null.
+    if (name === "predefinito") {
+      expect(legacy).not.toBeNull();
+      expect(mine).not.toBeNull();
+    }
     expect(mine && view([mine])).toEqual(legacy && view([legacy as Scored]));
   });
 });
@@ -113,6 +118,8 @@ describe("parità: casi particolari", () => {
       const legacy = legacyLucky(w);
       const { st, pal, extra } = await ours({});
       const mine = lucky(allItems(pal, extra), st, { now, palDate: pal.data, skip: new Set(), random: () => r });
+      expect(legacy).not.toBeNull();
+      expect(mine).not.toBeNull();
       expect(mine && view([mine])).toEqual(legacy && view([legacy as Scored]));
     }
   });

@@ -2,7 +2,7 @@
 // shareIt dell'app vecchia, righe 412, 470–483, 700–706, 719–760).
 import { useRef } from "react";
 import { useApp, type Res } from "../../app-state";
-import { allItems, loadCityShows, nrm, type CityShows, type Palinsesto } from "../../lib/data";
+import { allItems, loadCityShows, nrm, type CityShows } from "../../lib/data";
 import { lucky } from "../../lib/lucky";
 import { candidates, pickNow } from "../../lib/scoring";
 import { mySrc, SRC } from "../../lib/sources";
@@ -10,9 +10,6 @@ import { feedback, inWatch, serieOf, toggleWatch } from "../../lib/state";
 import type { Item, Stasera } from "../../lib/types";
 import { Ask } from "./Ask";
 import { Result, type ResultActions } from "./Result";
-
-// Come PAL dell'app vecchia quando data/oggi.js non c'è (o non è ancora arrivato).
-const NO_PAL: Palinsesto = { data: "", etichetta: "", aggiornato: "", fonti: [], items: [], ondemand: [], cinema: [] };
 
 // Testo di "Condividi", come shareIt dell'app vecchia.
 export function shareText(it: Item, st: Stasera): string {
@@ -45,14 +42,18 @@ export function Scegli() {
       return { ...r, ...patch(r), zap, shown: true, seq: r.seq + 1 };
     });
 
-  const doPick = (shows: CityShows | null) => {
-    const { pal, st, catalog } = cur.current;
-    const list = pickNow(pal ?? NO_PAL, st, shows, catalog);
+  // I gesti aspettano il palinsesto (palReady): un tocco prima che arrivi oggi.json non propone
+  // titoli calcolati senza palinsesto.
+  const doPick = async (shows: CityShows | null) => {
+    const p = await cur.current.palReady();
+    const { st, catalog } = cur.current;
+    const list = pickNow(p, st, shows, catalog);
     showRes(false, () => ({ list, idx: 0, lucky: false }));
   };
 
-  const doLucky = () => {
-    const { pal, st, catalog } = cur.current, p = pal ?? NO_PAL;
+  const doLucky = async () => {
+    const p = await cur.current.palReady();
+    const { st, catalog } = cur.current;
     const pick = lucky(allItems(p, catalog), st, { now: new Date(), palDate: p.data, skip: skip.current, random: Math.random });
     if (!pick) { showRes(false, () => ({ list: [], idx: 0, lucky: true })); return; }
     showRes(true, () => ({ list: [pick], idx: 0, lucky: true }));
@@ -67,21 +68,22 @@ export function Scegli() {
       shows = await loadCityShows(st.citta);
       cur.current.setShows(shows);
     }
-    doPick(shows);
+    await doPick(shows);
     window.scrollTo({ top: 0 });
   };
 
-  const onLucky = () => { skip.current.clear(); doLucky(); };
+  const onLucky = () => { skip.current.clear(); void doLucky(); };
 
   const fb = (it: Item, v: 1 | -1) => {
     const { st, setSt, toast } = cur.current;
     setSt(feedback(st, it, v));
     if (v > 0) { toast("Buona visione! Popcorno se lo ricorda"); showRes(false); return; }
     toast("Ok, meno " + it.g.toLowerCase() + " d'ora in poi");
-    setTimeout(() => {
-      if (cur.current.res?.lucky) { skip.current.add(it.t); doLucky(); return; }
-      const { pal, st, shows, catalog } = cur.current;
-      const list = candidates(pal ?? NO_PAL, st, { shows, extra: catalog });
+    setTimeout(async () => {
+      if (cur.current.res?.lucky) { skip.current.add(it.t); void doLucky(); return; }
+      const p = await cur.current.palReady();
+      const { st, shows, catalog } = cur.current;
+      const list = candidates(p, st, { shows, extra: catalog });
       showRes(true, () => ({ list, idx: 0 }));
     }, 450);
   };
@@ -90,7 +92,7 @@ export function Scegli() {
     back: () => { cur.current.setRes((r) => r && { ...r, shown: false }); window.scrollTo({ top: 0 }); },
     other: (it) => { if (cur.current.res?.lucky) fb(it, 1); else showRes(true, (r) => ({ idx: r.idx + 1 })); },
     feedback: fb,
-    again: (it) => { skip.current.add(it.t); doLucky(); },
+    again: (it) => { skip.current.add(it.t); void doLucky(); },
     watch: (it) => {
       const { st, setSt, toast } = cur.current;
       const was = inWatch(st, it);

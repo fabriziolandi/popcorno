@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
 import { parseProfileHash } from "./lib/profile-link";
 import { candidates, type Scored } from "./lib/scoring";
@@ -16,6 +16,10 @@ export type AppState = {
   st: Stasera;
   setSt(next: Stasera): void;
   pal: Palinsesto | null;
+  // Il palinsesto appena arriva (subito, se c'è già). L'app vecchia lo aveva prima di qualunque tocco
+  // (data/oggi.js caricato con la pagina): i gesti che lo usano lo aspettano, così un tocco anticipato
+  // non propone titoli calcolati senza palinsesto. Se oggi.json manca è il palinsesto vuoto.
+  palReady(): Promise<Palinsesto>;
   catalog: Item[];
   // Aggiunge al catalogo i titoli letti dopo l'avvio (nuovo abbonamento nel Profilo).
   addCatalog(items: Item[]): void;
@@ -46,6 +50,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   // differenze di idratazione); lo stato salvato si legge dopo il montaggio.
   const [st, setStRaw] = useState<Stasera>(() => structuredClone(DEFAULT_STATE));
   const [pal, setPal] = useState<Palinsesto | null>(null);
+  const palP = useRef<Promise<Palinsesto> | null>(null);
+  // I tocchi arrivano solo dopo il montaggio, quando il caricamento è già partito.
+  const palReady = useCallback(() => palP.current ?? new Promise<Palinsesto>(() => {}), []);
   const [catalog, setCatalog] = useState<Item[]>([]);
   const addCatalog = useCallback((items: Item[]) => { if (items.length) setCatalog((c) => [...c, ...items]); }, []);
   const [view, setViewRaw] = useState<View>("scegli");
@@ -93,8 +100,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // vecchia) e leggono /data/… con indirizzi relativi: si chiamano SOLO qui, nel browser dopo il
     // montaggio, mai in un loader della rotta né durante il rendering lato server.
     let alive = true;
+    const pending = loadPalinsesto();
+    palP.current = pending;
     (async () => {
-      const p = await loadPalinsesto();
+      const p = await pending;
       if (!alive) return;
       setPal(p);
       // Come l'app vecchia, che sceglie i cataloghi prima di importare il link profilo:
@@ -115,16 +124,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return () => { alive = false; };
   }, [pal, st.citta]);
 
+  // Lo stato più recente, per openItem che lo legge dopo aver aspettato il palinsesto.
+  const cur = useRef({ st, shows, catalog });
+  cur.current = { st, shows, catalog };
   const openItem = useCallback((it: Item, tipo?: string) => {
-    const rest = pal ? candidates(pal, tipo ? { ...st, tipo } : st, { shows, extra: catalog }).filter((x) => x.it !== it) : [];
-    const first: Scored = { it, sc: 99, why: ["l'hai cercato tu"].concat(isFree(it) ? ["è <b>gratis</b>"] : []) };
-    setRes((r) => ({ list: [first, ...rest], idx: 0, lucky: false, zap: false, shown: true, seq: (r?.seq ?? 0) + 1 }));
-    setView("scegli");
-  }, [pal, st, shows, catalog, setView]);
+    void palReady().then((p) => {
+      const { st, shows, catalog } = cur.current;
+      const rest = candidates(p, tipo ? { ...st, tipo } : st, { shows, extra: catalog }).filter((x) => x.it !== it);
+      const first: Scored = { it, sc: 99, why: ["l'hai cercato tu"].concat(isFree(it) ? ["è <b>gratis</b>"] : []) };
+      setRes((r) => ({ list: [first, ...rest], idx: 0, lucky: false, zap: false, shown: true, seq: (r?.seq ?? 0) + 1 }));
+      setView("scegli");
+    });
+  }, [palReady, setView]);
 
   const value = useMemo<AppState>(
-    () => ({ st, setSt, pal, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem }),
-    [st, setSt, pal, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem],
+    () => ({ st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem }),
+    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

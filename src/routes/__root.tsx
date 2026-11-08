@@ -1,7 +1,11 @@
 import type { ReactNode } from "react";
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import { HeadContent, Scripts, createRootRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
+  // Il vecchio service worker salvava index.html, e vecchi segnalibri o icone possono puntarci.
+  beforeLoad: ({ location }) => {
+    if (location.pathname === "/index.html") throw redirect({ href: "/", statusCode: 301 });
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },

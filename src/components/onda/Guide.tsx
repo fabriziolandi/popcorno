@@ -136,7 +136,8 @@ export function Guide() {
       <div className="filters" id="gfil">
         {FILTERS.map(([v, l]) => <button key={v} className={"chip " + (gf === v ? "on" : "")} data-v={v} onClick={() => { setGf(v); setSearching(false); }}>{l}</button>)}
       </div>
-      <div id="guide">{body()}</div>
+      {/* Finché il palinsesto non arriva la guida resta vuota (niente "NO SEGNALE" per un attimo). */}
+      <div id="guide">{pal ? body() : null}</div>
     </>
   );
 }
