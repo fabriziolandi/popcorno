@@ -39,6 +39,54 @@ describe("scheletro TanStack Start su Cloudflare", () => {
   });
 });
 
+describe("head della pagina / e rotte senza barra finale", () => {
+  const get = async (path: string) => {
+    const { default: server } = await import(
+      /* @vite-ignore */ new URL("../dist/server/index.js", import.meta.url).href
+    );
+    return server.fetch(new Request("http://localhost" + path));
+  };
+  const unesc = (v: string) => v.replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
+  // La vecchia usa indirizzi relativi (icons/…); qui sono assoluti, perché la pagina serve anche /privacy/.
+  const attr = (h: string, re: RegExp) => { const m = re.exec(h); return m ? unesc(m[1]).replace(/^\//, "") : undefined; };
+
+  it("/ risponde 200 senza redirect e mantiene i tag spostati dal root", async () => {
+    const vecchia = readFileSync("tests/legacy/index.legacy.html", "utf8");
+    const res = await get("/");
+    const html = await res.text();
+    expect(res.status).toBe(200);
+    expect(res.headers.get("location")).toBeNull();
+    for (const re of [
+      /<meta name="viewport" content="([^"]*)"/,
+      /<meta name="description" content="([^"]*)"/,
+      /<meta property="og:title" content="([^"]*)"/,
+      /<meta property="og:description" content="([^"]*)"/,
+      /<meta property="og:image" content="([^"]*)"/,
+      /<meta name="theme-color" content="([^"]*)"/,
+      /<link rel="canonical" href="([^"]*)"/,
+      /<link rel="manifest" href="([^"]*)"/,
+      /<link rel="apple-touch-icon" href="([^"]*)"/,
+    ]) {
+      expect(attr(html, re), String(re)).toBeDefined();
+      expect(attr(html, re), String(re)).toBe(attr(vecchia, re));
+    }
+    expect(html).toMatch(/<link rel="stylesheet" href="[^"]+\.css"/);
+    expect(html).toMatch(/<link rel="preload" href="\/fonts\/figtree-400\.woff2" as="font"/);
+    const ld = /<script type="application\/ld\+json"[^>]*>([^<]*)<\/script>/.exec(html)?.[1];
+    const ldVecchio = /<script type="application\/ld\+json">([^<]*)<\/script>/.exec(vecchia)?.[1];
+    expect(JSON.parse(unesc(ld!))).toEqual(JSON.parse(ldVecchio!));
+  });
+
+  it("le rotte che non sono pagine non vengono rimandate a un indirizzo con la barra", async () => {
+    for (const path of ["/sw.js", "/data/trame/99.json?v=1"]) {
+      const res = await get(path);
+      expect(res.headers.get("location"), path).toBeNull();
+      expect(res.status, path).not.toBe(307);
+      expect(res.status, path).not.toBe(301);
+    }
+  });
+});
+
 describe("pagina privacy", () => {
   const get = async (path: string) => {
     const { default: server } = await import(
@@ -64,5 +112,6 @@ describe("pagina privacy", () => {
     expect(res.status).toBeGreaterThanOrEqual(300);
     expect(res.status).toBeLessThan(400);
     expect(res.headers.get("location")).toBe("/privacy/");
+    expect((await get("/privacy/")).status).toBe(200);
   });
 });

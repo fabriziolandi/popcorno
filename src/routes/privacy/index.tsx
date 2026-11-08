@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 // Stili propri della pagina, copiati dalla pagina privacy dell'app vecchia (valgono solo qui).
 const css = `
@@ -22,6 +22,10 @@ ul{padding-left:20px}
 `;
 
 export const Route = createFileRoute("/privacy/")({
+  // /privacy (senza barra) rimanda a /privacy/; le altre rotte restano come sono.
+  beforeLoad: ({ location }) => {
+    if (!location.pathname.endsWith("/")) throw redirect({ href: "/privacy/", statusCode: 301 });
+  },
   head: () => ({
     meta: [
       { name: "viewport", content: "width=device-width, initial-scale=1" },
