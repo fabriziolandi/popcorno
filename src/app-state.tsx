@@ -26,7 +26,8 @@ export type AppState = {
   res: Res | null;
   setRes(f: (r: Res | null) => Res | null): void;
   // showOne dell'app vecchia: apre Scegli con quel titolo come proposta.
-  openItem(it: Item): void;
+  // `tipo`: la guida dei film in sala imposta anche tipo="cinema" prima di aprire (come l'app vecchia).
+  openItem(it: Item, tipo?: string): void;
   // per il componente Toast
   toastMsg: string;
   toastOn: boolean;
@@ -111,8 +112,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return () => { alive = false; };
   }, [pal, st.citta]);
 
-  const openItem = useCallback((it: Item) => {
-    const rest = pal ? candidates(pal, st, { shows, extra: catalog }).filter((x) => x.it !== it) : [];
+  const openItem = useCallback((it: Item, tipo?: string) => {
+    const rest = pal ? candidates(pal, tipo ? { ...st, tipo } : st, { shows, extra: catalog }).filter((x) => x.it !== it) : [];
     const first: Scored = { it, sc: 99, why: ["l'hai cercato tu"].concat(isFree(it) ? ["è <b>gratis</b>"] : []) };
     setRes((r) => ({ list: [first, ...rest], idx: 0, lucky: false, zap: false, shown: true, seq: (r?.seq ?? 0) + 1 }));
     setView("scegli");
