@@ -5,3 +5,22 @@ data/cinema/
 data/oggi.js
 data/versione.txt
 __pycache__/
+
+# Segreti: password del database e chiavi Supabase
+.env
+.env.*
+!.env.example
+
+# File locali della CLI di Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Ambienti e file di sistema
+.venv/
+venv/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Dipendenze Node (Drizzle)
+node_modules/
