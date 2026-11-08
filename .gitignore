@@ -27,3 +27,6 @@ node_modules/
 
 # Copie di lavoro separate (git worktree) di Claude Code
 .claude/worktrees/
+
+# Spazio di lavoro dei piani (superpowers)
+.superpowers/
