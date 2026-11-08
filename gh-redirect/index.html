@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://popcorno.it/">
+<noscript><meta http-equiv="refresh" content="0;url=https://popcorno.it/"></noscript>
+<title>Popcorno si è spostato su popcorno.it</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#14123a;color:#fff;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:16px}a{color:#ffb547}</style>
+</head>
+<body>
+<p>Popcorno ora è su <a id="vai" href="https://popcorno.it/">popcorno.it</a>.</p>
+<script>
+// Porta le preferenze salvate su questo vecchio indirizzo (chiave "stasera") a popcorno.it
+// con il link del profilo #profilo=… dell'app (stessa codifica di profileLink in src/lib/profile-link.ts).
+// Il frammento # non viene mai inviato al server.
+var SYNC_KEYS = ["subs", "team", "citta", "likes", "liked", "disliked", "seen", "watch", "serie", "gen", "chi", "tempo", "umore"];
+function popcornoTarget(raw) {
+  var base = "https://popcorno.it/";
+  try {
+    var st = raw ? JSON.parse(raw) : null;
+    if (!st || typeof st !== "object") return base;
+    var p = {};
+    for (var i = 0; i < SYNC_KEYS.length; i++) p[SYNC_KEYS[i]] = st[SYNC_KEYS[i]];
+    var bytes = new TextEncoder().encode(JSON.stringify(p)), bin = "";
+    for (var j = 0; j < bytes.length; j++) bin += String.fromCharCode(bytes[j]);
+    return base + "#profilo=" + btoa(bin);
+  } catch (e) {
+    return base;
+  }
+}
+var raw = null;
+try { raw = localStorage.getItem("stasera"); } catch (e) {}
+var dest = popcornoTarget(raw);
+document.getElementById("vai").href = dest;
+location.replace(dest);
+</script>
+</body>
+</html>
