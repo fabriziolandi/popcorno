@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { AppStateProvider } from "../app-state";
 import { Shell } from "../components/Shell";
@@ -5,6 +6,20 @@ import { Shell } from "../components/Shell";
 import appCss from "../styles/app.css?url";
 
 const jsonLd = {"@context":"https://schema.org","@type":"WebApplication","name":"Popcorno","url":"https://popcorno.it/","inLanguage":"it","applicationCategory":"EntertainmentApplication","operatingSystem":"Web","description":"Ti suggerisce cosa guardare stasera: film, serie e sport in TV, in streaming e al cinema in Italia.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}};
+
+// Come oggi: il service worker si registra solo dalla pagina dell'app, dopo il caricamento nel browser.
+function App() {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      try { navigator.serviceWorker.register("/sw.js").catch(() => {}); } catch { /* come oggi: si ignora */ }
+    }
+  }, []);
+  return (
+    <AppStateProvider>
+      <Shell />
+    </AppStateProvider>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -41,9 +56,5 @@ export const Route = createFileRoute("/")({
       { rel: "stylesheet", href: appCss },
     ],
   }),
-  component: () => (
-    <AppStateProvider>
-      <Shell />
-    </AppStateProvider>
-  ),
+  component: App,
 });

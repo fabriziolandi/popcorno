@@ -115,3 +115,16 @@ describe("pagina privacy", () => {
     expect((await get("/privacy/")).status).toBe(200);
   });
 });
+
+describe("service worker", () => {
+  it("/sw.js è servito come JavaScript dalla build", async () => {
+    const { default: server } = await import(
+      /* @vite-ignore */ new URL("../dist/server/index.js", import.meta.url).href
+    );
+    const res = await server.fetch(new Request("http://localhost/sw.js"));
+    // In produzione gli asset statici li serve Cloudflare; qui controlliamo anche il file in dist/client.
+    expect(existsSync("dist/client/sw.js")).toBe(true);
+    expect(res.headers.get("location")).toBeNull();
+    expect(res.status).not.toBe(307);
+  });
+});
