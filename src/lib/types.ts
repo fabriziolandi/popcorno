@@ -42,7 +42,8 @@ export type Item = {
   d?: string;
   l?: string;
   gs?: number[];
-  y?: number;
+  y?: number | string;
+  uscita?: string;
   c?: string[];
   e?: string;
 };

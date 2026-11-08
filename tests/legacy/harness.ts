@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { JSDOM, VirtualConsole } from "jsdom";
 
 const LEGACY = resolve(__dirname, "index.legacy.html");
+const FIXTURES = resolve(__dirname, "..", "fixtures");
 // Lo script che in produzione carica data/oggi.js (riga 270 dell'app vecchia) sta su una riga sola.
 const isOggiLoader = (line: string): boolean => line.includes("document.write") && line.includes("data/oggi.js");
 
@@ -12,14 +13,66 @@ export type LegacyPalinsesto = {
   aggiornato: string;
   fonti: unknown[];
   data: string;
+  ondemand?: unknown[];
+  cinema?: unknown[];
 };
 
 export const EMPTY_PALINSESTO: LegacyPalinsesto = { items: [], etichetta: "", aggiornato: "", fonti: [], data: "" };
 
-// Apre l'app vecchia in jsdom senza rete. `pal` sostituisce data/oggi.js,
+const readFixture = (name: string): any => JSON.parse(readFileSync(resolve(FIXTURES, name), "utf8"));
+
+// Il palinsesto di prova (tests/fixtures/oggi.json), sempre una copia nuova: l'app vecchia lo modifica.
+export const fixturePalinsesto = (): LegacyPalinsesto => readFixture("oggi.json");
+
+// File di dati serviti dal finto fetch: percorso dopo "data/" → JSON. Tutto il resto risponde 404.
+export type FixtureFiles = Record<string, unknown>;
+
+export const CINEMA_INDEX = {
+  agg: "2026-11-07",
+  citta: {
+    roma: { n: "Roma", sale: 1, film: 2 },
+    "forli-cesena": { n: "Forlì", sale: 2, film: 2 },
+  },
+};
+export const SHOWS_FORLI = {
+  citta: "Forlì",
+  agg: "2026-11-07",
+  sale: [
+    { n: "Cinema Eliseo", ind: "Viale Bolognesi 14 - Forlì (FC)", url: "https://example.org/eliseo",
+      f: [{ t: "Parthenope", o: ["18:00", "21:15"] }, { t: "Il Robot Selvaggio", o: ["16:30"] }] },
+    { n: "Cinema Saffi", ind: "Viale Dell'Appennino 480 - Forlì (FC)", url: "https://example.org/saffi",
+      f: [{ t: "Parthenope - Versione restaurata", o: ["20:30", "22:40"] }] },
+  ],
+};
+
+export const defaultFiles = (): FixtureFiles => ({
+  "catalogo/netflix.json": readFixture("catalogo-netflix.json"),
+  "cinema/index.json": CINEMA_INDEX,
+  "cinema/forli-cesena.json": SHOWS_FORLI,
+  "trame/93.json": { m976893: "Un addetto alle pulizie dei bagni pubblici di Tokyo." },
+});
+
+// Un fetch finto: risponde con il file se l'URL contiene "data/<chiave>", altrimenti 404.
+export function fixtureFetch(files: FixtureFiles): (url: string) => Promise<any> {
+  return (url: string) => {
+    const path = String(url).replace(/^.*?data\//, "").replace(/\?.*$/, "");
+    if (Object.prototype.hasOwnProperty.call(files, path)) {
+      const body = JSON.parse(JSON.stringify(files[path]));
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(body) });
+    }
+    return Promise.resolve({ ok: false, status: 404, json: () => Promise.reject(new Error("404")) });
+  };
+}
+
+export type LegacyOpts = { now?: Date; random?: () => number; files?: FixtureFiles };
+
+// Apre l'app vecchia in jsdom. `pal` sostituisce data/oggi.js,
 // `stasera` (oggetto o stringa grezza) precompila localStorage.stasera.
-// Restituisce la window: le funzioni globali (es. syncLink) sono sue proprietà.
-export function loadLegacy(pal: LegacyPalinsesto = EMPTY_PALINSESTO, stasera?: object | string): any {
+// `opts.files` sono i file serviti da fetch (predefinito: nessuno, tutto 404),
+// `opts.now` blocca l'orologio (Date e Date.now), `opts.random` sostituisce Math.random.
+// Restituisce la window: le funzioni globali (syncLink, candidates, score, lucky…) sono sue proprietà;
+// le variabili let/const (st, list, C…) si leggono con window.eval("…").
+export function loadLegacy(pal: LegacyPalinsesto = EMPTY_PALINSESTO, stasera?: object | string, opts: LegacyOpts = {}): any {
   const html = readFileSync(LEGACY, "utf8");
   const lines = html.split("\n");
   const at = lines.findIndex(isOggiLoader);
@@ -32,11 +85,41 @@ export function loadLegacy(pal: LegacyPalinsesto = EMPTY_PALINSESTO, stasera?: o
     pretendToBeVisual: true,
     virtualConsole: new VirtualConsole(), // niente rumore su stderr
     beforeParse(window) {
+      const w = window as any;
       if (stasera !== undefined) {
         window.localStorage.setItem("stasera", typeof stasera === "string" ? stasera : JSON.stringify(stasera));
       }
-      (window as any).fetch = () => Promise.resolve({ ok: false, status: 404, json: () => Promise.reject(new Error("404")) });
+      w.fetch = fixtureFetch(opts.files || {});
+      w.scrollTo = () => {};
+      if (opts.random) w.Math.random = opts.random;
+      if (opts.now) {
+        const fixed = opts.now.getTime();
+        const RealDate = w.Date as DateConstructor;
+        class FixedDate extends RealDate {
+          constructor(...a: any[]) {
+            if (a.length) super(...(a as [any])); else super(fixed);
+          }
+          static now() { return fixed; }
+        }
+        w.Date = FixedDate;
+      }
     },
   });
   return dom.window;
+}
+
+// Lascia finire i fetch asincroni dell'app vecchia (cataloghi, orari dei cinema).
+export async function settle(): Promise<void> {
+  for (let i = 0; i < 20; i++) await new Promise((r) => setTimeout(r, 0));
+}
+
+// "Mi sento fortunato" dell'app vecchia: lancia lucky() e legge la scelta da `list`,
+// controllando che il titolo mostrato in #res sia lo stesso.
+export function legacyLucky(w: any): { it: any; sc: number; why: string[] } | null {
+  w.lucky();
+  const list = w.eval("list");
+  if (!list.length) return null;
+  const shown = w.document.querySelector("#res .title")?.textContent;
+  if (shown !== list[0].it.t) throw new Error(`harness: #res mostra "${shown}", list ha "${list[0].it.t}"`);
+  return JSON.parse(JSON.stringify(list[0]));
 }
