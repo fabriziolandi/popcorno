@@ -3,6 +3,11 @@ data/catalogo/
 data/trame/
 data/cinema/
 data/oggi.js
+public/data/catalogo/
+public/data/trame/
+public/data/cinema/
+public/data/oggi.json
+public/data/oggi.js
 data/versione.txt
 __pycache__/
 
@@ -30,3 +35,7 @@ node_modules/
 
 # Spazio di lavoro dei piani (superpowers)
 .superpowers/
+
+# Build e Cloudflare
+dist/
+.wrangler/
