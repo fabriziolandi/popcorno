@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Legge la prima serata di OGGI (TV in chiaro, Sky, sport) da superguidatv.it,
-la arricchisce con TMDB e scrive data/tv.json e data/meta.json.
+la arricchisce con TMDB e scrive public/data/tv.json e public/data/meta.json.
 Uso: TMDB_KEY=... python3 scripts/guida.py
 Se trova meno di 15 programmi non scrive nulla ed esce con errore, cosi' il sito
 tiene la guida precedente invece di una vuota."""
@@ -288,8 +288,8 @@ def main():
             "aggiornato": f"{NOW.day} {mesi[NOW.month-1]}, {NOW.strftime('%H:%M')}",
             "fonti": ["superguidatv.it", "github.com/matthuisman/i.mjh.nz (Pluto TV, Samsung TV Plus)"]}
     os.makedirs("data", exist_ok=True)
-    json.dump(items, open("data/tv.json", "w"), ensure_ascii=False, indent=0)
-    json.dump(meta, open("data/meta.json", "w"), ensure_ascii=False, indent=1)
+    json.dump(items, open("public/data/tv.json", "w"), ensure_ascii=False, indent=0)
+    json.dump(meta, open("public/data/meta.json", "w"), ensure_ascii=False, indent=1)
 
 
 if __name__ == "__main__":

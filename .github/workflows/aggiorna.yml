@@ -1,8 +1,8 @@
 name: Aggiorna dati Popcorno
 
-# Legge guida TV, cataloghi, film e orari dei cinema e pubblica il sito.
+# Legge guida TV, cataloghi, film e orari dei cinema e pubblica il sito su Cloudflare Workers.
 # I dati generati non vengono salvati nella cronologia del repository: vanno
-# direttamente nel sito. Si salvano solo data/tv.json e data/meta.json (piccoli),
+# direttamente nel sito. Si salvano solo public/data/tv.json e public/data/meta.json (piccoli),
 # cosi' se una lettura fallisce resta la guida precedente.
 
 on:
@@ -27,14 +27,15 @@ jobs:
   aggiorna:
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
       - name: Data di oggi
         id: oggi
         run: echo "d=$(TZ=Europe/Rome date +%F)" >> "$GITHUB_OUTPUT"
@@ -53,7 +54,7 @@ jobs:
           python3 scripts/epg.py "${{ steps.oggi.outputs.d }}" /tmp/pluto.xml /tmp/samsung.xml > /tmp/fast.json || echo "[]" > /tmp/fast.json
           python3 - <<'PY'
           import json
-          tv = json.load(open("data/tv.json"))
+          tv = json.load(open("public/data/tv.json"))
           tv = [x for x in tv if x.get("s") not in ("pluto", "samsung")] + json.load(open("/tmp/fast.json"))
           json.dump(tv, open("/tmp/items.json", "w"), ensure_ascii=False)
           PY
@@ -63,39 +64,72 @@ jobs:
           TMDB_KEY: ${{ secrets.TMDB_KEY }}
         run: |
           python3 scripts/tmdb.py /tmp/items.json > /tmp/tmdb.json || echo "{}" > /tmp/tmdb.json
-          python3 scripts/catalogo.py data/catalogo
+          python3 scripts/catalogo.py public/data/catalogo
 
       # Orari dei cinema: letti una volta al giorno e tenuti in cache per le altre esecuzioni
       - name: Orari dei cinema (cache del giorno)
         id: cache-cinema
         uses: actions/cache@v4
         with:
-          path: data/cinema
+          path: public/data/cinema
           key: cinema-${{ steps.oggi.outputs.d }}
           restore-keys: cinema-
       - name: Orari dei cinema (lettura)
         if: steps.cache-cinema.outputs.cache-hit != 'true' && github.event_name != 'push'
         continue-on-error: true
-        run: python3 scripts/cinema.py data/cinema
+        run: python3 scripts/cinema.py public/data/cinema
 
-      - name: Componi data/oggi.js
+      # Se manca un oggi.json valido il job si ferma qui, prima della pubblicazione:
+      # resta online la versione precedente.
+      - name: Componi public/data/oggi.json
         run: |
-          python3 scripts/build.py data/meta.json /tmp/items.json /tmp/tmdb.json > data/oggi.js
-          node --check data/oggi.js
+          python3 scripts/build.py --json public/data/meta.json /tmp/items.json /tmp/tmdb.json > public/data/oggi.json
+          python3 -m json.tool public/data/oggi.json > /dev/null
+
+      # Per i telefoni con la versione vecchia dell'app (legge oggi.js).
+      # togliere dopo il AAAA-MM-GG (data del cambio + 30 giorni)
+      - name: Componi public/data/oggi.js (versione vecchia)
+        run: |
+          python3 scripts/build.py public/data/meta.json /tmp/items.json /tmp/tmdb.json > public/data/oggi.js
+          node --check public/data/oggi.js
 
       - name: Salva la guida TV (solo i file piccoli)
-        if: github.event_name != 'push'
+        if: github.event_name != 'push' && github.ref == 'refs/heads/main'
         run: |
           git config user.name "popcorno-bot"
           git config user.email "popcorno-bot@users.noreply.github.com"
-          git add data/tv.json data/meta.json
+          git add public/data/tv.json public/data/meta.json
           git diff --cached --quiet || git commit -m "Guida TV $(TZ=Europe/Rome date '+%d/%m %H:%M')"
           git pull --rebase origin main && git push
 
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - run: npm ci
+      - name: Test
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Pubblica su Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy
+
+      # TODO Task 11: pubblicare solo gh-redirect/ (oggi si pubblica tutto il repository)
+      - name: Pacchetto per GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: .
+
+  pagine:
+    # Solo su main: sul ramo riscrittura-react si pubblica soltanto su Cloudflare.
+    if: github.ref == 'refs/heads/main'
+    needs: aggiorna
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
       - name: Pubblica il sito
         id: deploy
         uses: actions/deploy-pages@v4

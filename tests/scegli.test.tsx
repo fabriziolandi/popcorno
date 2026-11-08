@@ -32,6 +32,7 @@ async function expected(prof: Partial<Stasera>) {
 async function mount(prof: Partial<Stasera> = {}) {
   vi.stubGlobal("fetch", fixtureFetch(files()));
   vi.stubGlobal("scrollTo", vi.fn());
+  Element.prototype.scrollIntoView = vi.fn(); // jsdom non lo implementa
   localStorage.setItem("stasera", JSON.stringify({ ...DEFAULT_STATE, ...prof }));
   render(<AppStateProvider><Shell /></AppStateProvider>);
   await waitFor(() => expect(text("#cat-count")).toMatch(/Catalogo streaming/));
