@@ -1,16 +1,9 @@
 import type { ReactNode } from "react";
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+// Tutto il CSS dell'app vecchia, @font-face compresi.
+import appCss from "../styles/app.css?url";
 
 const jsonLd = {"@context":"https://schema.org","@type":"WebApplication","name":"Popcorno","url":"https://popcorno.it/","inLanguage":"it","applicationCategory":"EntertainmentApplication","operatingSystem":"Web","description":"Ti suggerisce cosa guardare stasera: film, serie e sport in TV, in streaming e al cinema in Italia.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}};
-
-const fontFace = `
-@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(/fonts/bricolage.woff2) format("woff2-variations"),url(/fonts/bricolage.woff2) format("woff2")}
-@font-face{font-family:Figtree;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/figtree-400.woff2) format("woff2")}
-@font-face{font-family:Figtree;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/figtree-500.woff2) format("woff2")}
-@font-face{font-family:Figtree;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/figtree-600.woff2) format("woff2")}
-@font-face{font-family:Figtree;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/figtree-700.woff2) format("woff2")}
-@font-face{font-family:VT323;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/vt323.woff2) format("woff2")}
-`;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -47,8 +40,8 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://image.tmdb.org" },
       { rel: "canonical", href: "https://popcorno.it/" },
       { rel: "preload", href: "/fonts/figtree-400.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: appCss },
     ],
-    styles: [{ children: fontFace }],
   }),
   shellComponent: RootDocument,
 });

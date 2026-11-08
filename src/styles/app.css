@@ -1,0 +1,181 @@
+/* CSS dell'app vecchia (i due <style> di index.html), percorsi dei caratteri resi assoluti */
+@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(/fonts/bricolage.woff2) format("woff2-variations"),url(/fonts/bricolage.woff2) format("woff2")}
+@font-face{font-family:Figtree;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/figtree-400.woff2) format("woff2")}
+@font-face{font-family:Figtree;font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/figtree-500.woff2) format("woff2")}
+@font-face{font-family:Figtree;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/figtree-600.woff2) format("woff2")}
+@font-face{font-family:Figtree;font-style:normal;font-weight:700;font-display:swap;src:url(/fonts/figtree-700.woff2) format("woff2")}
+@font-face{font-family:VT323;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/vt323.woff2) format("woff2")}
+:root{
+  --notte:#151a44;      /* cielo della sera */
+  --notte2:#1d2358;     /* superfici */
+  --bordo:#2f377a;
+  --luce:#ffb547;       /* la lampada accanto al divano */
+  --onda:#ff4d6d;       /* in onda */
+  --gratis:#5fe0a8;
+  --testo:#f3f1ff;
+  --muto:#a3a8da;
+  --osd:#7dfcb0;        /* verde del menu del televisore */
+  --r-schermo:28px; --r-tasto:999px; --r-box:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--notte)}
+body{min-height:100vh;color:var(--testo);font:16px/1.45 Figtree,system-ui,sans-serif;
+  background:radial-gradient(120% 60% at 85% -10%,#3a2f7a 0%,transparent 55%),
+             radial-gradient(90% 50% at -10% 110%,#3b2a1a 0%,transparent 60%),var(--notte);
+  background-attachment:fixed;
+  padding:env(safe-area-inset-top) 0 calc(92px + env(safe-area-inset-bottom))}
+.wrap{max-width:480px;margin:0 auto;padding:16px 20px 24px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--luce);outline-offset:2px}
+.hide{display:none!important}
+
+/* intestazione: logo + orologio da televisore */
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.logo{font:800 26px/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.8px;display:flex;align-items:center;gap:8px}
+.logo svg{width:30px;height:30px;filter:drop-shadow(0 0 10px #ffb54755)}
+.clock{font:28px/1 VT323,monospace;color:var(--osd);text-shadow:0 0 8px #7dfcb066;text-align:right}
+.clock small{display:block;font:500 12px Figtree,sans-serif;color:var(--muto);text-shadow:none;text-transform:capitalize}
+
+/* domande */
+h1.q-title{font:800 40px/1.02 "Bricolage Grotesque",sans-serif;letter-spacing:-1.5px;margin-bottom:8px}
+.lead{color:var(--muto);font-size:14px;margin-bottom:26px}
+.lead b{color:var(--testo);font-weight:600}
+.q{margin-bottom:22px}
+.q h3{font:700 17px "Bricolage Grotesque",sans-serif;margin-bottom:10px}
+.q h3 span{font:500 13px Figtree,sans-serif;color:var(--muto)}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--bordo);background:transparent;padding:10px 15px;border-radius:var(--r-tasto);font-size:15px;font-weight:600;transition:background .15s,border-color .15s}
+.seg[data-k=gen] .chip{font-size:14px;padding:8px 12px;font-weight:500}
+.chip.on{background:var(--luce);border-color:var(--luce);color:#2a1700}
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.mood{border:1.5px solid var(--bordo);background:var(--notte2);border-radius:var(--r-box);padding:12px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muto)}
+.mood em{font-style:normal;font-size:26px;line-height:1;filter:grayscale(.7);opacity:.75}
+.mood.on{border-color:var(--luce);color:var(--testo);background:#3a3260}
+.mood.on em{filter:none;opacity:1}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;border-top:1px solid var(--bordo);border-bottom:1px solid var(--bordo);margin:6px 0 24px}
+.toggle b{font-weight:700}.toggle p{color:var(--muto);font-size:13px}
+.sw{width:52px;height:30px;border-radius:99px;background:var(--bordo);position:relative;flex:none;border:0;transition:background .2s}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s}
+.sw.on{background:var(--gratis)}.sw.on:after{left:25px}
+.lucky{width:100%;display:flex;align-items:center;gap:14px;text-align:left;padding:16px 18px;border-radius:22px;border:1.5px solid #7dfcb055;background:linear-gradient(135deg,#1f4a3c,#1d2358 70%);box-shadow:0 0 0 4px #7dfcb012,0 16px 34px -18px #7dfcb088;margin-bottom:12px}
+.lucky .clover{font-size:34px;line-height:1}
+.lucky b{display:block;font:800 21px/1.1 "Bricolage Grotesque",sans-serif;letter-spacing:-.4px}
+.lucky small{display:block;font-size:13px;color:#c6f5dd;margin-top:3px}
+.sale{margin:0 0 20px}
+.sala{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid #2f377a88}
+.sala a{color:inherit;text-decoration:none;min-width:0}
+.sala b{display:block;font-size:15px}.sala a span{display:block;font-size:12px;color:var(--muto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ore{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.ore span{font:20px VT323,monospace;color:var(--osd);padding:2px 7px;border-radius:8px;background:#0e1233}
+.ore span.passato{color:#5b6094;text-decoration:line-through}
+.fonte{font-size:11px;color:var(--muto);margin-top:8px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+.act{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 12px;border-radius:14px;border:1.5px solid var(--bordo);background:var(--notte2);color:var(--testo);font:700 14px Figtree,sans-serif;text-decoration:none;white-space:nowrap}
+.act.on{border-color:var(--luce);background:#3a3260}
+.ep{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #2f377a88}
+.ep b{display:block;font-size:15px}.ep span{font-size:13px;color:var(--muto)}
+.ep .ctr{display:flex;gap:6px;align-items:center}
+.ep .ctr button{width:38px;height:38px;border-radius:12px;border:1.5px solid var(--bordo);background:var(--notte2);color:var(--testo);font:700 16px Figtree,sans-serif}
+.ep .ctr .ee{font:22px VT323,monospace;color:var(--osd);min-width:64px;text-align:center}
+.resume{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:13px 16px;border-radius:18px;border:1.5px solid var(--bordo);background:var(--notte2);margin-bottom:10px}
+.resume b{display:block;font:700 15px Figtree,sans-serif}.resume small{color:var(--muto);font-size:13px}
+.resume .ee{margin-left:auto;font:22px VT323,monospace;color:var(--osd)}
+.again{display:block;margin:-12px auto 28px;padding:12px 22px;border-radius:999px;border:1.5px solid #7dfcb055;background:transparent;color:#c6f5dd;font:700 15px Figtree,sans-serif}
+.or{text-align:center;color:var(--muto);font-size:13px;margin:4px 0 22px}
+.power{width:100%;border:0;border-radius:22px;padding:20px;font:800 20px "Bricolage Grotesque",sans-serif;letter-spacing:-.3px;
+  background:var(--luce);color:#2a1700;box-shadow:0 0 0 6px #ffb54722,0 18px 40px -12px #ffb547aa;display:flex;align-items:center;justify-content:center;gap:12px}
+.power svg{width:22px;height:22px}
+.power:active{transform:translateY(1px)}
+
+/* IL TELEVISORE: elemento protagonista */
+.tv{position:relative;border-radius:var(--r-schermo);padding:10px;background:linear-gradient(160deg,#2a2f5c,#0e1130);box-shadow:0 30px 60px -25px #000a,inset 0 1px 0 #ffffff22}
+.screen{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/3.2;display:flex;flex-direction:column;justify-content:space-between;padding:16px 18px 18px;isolation:isolate}
+.screen:before{content:"";position:absolute;inset:0;z-index:-1;background:repeating-linear-gradient(0deg,#0000 0 2px,#00000026 2px 3px)}
+.screen:after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(130% 90% at 50% 40%,transparent 45%,#0009 100%)}
+.osd{display:flex;justify-content:space-between;align-items:flex-start;font-family:VT323,monospace;color:var(--osd);text-shadow:0 0 6px #000,0 0 10px #7dfcb055}
+.osd .ch{font-size:44px;line-height:.8}
+.osd .chn{font-size:20px;line-height:1;display:block;margin-top:4px;color:#e9fff1}
+.osd .when{font-size:24px;text-align:right;line-height:1}
+.osd .when.live{color:#ff8fa3}
+.osd .when .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--onda);margin-right:6px;vertical-align:2px;box-shadow:0 0 8px var(--onda);animation:blink 1.6s steps(2) infinite}
+.big-emoji{position:absolute;right:14px;bottom:62px;font-size:84px;opacity:.22;z-index:-1;transform:rotate(-8deg)}
+.title{font:800 34px/1 "Bricolage Grotesque",sans-serif;letter-spacing:-1.2px;text-shadow:0 2px 18px #0009;text-wrap:balance}
+.kind{font-size:13px;font-weight:600;color:#ffffffcc;margin-bottom:6px}
+.zap .screen{animation:zap .32s steps(4)}
+@keyframes zap{0%{filter:brightness(3) contrast(3) saturate(0)}50%{filter:brightness(.4)}100%{filter:none}}
+@keyframes blink{50%{opacity:.2}}
+
+.facts{display:flex;flex-wrap:wrap;gap:6px 14px;margin:16px 4px 10px;font-size:14px;color:var(--muto)}
+.facts b{color:var(--testo);font-weight:600}
+.facts .star{color:var(--luce);font-weight:700}
+.facts .free{color:var(--gratis);font-weight:700}
+.facts .new{color:var(--onda);font-weight:700}
+.plot{margin:0 4px 14px;font-size:15px;color:#dcdaf3;max-width:62ch}
+.orari{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 18px;padding:15px;border-radius:16px;background:var(--onda);color:#fff;font:800 17px "Bricolage Grotesque",sans-serif;text-decoration:none}
+.why{margin:0 4px 20px;padding-left:12px;border-left:3px solid var(--luce);font-size:14px;color:var(--muto)}
+.why b{color:var(--testo);font-weight:600}
+
+/* telecomando */
+.remote{display:grid;grid-template-columns:64px 1fr 64px;gap:12px;align-items:center;margin-bottom:28px}
+.rbtn{height:64px;border-radius:50%;border:0;background:var(--notte2);box-shadow:inset 0 -3px 0 #0005,0 0 0 1.5px var(--bordo);font-size:24px}
+.rbtn.yes.sel{background:#1f5a45;box-shadow:inset 0 -3px 0 #0005,0 0 0 2px var(--gratis)}
+.rbtn.no.sel{background:#5a1f2e;box-shadow:inset 0 -3px 0 #0005,0 0 0 2px var(--onda)}
+.zapbtn{height:64px;border-radius:var(--r-tasto);border:0;background:var(--testo);color:var(--notte);font:800 17px "Bricolage Grotesque",sans-serif;display:flex;align-items:center;justify-content:center;gap:10px}
+.zapbtn svg{width:20px;height:20px}
+.back{background:none;border:0;color:var(--muto);font-size:14px;font-weight:600;margin-bottom:14px;padding:6px 0}
+
+/* altri canali: mini schermi */
+.more-h{font:700 17px "Bricolage Grotesque",sans-serif;margin:0 0 12px}
+.strip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:0 20px 6px}
+.mini{flex:0 0 46%;scroll-snap-align:start;border:0;background:none;text-align:left}
+.mini .ms{aspect-ratio:4/3;border-radius:14px;position:relative;overflow:hidden;padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 0 0 4px #20254f}
+.mini .ms:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,#0000 0 2px,#0000002a 2px 3px)}
+.mini .mo{font:20px/1 VT323,monospace;color:var(--osd);position:relative;text-shadow:0 0 4px #000}
+.mini .me{font-size:34px;position:relative;align-self:flex-end;opacity:.85}
+.mini b{display:block;font-size:14px;font-weight:700;margin-top:10px;line-height:1.2}
+.mini span{font-size:12px;color:var(--muto)}
+
+.empty{text-align:center;padding:48px 10px;color:var(--muto)}
+.empty .e{font:56px VT323,monospace;color:var(--osd);margin-bottom:10px}
+.banner{font-size:12px;color:var(--muto);margin-top:18px;text-align:center}
+.banner b{color:var(--testo)}
+
+/* guida */
+h2.sec{font:800 30px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-1px;margin-bottom:4px}
+.sub{color:var(--muto);font-size:13px;margin-bottom:16px}
+.filters{display:flex;gap:8px;overflow-x:auto;margin:0 -20px 10px;padding:0 20px 4px}
+.filters .chip{flex:none;font-size:14px;padding:8px 13px}
+.row{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #2f377a88}
+.lcn{height:44px;border-radius:10px;background:#0e1233;display:flex;flex-direction:column;align-items:center;justify-content:center;font:26px/1 VT323,monospace;color:var(--osd)}
+.lcn small{font:9px/1 Figtree,sans-serif;color:var(--muto);margin-top:2px;max-width:54px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.lcn.app{font:700 11px/1.1 Figtree,sans-serif;color:var(--testo);text-align:center;padding:0 4px}
+.row b{display:block;font-size:15px;font-weight:700;line-height:1.25}
+.row .ty{font-size:12px;color:var(--muto)}
+.row .t{font:24px VT323,monospace;color:var(--luce)}
+.row .t.st{font:700 13px Figtree,sans-serif}
+.nowline{display:flex;align-items:center;gap:8px;font:20px VT323,monospace;color:var(--onda);margin:6px 0}
+.nowline:after{content:"";flex:1;height:2px;background:var(--onda);box-shadow:0 0 8px var(--onda)}
+
+/* profilo */
+.grp{margin-bottom:26px}
+.grp h3{font:700 18px "Bricolage Grotesque",sans-serif;margin-bottom:2px}
+.grp p{font-size:13px;color:var(--muto);margin-bottom:12px}
+.free-list{font-size:13px;color:var(--muto);line-height:1.7}
+#citta,select{width:100%;padding:14px;border-radius:14px;background:var(--notte2);color:var(--testo);border:1.5px solid var(--bordo);font:600 15px Figtree,sans-serif}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border:1.5px solid var(--bordo);border-radius:var(--r-box);padding:12px 14px}
+.stat b{font:36px/1 VT323,monospace;color:var(--osd)}
+.stat span{display:block;font-size:12px;color:var(--muto)}
+.credit{font-size:11px;color:var(--muto);margin-top:14px}
+.credit a{color:#01b4e4}
+
+/* barra in basso come un telecomando */
+nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));width:min(440px,calc(100% - 32px));
+  background:#0e1233ee;backdrop-filter:blur(14px);border-radius:999px;box-shadow:0 12px 30px -10px #000c,0 0 0 1px #ffffff14;display:flex;padding:6px}
+nav button{flex:1;border:0;background:none;border-radius:999px;padding:10px 0;font-size:13px;font-weight:700;color:var(--muto);display:flex;align-items:center;justify-content:center;gap:7px}
+nav svg{width:18px;height:18px}
+nav button.on{background:var(--notte2);color:var(--testo);box-shadow:inset 0 0 0 1px var(--bordo)}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--testo);color:var(--notte);padding:10px 18px;border-radius:99px;font-size:14px;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
