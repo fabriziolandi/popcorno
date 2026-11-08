@@ -16,11 +16,9 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: aggiorna
+  group: aggiorna-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -93,6 +91,22 @@ jobs:
           python3 scripts/build.py public/data/meta.json /tmp/items.json /tmp/tmdb.json > public/data/oggi.js
           node --check public/data/oggi.js
 
+      # Sito di GitHub Pages: stessa struttura di oggi (dati, font, icone in radice).
+      # Preparato prima dei passi Node cosi' non include node_modules/ ne' dist/, e il
+      # deploy di Pages non dipende da test e Cloudflare.
+      # TODO Task 11: pubblicare solo gh-redirect/
+      - name: Prepara il sito per GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir _pages
+          cp -r public/. _pages/
+          cp -r index.html sw.js privacy CNAME .nojekyll _pages/
+      - name: Pacchetto per GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _pages
+
       - name: Salva la guida TV (solo i file piccoli)
         if: github.event_name != 'push' && github.ref == 'refs/heads/main'
         run: |
@@ -113,18 +127,14 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler deploy
 
-      # TODO Task 11: pubblicare solo gh-redirect/ (oggi si pubblica tutto il repository)
-      - name: Pacchetto per GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
   pagine:
     # Solo su main: sul ramo riscrittura-react si pubblica soltanto su Cloudflare.
-    if: github.ref == 'refs/heads/main'
+    if: always() && github.ref == 'refs/heads/main'
     needs: aggiorna
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}

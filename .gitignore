@@ -39,3 +39,6 @@ node_modules/
 # Build e Cloudflare
 dist/
 .wrangler/
+
+# Sito di GitHub Pages preparato dal workflow
+_pages/

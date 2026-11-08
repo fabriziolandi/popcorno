@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Catalogo COMPLETO per l'Italia di ogni piattaforma streaming, da TMDB.
-Scrive data/catalogo/<chiave>.json in formato compatto:
-{"k":"netflix","agg":"AAAA-MM-GG","t":[[id,tipo,titolo,anno,voto,generi,popolarita,poster,numero_voti,lingua_originale], ...]; trame in data/trame/<id%100>.json}
+Scrive public/data/catalogo/<chiave>.json in formato compatto:
+{"k":"netflix","agg":"AAAA-MM-GG","t":[[id,tipo,titolo,anno,voto,generi,popolarita,poster,numero_voti,lingua_originale], ...]; trame in public/data/trame/<id%100>.json}
 tipo: 0 film, 1 serie. Uso: TMDB_KEY=... python3 scripts/catalogo.py [cartella_uscita]"""
 import os, sys, json, time, urllib.request, urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
 K = os.environ["TMDB_KEY"]
-OUT = sys.argv[1] if len(sys.argv) > 1 else "data/catalogo"
+OUT = sys.argv[1] if len(sys.argv) > 1 else "public/data/catalogo"
 os.makedirs(OUT, exist_ok=True)
 
 PROV = {"netflix": (8, "flatrate"), "prime": (119, "flatrate"), "disney": (337, "flatrate"), "hbo": (1899, "flatrate"),
@@ -62,7 +62,7 @@ for key in PROV:
         json.dump({"k": key, "agg": date.today().isoformat(), "t": rows}, f, ensure_ascii=False, separators=(",", ":"))
     tot += len(rows)
     print(key, len(rows), file=sys.stderr)
-# trame divise in 100 file piccoli: data/trame/<id % 100>.json
+# trame divise in 100 file piccoli: public/data/trame/<id % 100>.json
 TD = os.path.join(os.path.dirname(OUT.rstrip("/")) or ".", "trame")
 os.makedirs(TD, exist_ok=True)
 buckets = {}

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Orari dei cinema di oggi nei capoluoghi di provincia, da movieplayer.it.
-Scrive data/cinema/<provincia>.json = {"citta","agg","sale":[{"n","ind","url","f":[{"t","o":["16:30",...]}]}]}
-e data/cinema/index.json = {"<provincia>": {"n": "Nome", "sale": N, "film": N}}.
+Scrive public/data/cinema/<provincia>.json = {"citta","agg","sale":[{"n","ind","url","f":[{"t","o":["16:30",...]}]}]}
+e public/data/cinema/index.json = {"<provincia>": {"n": "Nome", "sale": N, "film": N}}.
 Uso: python3 scripts/cinema.py [cartella_uscita]"""
 import os, re, sys, json, time, html, unicodedata, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-OUT = sys.argv[1] if len(sys.argv) > 1 else "data/cinema"
+OUT = sys.argv[1] if len(sys.argv) > 1 else "public/data/cinema"
 BASE = "https://movieplayer.it"
 UA = {"User-Agent": "Mozilla/5.0 (compatible; PopcornoBot/1.0; +https://popcorno.it/)", "Accept-Language": "it-IT,it;q=0.9"}
 OGGI = datetime.now(ZoneInfo("Europe/Rome")).strftime("%Y-%m-%d")

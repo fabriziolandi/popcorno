@@ -37,6 +37,7 @@ async function mount(prof: Partial<Stasera> = {}) {
   render(<AppStateProvider><Shell /></AppStateProvider>);
   await waitFor(() => expect(text("#cat-count")).toMatch(/Catalogo streaming/));
 }
+const scrollIntoViewOrig = Element.prototype.scrollIntoView;
 const click = async (s: string) => { await act(async () => { fireEvent.click($(s)!); }); };
 
 // L'ora del dispositivo è quella del palinsesto di prova (solo Date: i timer restano veri).
@@ -49,6 +50,7 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  Element.prototype.scrollIntoView = scrollIntoViewOrig;
   localStorage.clear();
 });
 

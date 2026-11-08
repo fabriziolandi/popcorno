@@ -287,7 +287,7 @@ def main():
     meta = {"data": NOW.strftime("%Y-%m-%d"), "etichetta": f"{giorni[NOW.weekday()]} {NOW.day} {mesi[NOW.month-1]}",
             "aggiornato": f"{NOW.day} {mesi[NOW.month-1]}, {NOW.strftime('%H:%M')}",
             "fonti": ["superguidatv.it", "github.com/matthuisman/i.mjh.nz (Pluto TV, Samsung TV Plus)"]}
-    os.makedirs("data", exist_ok=True)
+    os.makedirs("public/data", exist_ok=True)
     json.dump(items, open("public/data/tv.json", "w"), ensure_ascii=False, indent=0)
     json.dump(meta, open("public/data/meta.json", "w"), ensure_ascii=False, indent=1)
 
