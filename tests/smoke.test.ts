@@ -38,3 +38,31 @@ describe("scheletro TanStack Start su Cloudflare", () => {
     expect(readFileSync("dist/client" + css, "utf8")).toContain(".toast.show{opacity:1}");
   });
 });
+
+describe("pagina privacy", () => {
+  const get = async (path: string) => {
+    const { default: server } = await import(
+      /* @vite-ignore */ new URL("../dist/server/index.js", import.meta.url).href
+    );
+    return server.fetch(new Request("http://localhost" + path));
+  };
+
+  it("/privacy/ risponde 200 con title e meta description della vecchia, senza il CSS dell'app", async () => {
+    const vecchia = readFileSync("tests/legacy/privacy.legacy.html", "utf8");
+    const res = await get("/privacy/");
+    const html = await res.text();
+    expect(res.status).toBe(200);
+    expect(titolo(html)).toBe(titolo(vecchia));
+    const desc = (h: string) => /<meta name="description" content="([^"]*)"/.exec(h)?.[1].replace(/&#x27;/g, "'");
+    expect(desc(html)).toBe(desc(vecchia));
+    expect(html).not.toMatch(/<link rel="stylesheet"/);
+    expect(html).not.toContain("og:title");
+  });
+
+  it("/privacy (senza barra) rimanda a /privacy/", async () => {
+    const res = await get("/privacy");
+    expect(res.status).toBeGreaterThanOrEqual(300);
+    expect(res.status).toBeLessThan(400);
+    expect(res.headers.get("location")).toBe("/privacy/");
+  });
+});

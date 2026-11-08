@@ -17,6 +17,8 @@ export type AppState = {
   setSt(next: Stasera): void;
   pal: Palinsesto | null;
   catalog: Item[];
+  // Aggiunge al catalogo i titoli letti dopo l'avvio (nuovo abbonamento nel Profilo).
+  addCatalog(items: Item[]): void;
   toast(msg: string): void;
   view: View;
   setView(v: View): void;
@@ -45,6 +47,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [st, setStRaw] = useState<Stasera>(() => structuredClone(DEFAULT_STATE));
   const [pal, setPal] = useState<Palinsesto | null>(null);
   const [catalog, setCatalog] = useState<Item[]>([]);
+  const addCatalog = useCallback((items: Item[]) => { if (items.length) setCatalog((c) => [...c, ...items]); }, []);
   const [view, setViewRaw] = useState<View>("scegli");
   const [toastMsg, setToastMsg] = useState("");
   const [toastOn, setToastOn] = useState(false);
@@ -120,8 +123,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [pal, st, shows, catalog, setView]);
 
   const value = useMemo<AppState>(
-    () => ({ st, setSt, pal, catalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem }),
-    [st, setSt, pal, catalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem],
+    () => ({ st, setSt, pal, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem }),
+    [st, setSt, pal, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

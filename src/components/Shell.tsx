@@ -1,6 +1,7 @@
 import { useApp } from "../app-state";
 import { Header } from "./Header";
 import { Nav } from "./Nav";
+import { Profile } from "./prof/Profile";
 import { Guide } from "./onda/Guide";
 import { Scegli } from "./scegli/Scegli";
 import { Toast } from "./Toast";
@@ -15,8 +16,7 @@ export function Shell() {
         <Header />
         <section id="v-scegli" className={hide("scegli")}><Scegli /></section>
         <section id="v-onda" className={hide("onda")}><Guide /></section>
-        {/* PROFILO: Task 7 */}
-        <section id="v-prof" className={hide("prof")}></section>
+        <section id="v-prof" className={hide("prof")}><Profile /></section>
       </div>
       <Nav />
       <Toast />
