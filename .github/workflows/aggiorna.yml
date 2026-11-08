@@ -83,6 +83,10 @@ jobs:
           python3 scripts/build.py data/meta.json /tmp/items.json /tmp/tmdb.json > data/oggi.js
           node --check data/oggi.js
 
+      - name: Pagine per Google (TV di stasera e cinema per citta')
+        continue-on-error: true
+        run: python3 scripts/pagine.py .
+
       - name: Salva la guida TV (solo i file piccoli)
         if: github.event_name != 'push'
         run: |

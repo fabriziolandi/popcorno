@@ -5,3 +5,9 @@ data/cinema/
 data/oggi.js
 data/versione.txt
 __pycache__/
+# Pagine per Google generate da scripts/pagine.py a ogni pubblicazione
+/stasera-in-tv/
+/film-stasera-in-tv/
+/serie-tv-stasera/
+/sport-stasera-in-tv/
+/cinema/
