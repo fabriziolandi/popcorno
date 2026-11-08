@@ -1,10 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { loadCatalogs, loadPalinsesto, type Palinsesto } from "./lib/data";
+import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
 import { parseProfileHash } from "./lib/profile-link";
+import { candidates, type Scored } from "./lib/scoring";
+import { isFree } from "./lib/sources";
 import { DEFAULT_STATE, loadState, saveState } from "./lib/state";
 import type { Item, Stasera } from "./lib/types";
 
 export type View = "scegli" | "onda" | "prof";
+
+// La proposta della vista Scegli (list, idx, luckyMode dell'app vecchia). `shown`: #res visibile
+// al posto delle domande; `zap`: effetto cambio canale; `seq` cresce a ogni showRes e rifà la scheda.
+export type Res = { list: Scored[]; idx: number; lucky: boolean; zap: boolean; shown: boolean; seq: number };
 
 export type AppState = {
   st: Stasera;
@@ -14,6 +20,13 @@ export type AppState = {
   toast(msg: string): void;
   view: View;
   setView(v: View): void;
+  // Orari dei cinema della città del profilo (SHOWS dell'app vecchia).
+  shows: CityShows | null;
+  setShows(s: CityShows | null): void;
+  res: Res | null;
+  setRes(f: (r: Res | null) => Res | null): void;
+  // showOne dell'app vecchia: apre Scegli con quel titolo come proposta.
+  openItem(it: Item): void;
   // per il componente Toast
   toastMsg: string;
   toastOn: boolean;
@@ -34,6 +47,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [view, setViewRaw] = useState<View>("scegli");
   const [toastMsg, setToastMsg] = useState("");
   const [toastOn, setToastOn] = useState(false);
+  const [shows, setShows] = useState<CityShows | null>(null);
+  const [res, setRes] = useState<Res | null>(null);
 
   // Come toast() dell'app vecchia: il timer non si annulla se arriva un altro messaggio.
   const toast = useCallback((m: string) => {
@@ -86,9 +101,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return () => { alive = false; };
   }, [toast]);
 
+  // Come loadCityShows() dell'app vecchia, chiamata all'avvio e a ogni cambio di città:
+  // gli orari si azzerano e si ricaricano (dopo il palinsesto, che dà la versione dei dati).
+  useEffect(() => {
+    if (!pal) return;
+    let alive = true;
+    setShows(null);
+    loadCityShows(st.citta).then((s) => { if (alive) setShows(s); });
+    return () => { alive = false; };
+  }, [pal, st.citta]);
+
+  const openItem = useCallback((it: Item) => {
+    const rest = pal ? candidates(pal, st, { shows, extra: catalog }).filter((x) => x.it !== it) : [];
+    const first: Scored = { it, sc: 99, why: ["l'hai cercato tu"].concat(isFree(it) ? ["è <b>gratis</b>"] : []) };
+    setRes((r) => ({ list: [first, ...rest], idx: 0, lucky: false, zap: false, shown: true, seq: (r?.seq ?? 0) + 1 }));
+    setView("scegli");
+  }, [pal, st, shows, catalog, setView]);
+
   const value = useMemo<AppState>(
-    () => ({ st, setSt, pal, catalog, toast, view, setView, toastMsg, toastOn }),
-    [st, setSt, pal, catalog, toast, view, setView, toastMsg, toastOn],
+    () => ({ st, setSt, pal, catalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem }),
+    [st, setSt, pal, catalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

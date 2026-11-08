@@ -1,6 +1,7 @@
 import { useApp } from "../app-state";
 import { Header } from "./Header";
 import { Nav } from "./Nav";
+import { Scegli } from "./scegli/Scegli";
 import { Toast } from "./Toast";
 
 // Una sola pagina: la barra in basso mostra una sezione e nasconde le altre (.hide), come l'app vecchia.
@@ -11,8 +12,7 @@ export function Shell() {
     <>
       <div className="wrap">
         <Header />
-        {/* SCEGLI: Task 5 */}
-        <section id="v-scegli" className={hide("scegli")}></section>
+        <section id="v-scegli" className={hide("scegli")}><Scegli /></section>
         {/* GUIDA: Task 6 */}
         <section id="v-onda" className={hide("onda")}></section>
         {/* PROFILO: Task 7 */}

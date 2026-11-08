@@ -132,3 +132,16 @@ export function filmShows(it: Item, shows: CityShows | null): FilmShow[] {
 export function nextTimes(it: Item, shows: CityShows | null, now: string = nowHM()): string[] {
   return [...new Set(filmShows(it,shows).flatMap(s=>s.o))].filter(o=>o>=now).sort();
 }
+
+// Come findRef dell'app vecchia: prima per tmdb (byTmdb: palinsesto e sale, a parità vince l'ultimo;
+// poi i cataloghi), poi per titolo in tutti i titoli e nelle sale.
+export function findRef(ref: { t: string; tmdb?: string }, pal: Palinsesto | null, extra: Item[] = []): Item | null {
+  if(!pal) return null;
+  const base=allItems(pal).concat(pal.cinema);
+  if(ref.tmdb){
+    let hit: Item | undefined; for(const it of base) if(it.tmdb===ref.tmdb) hit=it;
+    hit=hit||extra.find(it=>it.tmdb===ref.tmdb);
+    if(hit) return hit;
+  }
+  return allItems(pal, extra).concat(pal.cinema).find(x=>x.t===ref.t) || null;
+}
