@@ -121,6 +121,20 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      # Controllo del token prima di pubblicare: stampa solo si/no, mai valori o nomi.
+      - name: Controlla il token Cloudflare
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          api() { curl -s -H "Authorization: Bearer $CF_TOKEN" "https://api.cloudflare.com/client/v4$1"; }
+          echo "Lunghezza Account ID: ${#CF_ACCOUNT} (atteso 32)"
+          echo "Token valido e attivo: $(api /user/tokens/verify | jq -r '.success and .result.status == "active"')"
+          echo "Il token vede l'account indicato: $(api "/accounts/$CF_ACCOUNT" | jq -r '.success')"
+          echo "Account visibili al token: $(api '/accounts?per_page=50' | jq -r '.result | length')"
+          echo "Il token puo' leggere i Worker dell'account: $(api "/accounts/$CF_ACCOUNT/workers/scripts" | jq -r '.success')"
+          echo "Sottodominio workers.dev configurato: $(api "/accounts/$CF_ACCOUNT/workers/subdomain" | jq -r '.success and (.result.subdomain != null)')"
+
       - name: Pubblica su Cloudflare Workers
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
