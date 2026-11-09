@@ -80,7 +80,7 @@ describe("pagina privacy", () => {
   });
   it("«In breve»: senza registrazione, statistiche PostHog e account facoltativo", () => {
     expect(flat(ours.querySelector(".box")!.textContent)).toBe(
-      "In breve: Popcorno funziona senza registrazione e non mostra pubblicità. Per capire come viene usata l'app e migliorarla raccogliamo statistiche d'uso con PostHog: pagine viste, tocchi, scelte fatte nell'app, errori e una registrazione anonima della sessione (i campi di testo sono sempre oscurati). Le tue preferenze restano sul tuo dispositivo. L'account è facoltativo: se lo crei, Popcorno salva le tue preferenze e le tue scelte nell'app per ritrovarle su tutti i dispositivi e proporti di meglio. Puoi vederle, scaricarle e cancellarle quando vuoi in «I miei dati».",
+      "In breve: Popcorno funziona senza registrazione e non mostra pubblicità. Per capire come viene usata l'app e migliorarla raccogliamo statistiche d'uso con PostHog: pagine viste, tocchi, scelte fatte nell'app, errori e una registrazione anonima della sessione (i campi di testo sono sempre oscurati). Senza account, le tue preferenze restano sul tuo dispositivo. L'account è facoltativo: se lo crei, Popcorno salva le tue preferenze e le tue scelte nell'app per ritrovarle su tutti i dispositivi e proporti di meglio. Puoi vederle, scaricarle e cancellarle quando vuoi in «I miei dati».",
     );
   });
   it("l'account non registra altro e le statistiche non sono collegate all'account", () => {
