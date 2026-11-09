@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { LAST_ACCOUNT_KEY, authInUrl, completeFromUrl, getClient, hasStoredSession, onClientReady } from "./lib/account";
+// Statistiche d'uso anonime (PostHog): separate dall'account, non ricevono mai email, id o nome.
+import { analytics, prefEvents, track as trackUsage } from "./lib/analytics";
 import { createTracker, eventRow, type EventKind, type SendResult } from "./lib/events";
 import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
 import { parseProfileHash } from "./lib/profile-link";
@@ -162,6 +164,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setSt = useCallback((next: Stasera) => {
+    for (const e of prefEvents(stRef.current, next)) trackUsage(e.name, e.props);
     clocks.current = stamp(stRef.current, next, clocks.current, Date.now());
     stRef.current = next;
     setStRaw(next);
@@ -202,9 +205,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setView = useCallback((v: View) => {
+    trackUsage("vista_aperta", { vista: v });
     setViewRaw(v);
     window.scrollTo({ top: 0 });
   }, []);
+
+  // Statistiche: PostHog si carica quando il browser è libero, dopo il primo disegno.
+  useEffect(() => { analytics.start(); }, []);
+
+  // Ogni proposta mostrata (anche "Cambia canale" e "Un'altra proposta", che cambiano idx o seq).
+  useEffect(() => {
+    if (!res?.shown) return;
+    const it = res.list[res.idx]?.it;
+    if (it) trackUsage("proposta_mostrata", { titolo: it.t, tipo: it.ty, canale: it.s, posizione: res.idx, fortunato: res.lucky });
+  }, [res?.seq, res?.idx, res?.shown]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const before = loadState(storage());
@@ -385,6 +399,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const cur = useRef({ st, shows, catalog });
   cur.current = { st, shows, catalog };
   const openItem = useCallback((it: Item, tipo?: string) => {
+    trackUsage("titolo_aperto", { titolo: it.t, tipo: it.ty, canale: it.s });
     void palReady().then((p) => {
       const { st, shows, catalog } = cur.current;
       const rest = candidates(p, tipo ? { ...st, tipo } : st, { shows, extra: catalog }).filter((x) => x.it !== it);

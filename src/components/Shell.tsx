@@ -19,7 +19,8 @@ export function Shell() {
         <section id="v-scegli" className={hide("scegli")}><Scegli /></section>
         <section id="v-onda" className={hide("onda")}><Guide /></section>
         <section id="v-prof" className={hide("prof")}><Profile /></section>
-        <section id="v-dati" className={hide("dati")}><MieiDati key={user?.id ?? "-"} /></section>
+        {/* «I miei dati» (email, preferenze, scelte): ph-no-capture la toglie da statistiche e registrazioni di PostHog. */}
+        <section id="v-dati" className={view === "dati" ? "ph-no-capture" : "hide ph-no-capture"}><MieiDati key={user?.id ?? "-"} /></section>
       </div>
       <Nav />
       <AccessSheet />

@@ -25,13 +25,14 @@ function Clock() {
 }
 
 // Tasto dell'account accanto all'orologio: senza account apre il riquadro di accesso, con l'account il Profilo.
+// Con l'account: ph-no-capture, così le statistiche (PostHog) non vedono foto e iniziale nemmeno nelle registrazioni.
 function AccountButton() {
   const { user, openLogin, setView } = useApp();
   const visible = useAccountVisible();
   if (!visible) return null;
   if (user) {
     return (
-      <button type="button" className="acc-btn" id="acc-btn" aria-label="Il tuo account" onClick={() => setView("prof")}>
+      <button type="button" className="acc-btn ph-no-capture" id="acc-btn" aria-label="Il tuo account" onClick={() => setView("prof")}>
         <Avatar user={user} size={36} />
       </button>
     );

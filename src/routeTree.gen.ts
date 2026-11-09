@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PrivacyIndexRouteImport } from './routes/privacy/index'
+import { Route as RelaySplatRouteImport } from './routes/relay/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const PrivacyIndexRoute = PrivacyIndexRouteImport.update({
   path: '/privacy/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RelaySplatRoute = RelaySplatRouteImport.update({
+  id: '/relay/$',
+  path: '/relay/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/relay/$': typeof RelaySplatRoute
   '/privacy/': typeof PrivacyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/relay/$': typeof RelaySplatRoute
   '/privacy': typeof PrivacyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/relay/$': typeof RelaySplatRoute
   '/privacy/': typeof PrivacyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/privacy/'
+  fullPaths: '/' | '/relay/$' | '/privacy/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/privacy'
-  id: '__root__' | '/' | '/privacy/'
+  to: '/' | '/relay/$' | '/privacy'
+  id: '__root__' | '/' | '/relay/$' | '/privacy/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  RelaySplatRoute: typeof RelaySplatRoute
   PrivacyIndexRoute: typeof PrivacyIndexRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/relay/$': {
+      id: '/relay/$'
+      path: '/relay/$'
+      fullPath: '/relay/$'
+      preLoaderRoute: typeof RelaySplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  RelaySplatRoute: RelaySplatRoute,
   PrivacyIndexRoute: PrivacyIndexRoute,
 }
 export const routeTree = rootRouteImport

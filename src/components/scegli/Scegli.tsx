@@ -1,6 +1,7 @@
 // Vista Scegli: domande o proposta, e i gesti della proposta (pickNow, lucky, feedback, back, #go,
 // shareIt dell'app vecchia, righe 412, 470–483, 700–706, 719–760).
 import { useRef } from "react";
+import { track as trackUsage } from "../../lib/analytics";
 import { useApp, type Res } from "../../app-state";
 import { allItems, loadCityShows, nrm, type CityShows } from "../../lib/data";
 import { lucky } from "../../lib/lucky";
@@ -62,6 +63,7 @@ export function Scegli() {
 
   const onGo = async () => {
     const { st } = cur.current;
+    trackUsage("accendi", { tempo: st.tempo, chi: st.chi, umore: st.umore, tipo: st.tipo, generi: st.gen, gratis: st.free });
     let shows = cur.current.shows;
     if (st.tipo === "cinema" && st.citta && (!shows || nrm(shows.citta) !== nrm(st.citta))) {
       cur.current.setShows(null);
@@ -72,10 +74,11 @@ export function Scegli() {
     window.scrollTo({ top: 0 });
   };
 
-  const onLucky = () => { skip.current.clear(); void doLucky(); };
+  const onLucky = () => { trackUsage("mi_sento_fortunato"); skip.current.clear(); void doLucky(); };
 
   const fb = (it: Item, v: 1 | -1) => {
     const { st, setSt, toast, track } = cur.current;
+    trackUsage(v > 0 ? "pollice_su" : "pollice_giu", { titolo: it.t, tipo: it.ty });
     setSt(feedback(st, it, v));
     track(v > 0 ? "like" : "dislike", it);
     if (v > 0) { toast("Buona visione! Popcorno se lo ricorda"); showRes(false); return; }
@@ -90,10 +93,10 @@ export function Scegli() {
   };
 
   const act: ResultActions = {
-    back: () => { cur.current.setRes((r) => r && { ...r, shown: false }); window.scrollTo({ top: 0 }); },
-    other: (it) => { if (cur.current.res?.lucky) fb(it, 1); else showRes(true, (r) => ({ idx: r.idx + 1 })); },
+    back: () => { trackUsage("cambia_risposte"); cur.current.setRes((r) => r && { ...r, shown: false }); window.scrollTo({ top: 0 }); },
+    other: (it) => { trackUsage("cambia_canale", { titolo: it.t }); if (cur.current.res?.lucky) fb(it, 1); else showRes(true, (r) => ({ idx: r.idx + 1 })); },
     feedback: fb,
-    again: (it) => { skip.current.add(it.t); void doLucky(); },
+    again: (it) => { trackUsage("altra_proposta", { titolo: it.t }); skip.current.add(it.t); void doLucky(); },
     watch: (it) => {
       const { st, setSt, toast, track } = cur.current;
       const was = inWatch(st, it);
@@ -124,8 +127,9 @@ export function Scegli() {
     },
     trailer: (it) => { cur.current.track("trailer", it); },
     showtimes: (it) => { cur.current.track("showtimes", it); },
-    share: (it) => { void shareIt(it, cur.current.st); },
+    share: (it) => { trackUsage("condividi", { titolo: it.t, tipo: it.ty }); void shareIt(it, cur.current.st); },
     mini: (t) => {
+      trackUsage("altra_proposta_scelta", { titolo: t });
       // Tocco su un titolo della striscia: una scelta (R4). `shown` = la striscia più il titolo principale.
       const r = cur.current.res;
       if (r && r.list.length) {

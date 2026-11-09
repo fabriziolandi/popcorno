@@ -20,7 +20,7 @@ describe("cachesToDelete", () => {
     expect(
       cachesToDelete(
         ["popcorno-shell-v3", "popcorno-dati", "popcorno-img", "altro"],
-        ["popcorno-shell-v5", "popcorno-dati-v2", "popcorno-img"],
+        ["popcorno-shell-v6", "popcorno-dati-v2", "popcorno-img"],
       ),
     ).toEqual(["popcorno-shell-v3", "popcorno-dati"]);
   });
@@ -92,18 +92,18 @@ describe("public/sw.js", () => {
   }
   const ok = (t = "x") => new Response(t);
 
-  it("install: salva la shell in popcorno-shell-v5 e chiama skipWaiting", async () => {
+  it("install: salva la shell in popcorno-shell-v6 e chiama skipWaiting", async () => {
     const sw = carica(() => ok());
     await sw.run("install");
-    expect([...sw.store.keys()]).toEqual(["popcorno-shell-v5"]);
-    expect([...sw.store.get("popcorno-shell-v5")!.keys()]).toContain("https://popcorno.it/");
+    expect([...sw.store.keys()]).toEqual(["popcorno-shell-v6"]);
+    expect([...sw.store.get("popcorno-shell-v6")!.keys()]).toContain("https://popcorno.it/");
     expect(sw.log.skipWaiting).toBe(1);
   });
 
   it("install: salva anche i file /assets/ della pagina, non quelli di altri siti", async () => {
     const sw = carica((u) => (u === "/" ? ok(PAGINA) : ok("file " + u)));
     await sw.run("install");
-    const shell = sw.store.get("popcorno-shell-v5")!;
+    const shell = sw.store.get("popcorno-shell-v6")!;
     const attesi = [...["/", "/manifest.webmanifest", "/icons/icon-180.png", "/icons/icon-512.png"], ...ASSETS].map((u) => "https://popcorno.it" + u);
     expect([...shell.keys()].sort()).toEqual(attesi.sort());
     expect(await shell.get("https://popcorno.it/assets/index-def.js")!.clone().text()).toBe("file /assets/index-def.js");
@@ -116,7 +116,7 @@ describe("public/sw.js", () => {
     const sw = carica(() => ok("<p>niente</p>"));
     const [r] = await sw.run("install");
     expect(r).toBeUndefined();
-    expect(sw.store.get("popcorno-shell-v5")!.size).toBe(4);
+    expect(sw.store.get("popcorno-shell-v6")!.size).toBe(4);
   });
 
   it("fetch: un file /assets/ salvato arriva dalla cache anche offline; uno nuovo va in rete e si salva", async () => {
@@ -131,13 +131,13 @@ describe("public/sw.js", () => {
     const [r2] = await sw.run("fetch", { request: sw.richiesta(nuovo) });
     expect(await r2.text()).toBe("rete " + nuovo);
     await new Promise((r) => setTimeout(r, 0));
-    expect(sw.store.get("popcorno-shell-v5")!.has(nuovo)).toBe(true);
+    expect(sw.store.get("popcorno-shell-v6")!.has(nuovo)).toBe(true);
   });
 
-  it("activate: toglie popcorno-shell-v3 e popcorno-dati, tiene popcorno-img e le altre", async () => {
-    const sw = carica(() => ok(), ["popcorno-shell-v3", "popcorno-dati", "popcorno-img", "popcorno-shell-v5", "altro"]);
+  it("activate: toglie popcorno-shell-v3, popcorno-shell-v5 e popcorno-dati, tiene popcorno-img e le altre", async () => {
+    const sw = carica(() => ok(), ["popcorno-shell-v3", "popcorno-shell-v5", "popcorno-dati", "popcorno-img", "popcorno-shell-v6", "altro"]);
     await sw.run("activate");
-    expect([...sw.store.keys()].sort()).toEqual(["altro", "popcorno-img", "popcorno-shell-v5"]);
+    expect([...sw.store.keys()].sort()).toEqual(["altro", "popcorno-img", "popcorno-shell-v6"]);
     expect(sw.log.claim).toBe(1);
   });
 

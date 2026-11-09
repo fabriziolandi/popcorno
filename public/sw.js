@@ -1,5 +1,5 @@
 // Popcorno: l'app si apre subito anche con poca rete.
-const SHELL = "popcorno-shell-v5", DATI = "popcorno-dati-v2", IMG = "popcorno-img";
+const SHELL = "popcorno-shell-v6", DATI = "popcorno-dati-v2", IMG = "popcorno-img";
 const FILES = ["/", "/manifest.webmanifest", "/icons/icon-180.png", "/icons/icon-512.png"];
 // Stessa logica di cachesToDelete in src/lib/sw-caches.ts.
 const cachesToDelete = (names, keep) => names.filter(n => n.startsWith("popcorno-") && !keep.includes(n));
@@ -33,6 +33,7 @@ self.addEventListener("fetch", e => {
     return;
   }
   if (u.origin !== location.origin) return;
+  if (u.pathname.startsWith("/relay/")) return;    // statistiche (PostHog): mai in cache
   if (u.pathname.includes("/data/")) {              // dati: prima la rete, se manca la copia salvata
     e.respondWith(fetch(e.request).then(n => { const c = n.clone(); caches.open(DATI).then(x => x.put(e.request, c)); return n; }).catch(() => caches.match(e.request)));
     return;

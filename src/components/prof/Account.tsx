@@ -13,8 +13,9 @@ export function Account() {
   if (!visible) return null;
 
   if (user) {
+    // ph-no-capture: email, nome e foto non finiscono mai nelle statistiche (PostHog) né nelle registrazioni.
     return (
-      <div className="grp acc-box" id="acc-box">
+      <div className="grp acc-box ph-no-capture" id="acc-box">
         <div className="acc-who">
           <Avatar user={user} size={48} />
           <div>

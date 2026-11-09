@@ -1,4 +1,5 @@
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { track } from "../../lib/analytics";
 import { useApp } from "../../app-state";
 import { allItems, filmShows, findRef, isoDay, nextTimes, nowHM } from "../../lib/data";
 import { isEssai, TYW } from "../../lib/genres";
@@ -31,6 +32,14 @@ export function Guide() {
   const C = pal ? allItems(pal, catalog) : [];
   const CIN = pal ? pal.cinema : [];
   const open = (it: Item) => openItem(it);
+
+  // Ricerca: un evento quando si smette di scrivere per un attimo.
+  useEffect(() => {
+    const t = q.trim();
+    if (norm(t).length < 2) return;
+    const id = setTimeout(() => track("ricerca_guida", { testo: t }), 900);
+    return () => clearTimeout(id);
+  }, [q]);
 
   function body() {
     if (searching) {
@@ -134,7 +143,7 @@ export function Guide() {
         style={{ width: "100%", padding: "14px 16px", borderRadius: 14, background: "var(--notte2)", color: "var(--testo)", border: "1.5px solid var(--bordo)", font: "600 15px Figtree,sans-serif", marginBottom: 14 }}
         onChange={(e) => { setQ(e.target.value); setSearching(norm(e.target.value.trim()).length >= 2); }} />
       <div className="filters" id="gfil">
-        {FILTERS.map(([v, l]) => <button key={v} className={"chip " + (gf === v ? "on" : "")} data-v={v} onClick={() => { setGf(v); setSearching(false); }}>{l}</button>)}
+        {FILTERS.map(([v, l]) => <button key={v} className={"chip " + (gf === v ? "on" : "")} data-v={v} onClick={() => { track("filtro_guida", { filtro: v }); setGf(v); setSearching(false); }}>{l}</button>)}
       </div>
       {/* Finché il palinsesto non arriva la guida resta vuota (niente "NO SEGNALE" per un attimo). */}
       <div id="guide">{pal ? body() : null}</div>

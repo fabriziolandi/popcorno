@@ -66,7 +66,7 @@ export function AccessSheet() {
         {login.sent ? (
           <form onSubmit={(e) => { e.preventDefault(); void login.enter(); }}>
             <p className="sheet-lead">Controlla la tua email: ti ho mandato un link per entrare. Se usi Popcorno dalla schermata Home, scrivi qui il codice di 6 cifre.</p>
-            <input className="sheet-in code" aria-label="Codice di 6 cifre" inputMode="numeric" maxLength={6} autoComplete="one-time-code" value={login.code} onChange={(e) => login.setCode(e.target.value)} />
+            <input className="sheet-in code ph-no-capture" aria-label="Codice di 6 cifre" inputMode="numeric" maxLength={6} autoComplete="one-time-code" value={login.code} onChange={(e) => login.setCode(e.target.value)} />
             <button type="submit" className="sheet-go" disabled={login.busy}>Entra</button>
             <p className="sheet-small"><a href="#" onClick={(e) => { e.preventDefault(); login.otherEmail(); }}>Usa un'altra email</a></p>
           </form>
@@ -76,7 +76,7 @@ export function AccessSheet() {
             <GoogleButton busy={login.busy} onClick={() => void login.google()} />
             <div className="sheet-or"><span>oppure</span></div>
             <form noValidate onSubmit={(e) => { e.preventDefault(); void login.send(); }}>
-              <input ref={emailRef} className="sheet-in" type="email" aria-label="La tua email" placeholder="La tua email" autoComplete="email" value={login.email} onChange={(e) => login.setEmail(e.target.value)} />
+              <input ref={emailRef} className="sheet-in ph-no-capture" type="email" aria-label="La tua email" placeholder="La tua email" autoComplete="email" value={login.email} onChange={(e) => login.setEmail(e.target.value)} />
               <button type="submit" className="sheet-go" disabled={login.busy}>Entra con l'email</button>
             </form>
             <p className="sheet-small">Con l'account Popcorno ricorda cosa scegli per proporti di meglio. Puoi vedere e cancellare tutto in «I miei dati». <a href="/privacy/">Privacy</a></p>
