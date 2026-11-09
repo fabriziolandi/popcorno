@@ -549,3 +549,57 @@ describe("coda dei segnali svuotata", () => {
     expect(JSON.parse(localStorage.getItem("popcorno-eventi") || "[]")).toEqual([]);
   });
 });
+
+describe("uscita e eliminazione", () => {
+  it("flushSync: una modifica fatta subito prima di uscire arriva all'account prima di signOut", async () => {
+    const f = fakeClient({ session: { user: { id: "u1", email: "a@b.it" } } });
+    localStorage.setItem(SESSION_KEY, "{}");
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    await vi.waitFor(() => expect(f.log).toContain("preferences.upsert"), { timeout: 3000 });
+    f.log.length = 0;
+    act(() => app.setSt({ ...app.st, team: "Inter" }));
+    await act(async () => { await app.flushSync(); await signOut(); });
+    const i = f.log.indexOf("preferences.upsert");
+    expect(i).toBeGreaterThanOrEqual(0);
+    expect(i).toBeLessThan(f.log.indexOf("signOut"));
+    expect(f.upserts[f.upserts.length - 1].data.st.team).toBe("Inter");
+  });
+
+  it("flushSync non blocca l'uscita: errori ignorati e attesa massima di 3 secondi", async () => {
+    const f = fakeClient({ session: { user: { id: "u1", email: "a@b.it" } } });
+    localStorage.setItem(SESSION_KEY, "{}");
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    await vi.waitFor(() => expect(f.log).toContain("preferences.upsert"), { timeout: 3000 });
+    vi.useFakeTimers();
+    f.c.auth.getSession.mockImplementation(() => new Promise(() => {}));
+    act(() => app.setSt({ ...app.st, team: "Milan" }));
+    let done = false;
+    const p = app.flushSync().then(() => { done = true; });
+    await act(async () => { await vi.advanceTimersByTimeAsync(2900); });
+    expect(done).toBe(false);
+    await act(async () => { await vi.advanceTimersByTimeAsync(200); });
+    await p;
+    expect(done).toBe(true);
+  });
+
+  it("forgetSession porta l'app allo stato non dentro senza chiamate di rete", async () => {
+    const f = fakeClient({ session: { user: { id: "u1", email: "a@b.it" } } });
+    localStorage.setItem(SESSION_KEY, "{}");
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    f.log.length = 0;
+    act(() => app.forgetSession());
+    expect(app.user).toBeNull();
+    expect(app.trackEvents).toBe(false);
+    await settle();
+    expect(f.log).toEqual([]);
+    expect(f.c.auth.signOut).not.toHaveBeenCalled();
+  });
+});

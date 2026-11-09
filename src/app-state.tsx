@@ -80,6 +80,10 @@ export type AppState = {
   loginOpts: LoginOpts;
   openLogin(opts?: LoginOpts): void;
   closeLogin(): void;
+  // Prima di un'uscita volontaria: manda ciò che è in attesa (al massimo 3 secondi, errori ignorati).
+  flushSync(): Promise<void>;
+  // Toglie l'account da questo dispositivo senza chiamate di rete (dopo "Elimina l'account").
+  forgetSession(): void;
 };
 
 const Ctx = createContext<AppState | null>(null);
@@ -122,6 +126,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const stRef = useRef<Stasera>(st);
   const clocks = useRef<Clocks>(emptyClocks());
   const sync = useRef<Sync | null>(null);
+  const leave = useRef<() => void>(() => {});
   const trackRef = useRef(false);
   trackRef.current = trackEvents;
 
@@ -173,6 +178,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     saveState(s.st, storage());
     saveClocks(s.ck, storage());
   }, []);
+
+  const flushSync = useCallback(async () => {
+    const s = sync.current;
+    if (!userRef.current || !s) return;
+    let t: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([s.flush(), new Promise<void>((r) => { t = setTimeout(r, 3000); })]);
+    } catch { /* l'uscita non si blocca */ }
+    clearTimeout(t);
+  }, []);
+  const forgetSession = useCallback(() => leave.current(), []);
 
   const setTrackEvents = useCallback(async (on: boolean) => {
     const u = userRef.current;
@@ -251,6 +267,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       tracker.current?.clear();
       setUser(null);
       setTrackRaw(false);
+    };
+
+    // Eliminazione dell'account senza rete: la sessione non c'è più, anche se supabase-js non lo sa.
+    leave.current = () => {
+      sync.current?.stop();
+      signedOut();
     };
 
     // Ogni accesso ha un motore nuovo: quello di prima (anche spento da un 401) non si riusa.
@@ -377,9 +399,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     () => ({
       st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem,
       user, trackEvents, setTrackEvents, track, clearEvents,
-      loginOpen: login !== null, loginOpts: login ?? NO_OPTS, openLogin, closeLogin,
+      loginOpen: login !== null, loginOpts: login ?? NO_OPTS, openLogin, closeLogin, flushSync, forgetSession,
     }),
-    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track, clearEvents, login, openLogin, closeLogin],
+    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track, clearEvents, login, openLogin, closeLogin, flushSync, forgetSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

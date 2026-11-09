@@ -135,5 +135,10 @@ export async function deleteAccount(): Promise<void> {
   // L'account non c'è più: le preferenze locali non appartengono più a nessuno.
   try { localStorage.removeItem(LAST_ACCOUNT_KEY); } catch { /* storage vietato */ }
   // Un'uscita fallita (per esempio senza rete) non è un errore: l'account è già eliminato.
-  try { await c.auth.signOut({ scope: "local" }); } catch { /* già eliminato */ }
+  // Ma la sessione non deve restare sul dispositivo: la si toglie a mano.
+  let out = false;
+  try { out = !(await c.auth.signOut({ scope: "local" })).error; } catch { /* già eliminato */ }
+  if (!out) {
+    try { localStorage.removeItem(SESSION_KEY); } catch { /* storage vietato */ }
+  }
 }

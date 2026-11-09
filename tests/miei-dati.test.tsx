@@ -10,6 +10,7 @@ const app = {
   trackEvents: true,
   setTrackEvents: vi.fn(async (_on: boolean) => {}),
   clearEvents: vi.fn(),
+  forgetSession: vi.fn(),
   toast: vi.fn(),
   setView: vi.fn(),
   st: { subs: ["netflix"], citta: "Roma", team: "Nessuna", gen: [] as string[], watch: [1], serie: [], liked: [1, 2], disliked: [], seen: [] },
@@ -63,7 +64,7 @@ const click = async (el: Element) => { await act(async () => { fireEvent.click(e
 beforeEach(() => {
   app.user = { id: "u1", email: "a@b.it" };
   app.view = "dati";
-  for (const f of [app.setTrackEvents, app.clearEvents, app.toast, app.setView, deleteAccount, eq]) f.mockClear();
+  for (const f of [app.setTrackEvents, app.clearEvents, app.toast, app.setView, app.forgetSession, deleteAccount, eq]) f.mockClear();
   range.mockReset();
   range.mockImplementation(async () => ({ data: rows, error: null }));
   orders.length = 0;
@@ -271,6 +272,7 @@ describe("vista I miei dati", () => {
     expect(deleteAccount).toHaveBeenCalled();
     expect(app.toast).toHaveBeenCalledWith("Account eliminato. Le preferenze restano su questo dispositivo.");
     expect(app.setView).toHaveBeenCalledWith("prof");
+    expect(app.forgetSession).toHaveBeenCalled();
   });
   it("Scarica i miei dati crea un file JSON", async () => {
     const create = vi.fn(() => "blob:x");

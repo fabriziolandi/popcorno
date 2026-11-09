@@ -13,7 +13,7 @@ type Meta = { created_at: string | null; track_events: boolean | null };
 // "I miei dati": cosa Popcorno sa di te, con scarico e cancellazione. Niente senza account.
 // Shell lo rimonta a ogni cambio di account (key), così non resta niente dell'account di prima.
 export function MieiDati() {
-  const { user, view, st, trackEvents, setTrackEvents, clearEvents, toast, setView } = useApp();
+  const { user, view, st, trackEvents, setTrackEvents, clearEvents, toast, setView, forgetSession } = useApp();
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [more, setMore] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -90,6 +90,7 @@ export function MieiDati() {
   };
   const removeAccount = async () => {
     await deleteAccount();
+    forgetSession();
     toast("Account eliminato. Le preferenze restano su questo dispositivo.");
     setView("prof");
   };

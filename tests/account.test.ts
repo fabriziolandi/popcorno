@@ -153,6 +153,18 @@ describe("funzioni di accesso", () => {
     await expect(deleteAccount()).resolves.toBeUndefined();
     expect(c.auth.signOut).toHaveBeenCalledTimes(2);
   });
+  it("deleteAccount: se l'uscita non toglie la sessione, la toglie dal dispositivo", async () => {
+    const c = fake();
+    c.auth.signOut.mockResolvedValueOnce({ error: { message: "Failed to fetch" } });
+    setClientForTests(c);
+    localStorage.setItem(SESSION_KEY, "{}");
+    await deleteAccount();
+    expect(localStorage.getItem(SESSION_KEY)).toBeNull();
+    localStorage.setItem(SESSION_KEY, "{}");
+    c.auth.signOut.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    await deleteAccount();
+    expect(localStorage.getItem(SESSION_KEY)).toBeNull();
+  });
   it("un errore di Supabase diventa un Error leggibile", async () => {
     const c = fake();
     c.auth.signInWithOtp.mockResolvedValue({ error: { message: "boom" } } as never);

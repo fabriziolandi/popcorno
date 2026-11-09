@@ -3,12 +3,14 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { User } from "../src/app-state";
 
+const order: string[] = [];
 const app = {
+  flushSync: vi.fn(async () => { order.push("flush"); }),
   user: null as User | null, toast: vi.fn(), setView: vi.fn(), st: { liked: ["x"] },
-  loginOpen: false, loginOpts: {}, openLogin: vi.fn(), closeLogin: vi.fn(),
+  loginOpen: false, loginOpts: {} as { email?: boolean }, openLogin: vi.fn(), closeLogin: vi.fn(),
 };
 vi.mock("../src/app-state", () => ({ useApp: () => app }));
-const signOut = vi.fn(async () => {});
+const signOut = vi.fn(async () => { order.push("signOut"); });
 vi.mock("../src/lib/account", async (orig) => ({
   ...(await orig<typeof import("../src/lib/account")>()),
   sendLink: vi.fn(),
@@ -27,7 +29,8 @@ const $ = (s: string) => document.querySelector(s) as HTMLElement | null;
 beforeEach(() => {
   app.user = null;
   app.loginOpen = false;
-  for (const f of [app.toast, app.setView, app.openLogin, app.closeLogin, signOut]) f.mockClear();
+  for (const f of [app.toast, app.setView, app.openLogin, app.closeLogin, signOut, app.flushSync]) f.mockClear();
+  order.length = 0;
   localStorage.clear(); sessionStorage.clear();
   history.replaceState(null, "", "/");
 });
@@ -120,6 +123,7 @@ describe("Profilo con l'account", () => {
     expect(app.setView).toHaveBeenCalledWith("dati");
     await click(r.getByText("Esci"));
     expect(signOut).toHaveBeenCalled();
+    expect(order).toEqual(["flush", "signOut"]);
     expect(app.toast).toHaveBeenCalledWith("Sei uscito: le preferenze restano su questo dispositivo");
     expect(app.st.liked).toEqual(["x"]);
   });
@@ -137,5 +141,25 @@ describe("Profilo con l'account", () => {
     const r = render(<Account />);
     await click(r.getByText("Esci"));
     expect(app.toast).toHaveBeenCalledWith("Non siamo riusciti a uscire. Riprova.");
+  });
+});
+
+describe("riquadro di accesso riaperto", () => {
+  it("dopo la chiusura riparte dal campo email, con il focus lì", async () => {
+    app.loginOpen = true;
+    app.loginOpts = { email: true };
+    const r = render(<AccessSheet />);
+    await act(async () => { fireEvent.change(r.getByLabelText("La tua email"), { target: { value: "a@b.it" } }); });
+    await click(r.getByText("Entra con l'email"));
+    expect(r.getByLabelText("Codice di 6 cifre")).toBeTruthy();
+    // chiude e riapre
+    app.loginOpen = false;
+    r.rerender(<AccessSheet />);
+    app.loginOpen = true;
+    r.rerender(<AccessSheet />);
+    const input = r.getByLabelText("La tua email");
+    expect(r.queryByLabelText("Codice di 6 cifre")).toBeNull();
+    expect(document.activeElement).toBe(input);
+    app.loginOpts = {};
   });
 });

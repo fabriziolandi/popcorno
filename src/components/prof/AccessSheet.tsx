@@ -14,6 +14,10 @@ export function AccessSheet() {
   const emailRef = useRef<HTMLInputElement>(null);
   const open = loginOpen && !user;
 
+  // Alla chiusura il passo del codice si azzera: riaperto riparte dall'email.
+  const { sent, otherEmail } = login;
+  useEffect(() => { if (!open && sent) otherEmail(); }, [open, sent]);
+
   // Accesso riuscito: il riquadro si chiude da solo.
   useEffect(() => { if (user && loginOpen) closeLogin(); }, [user, loginOpen, closeLogin]);
 

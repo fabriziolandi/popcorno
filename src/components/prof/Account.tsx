@@ -6,7 +6,7 @@ import { useAccountVisible, useLogin } from "./useLogin";
 
 // Riquadro dell'account in cima al Profilo. Visibile solo dopo il mount (niente differenze con l'HTML del server).
 export function Account() {
-  const { user, toast, setView, openLogin } = useApp();
+  const { user, toast, setView, openLogin, flushSync } = useApp();
   const visible = useAccountVisible();
   const login = useLogin();
 
@@ -26,6 +26,7 @@ export function Account() {
           <button className="act" onClick={() => setView("dati")}>I miei dati</button>
           <button className="act" onClick={async () => {
             try {
+              await flushSync();
               await signOut();
               toast("Sei uscito: le preferenze restano su questo dispositivo");
             } catch (e) {
