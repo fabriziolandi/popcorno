@@ -48,11 +48,11 @@ afterEach(() => {
   history.replaceState(null, "", "/");
 });
 
-describe("senza ?account=1 e senza sessione", () => {
-  it("niente icona, niente riquadro nel Profilo, nessuna richiesta a supabase.co", async () => {
+describe("senza ?account=1 e senza sessione (accesso pubblico)", () => {
+  it("icona \"Accedi\" e riquadro nel Profilo ci sono, ma nessuna richiesta a supabase.co e nessun client finché non si preme un accesso", async () => {
     await mount("/");
-    expect($("#acc-btn")).toBeNull();
-    expect($("#acc-box")).toBeNull();
+    expect($("#acc-btn")!.getAttribute("aria-label")).toBe("Accedi");
+    expect($("#acc-box")).not.toBeNull();
     expect(dialog()).toBeNull();
     expect(fetchSpy.mock.calls.filter(([u]) => String(u).includes("supabase.co"))).toEqual([]);
     expect(createClient).not.toHaveBeenCalled();

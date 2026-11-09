@@ -5,8 +5,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const SUPABASE_URL = "https://gvdarnmxnigprebwjglq.supabase.co";
 // Chiave publishable (pubblica per progetto, protetta da RLS).
 export const SUPABASE_KEY = "sb_publishable_vtC7tcEYhp_0wXj0yqbDNA_wLWP4YyC";
-// Diventa true nel Task 10 (go-live).
-export const ACCOUNT_PUBLIC = false;
+// Acceso al go-live, il 2026-11-09: l'accesso è visibile a tutti.
+export const ACCOUNT_PUBLIC = true;
 export const SESSION_KEY = "sb-gvdarnmxnigprebwjglq-auth-token";
 const FLAG_KEY = "popcorno-account";
 // L'ultimo account a cui appartengono le preferenze di questo dispositivo: se entra un account

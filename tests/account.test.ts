@@ -30,8 +30,8 @@ afterEach(() => {
 });
 
 describe("visibilità", () => {
-  it("senza sessione e senza ?account=1 la riga non si vede e il client non si crea", () => {
-    expect(accountVisible(localStorage, "")).toBe(false);
+  it("senza sessione e senza ?account=1 è visibile a tutti, ma il client non si crea", () => {
+    expect(accountVisible(localStorage, "")).toBe(true);
     expect(createClient).not.toHaveBeenCalled();
   });
   it("?account=1 la rende visibile anche dopo", () => {
@@ -42,11 +42,12 @@ describe("visibilità", () => {
     localStorage.setItem(SESSION_KEY, "{}");
     expect(accountVisible(localStorage, "")).toBe(true);
   });
-  it("tollera uno storage che lancia", () => {
+  it("con uno storage che lancia (o assente) non lancia ed è comunque visibile", () => {
     const bad = { getItem() { throw new Error("no"); }, setItem() { throw new Error("no"); } } as unknown as Storage;
-    expect(accountVisible(bad, "")).toBe(false);
+    expect(() => accountVisible(bad, "")).not.toThrow();
+    expect(accountVisible(bad, "")).toBe(true);
     expect(accountVisible(bad, "?account=1")).toBe(true);
-    expect(accountVisible(null, "")).toBe(false);
+    expect(accountVisible(null, "")).toBe(true);
   });
   it("hasStoredSession legge SESSION_KEY", () => {
     expect(hasStoredSession(localStorage)).toBe(false);

@@ -79,10 +79,10 @@ describe("icona dell'account nell'header", () => {
     expect(app.openLogin).toHaveBeenCalledWith({ from: b });
   });
 
-  it("senza ?account=1 e senza sessione non c'è", async () => {
+  it("senza ?account=1 e senza sessione c'è comunque, con etichetta Accedi", async () => {
     render(<Header />);
     await act(async () => {});
-    expect($("#acc-btn")).toBeNull();
+    expect($("#acc-btn")!.getAttribute("aria-label")).toBe("Accedi");
     expect($("#clock")).not.toBeNull();
   });
 });
