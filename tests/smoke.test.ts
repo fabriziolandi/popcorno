@@ -68,7 +68,9 @@ describe("head della pagina / e rotte senza barra finale", () => {
       /<link rel="apple-touch-icon" href="([^"]*)"/,
     ]) {
       expect(attr(html, re), String(re)).toBeDefined();
-      expect(attr(html, re), String(re)).toBe(attr(vecchia, re));
+      // La description cambia solo nel finale (registrazione facoltativa): il resto resta quello della vecchia.
+      const atteso = attr(vecchia, re)?.replace("Gratis, senza registrazione.", "Gratis, registrazione facoltativa.");
+      expect(attr(html, re), String(re)).toBe(atteso);
     }
     expect(html).toMatch(/<link rel="stylesheet" href="[^"]+\.css"/);
     expect(html).toMatch(/<link rel="preload" href="\/fonts\/figtree-400\.woff2" as="font"/);
@@ -95,14 +97,15 @@ describe("pagina privacy", () => {
     return server.fetch(new Request("http://localhost" + path));
   };
 
-  it("/privacy/ risponde 200 con title e meta description della vecchia, senza il CSS dell'app", async () => {
+  it("/privacy/ risponde 200 con title della vecchia e la nuova meta description, senza il CSS dell'app", async () => {
     const vecchia = readFileSync("tests/legacy/privacy.legacy.html", "utf8");
     const res = await get("/privacy/");
     const html = await res.text();
     expect(res.status).toBe(200);
     expect(titolo(html)).toBe(titolo(vecchia));
     const desc = (h: string) => /<meta name="description" content="([^"]*)"/.exec(h)?.[1].replace(/&#x27;/g, "'");
-    expect(desc(html)).toBe(desc(vecchia));
+    // La description è stata riscritta con l'account facoltativo: il title resta quello della vecchia.
+    expect(desc(html)).toBe("Informativa privacy di Popcorno: quali dati usa l'app, l'account facoltativo, dove restano i dati e come contattarci.");
     expect(html).not.toMatch(/<link rel="stylesheet"/);
     expect(html).not.toContain("og:title");
   });
