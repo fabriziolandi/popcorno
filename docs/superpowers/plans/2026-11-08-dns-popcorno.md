@@ -1,9 +1,11 @@
 # Inventario DNS di popcorno.it (Task 11, Step 1)
 
 Data: 2026-11-08. Nameserver attuali: `dns103.ovh.net`, `ns103.ovh.net` (OVH).
-Fonte: interrogazione DNS pubblica (DNS over HTTPS). **Da completare** con l'elenco della zona dalla CLI OVH
-(`ovhcloud domain-zone record list popcorno.it`, serve `ovhcloud login`) o dal pannello OVH:
-i record su nomi non noti (es. chiavi DKIM con selettore diverso) non si vedono dall'esterno.
+Fonte: interrogazione DNS pubblica (2026-11-08) e zona completa letta dal manager OVH (2026-11-09):
+nessun altro record oltre a SOA e NS. DNSSEC disattivato, nessun record DS.
+Su Cloudflare (zona aggiunta il 2026-11-09, nameserver `cloe.ns.cloudflare.com` e `skip.ns.cloudflare.com`)
+la scansione ha importato tutti i record qui sotto in "DNS only"; verificato sul nameserver Cloudflare che coincidono.
+Quelli segnati ❌ restano finché il sito è su GitHub Pages e si tolgono al collegamento del Worker.
 
 | Nome | Tipo | Valore | TTL | Su Cloudflare |
 |---|---|---|---|---|
@@ -18,6 +20,6 @@ i record su nomi non noti (es. chiavi DKIM con selettore diverso) non si vedono 
 | popcorno.it | AAAA | 2606:50c0:8000–8003::153 | 3600 | ❌ GitHub Pages: come sopra |
 | www.popcorno.it | CNAME | fabriziolandi.github.io. | 3600 | ❌ GitHub Pages: `www` va collegato al Worker (reindirizza a `popcorno.it`) |
 
-Non trovati: DMARC (`_dmarc`), DKIM `ovhmo-selector-1/2`, SRV di autodiscover, CAA.
+Nella zona OVH non ci sono DKIM, DMARC, SRV né altri sottodomini.
 
 Dopo il passaggio, attesi: `NS` → Cloudflare; `MX` → gli stessi tre valori di sopra; email di prova a `privacy@popcorno.it` arrivata.
