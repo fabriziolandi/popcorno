@@ -168,6 +168,8 @@ h2.sec{font:800 30px/1.05 "Bricolage Grotesque",sans-serif;letter-spacing:-1px;m
 .stat span{display:block;font-size:12px;color:var(--muto)}
 .credit{font-size:11px;color:var(--muto);margin-top:14px}
 .credit a{color:#01b4e4}
+.seo{font-size:12px;color:var(--muto);text-align:center;margin:26px 0 6px;line-height:1.9}
+.seo a{color:var(--muto)}
 
 /* barra in basso come un telecomando */
 nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));width:min(440px,calc(100% - 32px));

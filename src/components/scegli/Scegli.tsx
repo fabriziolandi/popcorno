@@ -126,6 +126,8 @@ export function Scegli() {
       <div id="res" className={shown ? undefined : "hide"}>
         {shown && <Result key={res.seq} res={res} pal={app.pal} act={act} />}
       </div>
+      {/* Pagine per Google generate ogni giorno da scripts/pagine.py */}
+      <p className="seo"><a href="/stasera-in-tv/">Stasera in TV</a> · <a href="/film-stasera-in-tv/">Film stasera</a> · <a href="/serie-tv-stasera/">Serie TV stasera</a> · <a href="/sport-stasera-in-tv/">Sport stasera</a> · <a href="/cinema/">Cinema oggi</a></p>
     </>
   );
 }

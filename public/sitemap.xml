@@ -2,4 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://popcorno.it/</loc><changefreq>daily</changefreq></url>
   <url><loc>https://popcorno.it/privacy/</loc><changefreq>yearly</changefreq></url>
+  <url><loc>https://popcorno.it/stasera-in-tv/</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://popcorno.it/film-stasera-in-tv/</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://popcorno.it/serie-tv-stasera/</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://popcorno.it/sport-stasera-in-tv/</loc><changefreq>daily</changefreq></url>
+  <url><loc>https://popcorno.it/cinema/</loc><changefreq>daily</changefreq></url>
 </urlset>

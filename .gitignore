@@ -4,6 +4,12 @@ public/data/trame/
 public/data/cinema/
 public/data/oggi.json
 public/data/oggi.js
+# Pagine per Google generate da scripts/pagine.py a ogni pubblicazione
+public/stasera-in-tv/
+public/film-stasera-in-tv/
+public/serie-tv-stasera/
+public/sport-stasera-in-tv/
+public/cinema/
 __pycache__/
 
 # Segreti: password del database e chiavi Supabase
