@@ -153,6 +153,30 @@ describe("createSync", () => {
     expect(f.calls).toHaveLength(1);
   });
 
+  it("flush aspetta l'invio già partito (timer scattato, sessione ancora in lettura)", async () => {
+    vi.useFakeTimers();
+    const f = fakeClient(null);
+    const h = harness(f, { st: st(), ck: emptyClocks() });
+    await bound(f, h);
+    let release!: () => void;
+    const gate = new Promise<void>((r) => { release = r; });
+    const gs = f.c.auth.getSession as ReturnType<typeof vi.fn>;
+    const orig = gs.getMockImplementation() as () => Promise<unknown>;
+    gs.mockImplementationOnce(async () => { await gate; return orig(); });
+    h.set({ st: st({ citta: "Bari" }), ck: emptyClocks() });
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(f.calls).toHaveLength(0);
+    let done = false;
+    const p = h.sync.flush().then(() => { done = true; });
+    await vi.advanceTimersByTimeAsync(10);
+    expect(done).toBe(false);
+    release();
+    await p;
+    expect(f.calls).toHaveLength(1);
+    expect((f.db.row!.data as Synced).st.citta).toBe("Bari");
+  });
+
   it("offline: push fallisce, riparte all'evento online", async () => {
     vi.useFakeTimers();
     const f = fakeClient(null);

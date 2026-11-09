@@ -95,7 +95,15 @@ export function createSync(opts: SyncOpts): Sync {
     return false;
   };
 
-  async function send(): Promise<void> {
+  // L'invio in corso: flush lo aspetta anche quando il timer è già scattato.
+  let inflight: Promise<void> | null = null;
+  function send(): Promise<void> {
+    const p = doSend().finally(() => { if (inflight === p) inflight = null; });
+    inflight = p;
+    return p;
+  }
+
+  async function doSend(): Promise<void> {
     if (dead) return;
     try {
       const c = await opts.client();
@@ -159,6 +167,8 @@ export function createSync(opts: SyncOpts): Sync {
   }
 
   async function flush(): Promise<void> {
+    if (inflight) await inflight.catch(() => {});
+    // Una modifica arrivata nel frattempo ha un nuovo timer: si manda ora.
     if (!timer) return;
     clearTimeout(timer);
     timer = null;
