@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "../../app-state";
 import { deleteAccount, getClient } from "../../lib/account";
-import { eventText, exportName, type StoredEvent } from "../../lib/miei-dati";
+import { dayLabel, eventShort, eventText, eventTime, exportName, KIND_FILTERS, type StoredEvent } from "../../lib/miei-dati";
+import { SRC } from "../../lib/sources";
 
 const PAGE = 100;
 const CONFIRM = "Tocca di nuovo per confermare";
@@ -18,6 +19,7 @@ export function MieiDati() {
   const [loaded, setLoaded] = useState(false);
   const [meta, setMeta] = useState<Meta | null>(null);
   const [prefs, setPrefs] = useState<unknown>(null);
+  const [filter, setFilter] = useState("tutto");
   const [armed, setArmed] = useState<"storico" | "account" | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const userId = user?.id;
@@ -124,6 +126,28 @@ export function MieiDati() {
     try { await setTrackEvents(!trackEvents); } catch { toast(FAIL); }
   };
 
+  const chips = [
+    ...st.subs.map((k) => SRC[k]?.n ?? k),
+    ...(st.citta ? ["📍 " + st.citta] : []),
+    ...(st.team && st.team !== "Nessuna" ? ["⚽ " + st.team] : []),
+    ...st.gen,
+  ];
+  const counts: [number, string][] = [
+    [st.watch.length, "Da vedere"], [st.serie.length, "Serie seguite"], [st.liked.length, "Mi piace"],
+    [st.disliked.length, "Non mi piace"], [st.seen.length, "Visti"],
+  ];
+  // Il filtro lavora sulle righe già lette; i giorni sono quelli del dispositivo.
+  const kinds = KIND_FILTERS.find((f) => f.id === filter)?.kinds;
+  const now = new Date();
+  const days: { label: string; events: StoredEvent[] }[] = [];
+  for (const e of events) {
+    if (kinds && !kinds.includes(e.kind)) continue;
+    const label = dayLabel(new Date(e.created_at), now);
+    const last = days[days.length - 1];
+    if (last && last.label === label) last.events.push(e);
+    else days.push({ label, events: [e] });
+  }
+
   return (
     <>
       <button className="act" style={{ marginBottom: 16 }} onClick={() => setView("prof")}>‹ Profilo</button>
@@ -135,17 +159,43 @@ export function MieiDati() {
         <p>Se lo spegni, Popcorno smette di registrare le tue scelte. Preferenze e sincronizzazione continuano.</p>
       </div>
       <div className="grp"><h3>Le tue preferenze</h3>
-        <p>Abbonamenti: {st.subs.length ? st.subs.join(", ") : "nessuno"}</p>
-        <p>Città: {st.citta || "non indicata"}</p>
-        <p>Squadra: {st.team && st.team !== "Nessuna" ? st.team : "nessuna"}</p>
-        <p>Generi: {st.gen.length ? st.gen.join(", ") : "nessuno"}</p>
-        <p>Da vedere: {st.watch.length} · Serie seguite: {st.serie.length} · Mi piace: {st.liked.length} · Non mi piace: {st.disliked.length} · Visti: {st.seen.length}</p>
+        <div className="pref-chips">
+          {chips.length ? chips.map((c, i) => <span key={i}>{c}</span>) : <span className="none">Nessuna preferenza indicata</span>}
+        </div>
+        <div className="stats mini-stats">
+          {counts.map(([n, l]) => <div className="stat" key={l}><b>{n}</b><span>{l}</span></div>)}
+        </div>
       </div>
       <div className="grp"><h3>Le tue scelte</h3>
         {events.length ? (
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {events.map((e, i) => <li key={i} style={{ padding: "6px 0", fontSize: 14 }}>{eventText(e)}</li>)}
-          </ul>
+          <>
+            <div className="filters storia-filtri" role="group" aria-label="Filtra le scelte">
+              {KIND_FILTERS.map((f) => (
+                <button key={f.id} className={filter === f.id ? "chip on" : "chip"} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>{f.label}</button>
+              ))}
+            </div>
+            {days.length ? (
+              <div className="storia-days">
+                {days.map((d) => (
+                  <section key={d.label}>
+                    <h4 className="storia-day">{d.label}</h4>
+                    <ul className="storia">
+                      {d.events.map((e, i) => {
+                        const sh = eventShort(e.kind);
+                        return (
+                          <li key={i} aria-label={eventText(e)}>
+                            <span className="ic" aria-hidden="true">{sh.icon}</span>
+                            <div><small>{sh.label}</small><b>{e.title?.trim() || "un titolo"}</b></div>
+                            <time dateTime={e.created_at}>{eventTime(e.created_at)}</time>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+            ) : <p>Nessuna scelta di questo tipo.</p>}
+          </>
         ) : loaded ? <p>Ancora nessuna scelta registrata.</p> : null}
         {more && <button className="act" style={{ marginTop: 10 }} onClick={showMore}>Mostra altre</button>}
       </div>

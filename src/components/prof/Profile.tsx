@@ -4,6 +4,7 @@ import { loadCatalogs } from "../../lib/data";
 import { TEAMS } from "../../lib/genres";
 import { profileLink } from "../../lib/profile-link";
 import { Account } from "./Account";
+import { MiaLista } from "./MiaLista";
 import { epTxt } from "../../lib/scoring";
 import { SRC } from "../../lib/sources";
 import type { Item } from "../../lib/types";
@@ -87,6 +88,7 @@ export function Profile() {
           {TEAMS.map((t) => <option key={t}>{t}</option>)}
         </select>
       </div>
+      <MiaLista />
       <div className="grp" id="serie-list"><h3>Serie che stai seguendo</h3><p>Segna a che episodio sei: Popcorno ti ricorda dove ripartire.</p>
         <div id="serie-box">
           {st.serie.length ? st.serie.map((x, i) => (

@@ -25,14 +25,15 @@ async function mount(prof: Partial<Stasera> = {}) {
 const click = async (el: Element) => { await act(async () => { fireEvent.click(el); }); };
 
 // Testo visibile e controlli di #v-prof: ogni controllo con id, aria-label, stato e valore.
+// L'app vecchia non ha "La mia lista" (#mia-lista): è una sezione nuova, quindi la parità si confronta senza.
 function snapshot(root: Element) {
-  const controls = [...root.querySelectorAll("button, input, select, a")].map((c: any) => [
+  const controls = [...root.querySelectorAll("button, input, select, a")].filter((c) => !c.closest("#mia-lista")).map((c: any) => [
     c.tagName, c.id, c.getAttribute("aria-label"), c.getAttribute("aria-pressed"), c.classList.contains("on"), c.getAttribute("href"),
     c.tagName === "SELECT" ? c.value : c.tagName === "INPUT" && c.id !== "sync-out" ? c.value : null,
     flat(c.textContent),
   ]);
   const clone = root.cloneNode(true) as Element;
-  clone.querySelectorAll("#sync-out, datalist").forEach((e) => e.remove());
+  clone.querySelectorAll("#sync-out, datalist, #mia-lista").forEach((e) => e.remove());
   return { text: flat(clone.textContent), controls, options: [...root.querySelectorAll("#team option")].map((o) => o.textContent) };
 }
 const legacyProf = async (prof: object) => {

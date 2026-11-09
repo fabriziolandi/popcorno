@@ -2,7 +2,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EVENT_KINDS, type EventKind } from "../src/lib/events";
-import { eventText, exportName } from "../src/lib/miei-dati";
+import { dayLabel, eventShort, eventText, exportName, KIND_FILTERS } from "../src/lib/miei-dati";
 
 const app = {
   user: { id: "u1", email: "a@b.it" } as { id: string; email: string } | null,
@@ -12,7 +12,7 @@ const app = {
   clearEvents: vi.fn(),
   toast: vi.fn(),
   setView: vi.fn(),
-  st: { subs: ["netflix"], citta: "Roma", team: "Nessuna", gen: [], watch: [1], serie: [], liked: [1, 2], disliked: [], seen: [] },
+  st: { subs: ["netflix"], citta: "Roma", team: "Nessuna", gen: [] as string[], watch: [1], serie: [], liked: [1, 2], disliked: [], seen: [] },
 };
 vi.mock("../src/app-state", () => ({ useApp: () => app }));
 const deleteAccount = vi.fn(async () => {});
@@ -55,6 +55,9 @@ const client = {
   },
 };
 
+// Il pulsante di un filtro della cronologia (i nomi tornano anche nei conteggi).
+const filtro = (root: Element, label: string) =>
+  [...root.querySelectorAll(".storia-filtri button")].find((b) => b.textContent === label)!;
 const click = async (el: Element) => { await act(async () => { fireEvent.click(el); }); };
 
 beforeEach(() => {
@@ -96,13 +99,110 @@ describe("testi dello storico", () => {
   });
 });
 
+describe("cronologia: icone, giorni e filtri", () => {
+  it("eventShort per tutti i 14 tipi", () => {
+    const attesi: Record<EventKind, [string, string]> = {
+      like: ["👍", "Ti è piaciuto"], dislike: ["👎", "Non ti è piaciuto"],
+      unlike: ["👍", "Tolto il mi piace"], undislike: ["👎", "Tolto il non mi piace"],
+      seen: ["👁", "Visto"], unseen: ["👁", "Tolto dai visti"],
+      watch_add: ["🔖", "Aggiunto a Da vedere"], watch_remove: ["🔖", "Tolto da Da vedere"],
+      open: ["🍿", "Aperto"], trailer: ["▶", "Trailer"], showtimes: ["🎟", "Orari del cinema"],
+      go: ["📺", "Link per vederlo"], follow: ["📺", "Inizi a seguirla"], unfollow: ["📺", "Smetti di seguirla"],
+    };
+    expect(EVENT_KINDS).toHaveLength(14);
+    for (const k of EVENT_KINDS) expect(eventShort(k)).toEqual({ icon: attesi[k][0], label: attesi[k][1] });
+  });
+  it("ogni tipo sta in un solo filtro", () => {
+    const kinds = KIND_FILTERS.flatMap((f) => f.kinds ?? []);
+    expect([...kinds].sort()).toEqual([...EVENT_KINDS].sort());
+    expect(KIND_FILTERS.map((f) => f.label)).toEqual(["Tutto", "Mi piace", "Visti", "Da vedere", "Aperti"]);
+  });
+  it("dayLabel: Oggi, Ieri, data, anno diverso", () => {
+    const now = new Date(2026, 10, 9, 10, 0);
+    expect(dayLabel(new Date(2026, 10, 9, 0, 5), now)).toBe("Oggi");
+    expect(dayLabel(new Date(2026, 10, 8, 23, 59), now)).toBe("Ieri");
+    expect(dayLabel(new Date(2026, 10, 7, 21, 0), now)).toBe("7 novembre");
+    expect(dayLabel(new Date(2025, 11, 31, 21, 0), now)).toBe("31 dicembre 2025");
+    // Ieri anche a cavallo del mese
+    expect(dayLabel(new Date(2026, 9, 31, 22, 0), new Date(2026, 10, 1, 8, 0))).toBe("Ieri");
+  });
+
+  const now = new Date();
+  const at = (daysAgo: number, h: number, m = 0) => new Date(now.getFullYear(), now.getMonth(), now.getDate() - daysAgo, h, m).toISOString();
+  const mixed = [
+    { kind: "like", title: "Dune", created_at: at(0, 1, 5) },
+    { kind: "open", title: "Fargo", created_at: at(0, 0, 30) },
+    { kind: "seen", title: "Up", created_at: at(1, 21, 18) },
+    { kind: "watch_add", title: "Heat", created_at: at(5, 20) },
+  ];
+  it("raggruppa per giorno con le intestazioni e mostra l'ora", async () => {
+    range.mockResolvedValueOnce({ data: mixed, error: null });
+    const r = render(<MieiDati />);
+    await act(async () => {});
+    const heads = [...r.container.querySelectorAll(".storia-day")].map((h) => h.textContent);
+    expect(heads).toEqual(["Oggi", "Ieri", dayLabel(new Date(at(5, 20)), now)]);
+    expect(r.container.querySelectorAll(".storia")[0]!.querySelectorAll("li")).toHaveLength(2);
+    const up = r.container.querySelectorAll(".storia li")[2]!;
+    expect(up.querySelector(".ic")!.textContent).toBe("👁");
+    expect(up.querySelector("small")!.textContent).toBe("Visto");
+    expect(up.querySelector("b")!.textContent).toBe("Up");
+    expect(up.querySelector("time")!.textContent).toBe("21:18");
+    expect(up.getAttribute("aria-label")).toBe(eventText(mixed[2] as never));
+  });
+  it("i filtri riducono le righe, senza nuove richieste", async () => {
+    range.mockResolvedValueOnce({ data: mixed, error: null });
+    const r = render(<MieiDati />);
+    await act(async () => {});
+    const calls = range.mock.calls.length;
+    const titles = () => [...r.container.querySelectorAll(".storia b")].map((b) => b.textContent);
+    expect(titles()).toEqual(["Dune", "Fargo", "Up", "Heat"]);
+    await click(filtro(r.container, "Mi piace"));
+    expect(titles()).toEqual(["Dune"]);
+    await click(filtro(r.container, "Visti"));
+    expect(titles()).toEqual(["Up"]);
+    await click(filtro(r.container, "Aperti"));
+    expect(titles()).toEqual(["Fargo"]);
+    expect(filtro(r.container, "Aperti").getAttribute("aria-pressed")).toBe("true");
+    await click(filtro(r.container, "Tutto"));
+    expect(titles()).toHaveLength(4);
+    expect(range.mock.calls.length).toBe(calls);
+  });
+  it("con un filtro senza righe dice che non ce ne sono", async () => {
+    range.mockResolvedValueOnce({ data: [mixed[0]], error: null });
+    const r = render(<MieiDati />);
+    await act(async () => {});
+    await click(filtro(r.container, "Da vedere"));
+    expect(r.container.textContent).toContain("Nessuna scelta di questo tipo.");
+    expect(r.container.querySelector(".storia")).toBeNull();
+  });
+  it("le preferenze sono chip con il nome vero dell'abbonamento, e i conteggi in riquadri", async () => {
+    const prev = app.st;
+    app.st = { ...prev, subs: ["netflix", "now"], citta: "Roma", team: "Inter", gen: ["Thriller"] };
+    try {
+      const r = render(<MieiDati />);
+      await act(async () => {});
+      const chips = [...r.container.querySelectorAll(".pref-chips span")].map((c) => c.textContent);
+      expect(chips).toEqual(["Netflix", "Sky / NOW", "📍 Roma", "⚽ Inter", "Thriller"]);
+      const stats = [...r.container.querySelectorAll(".mini-stats .stat")].map((s) => s.textContent);
+      expect(stats).toEqual(["1Da vedere", "0Serie seguite", "2Mi piace", "0Non mi piace", "0Visti"]);
+    } finally { app.st = prev; }
+  });
+  it("con squadra 'Nessuna' e senza città non ci sono quei chip", async () => {
+    const r = render(<MieiDati />);
+    await act(async () => {});
+    const chips = [...r.container.querySelectorAll(".pref-chips span")].map((c) => c.textContent);
+    expect(chips).toEqual(["Netflix", "📍 Roma"]);
+  });
+});
+
 describe("vista I miei dati", () => {
   it("mostra email, preferenze e storico", async () => {
     const r = render(<MieiDati />);
     await act(async () => {});
     expect(r.container.textContent).toContain("Account: a@b.it");
-    expect(r.container.textContent).toContain("7 nov, 21:10 — Hai messo mi piace a «Dune»");
-    expect(r.container.textContent).toContain("Abbonamenti: netflix");
+    expect(r.container.querySelector('li[aria-label="7 nov, 21:10 — Hai messo mi piace a «Dune»"]')).toBeTruthy();
+    expect(r.container.textContent).toContain("Ti è piaciuto");
+    expect(r.container.textContent).toContain("Dune");
   });
   it("senza storico mostra il messaggio vuoto", async () => {
     range.mockResolvedValueOnce({ data: [], error: null });
@@ -200,7 +300,7 @@ describe("I miei dati e il cambio di account", () => {
     const click_ = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
     const r = render(<Shell />);
     await act(async () => {});
-    expect(r.container.textContent).toContain("«Dune»");
+    expect(r.container.textContent).toContain("Dune");
     app.user = null;
     r.rerender(<Shell />);
     await act(async () => {});

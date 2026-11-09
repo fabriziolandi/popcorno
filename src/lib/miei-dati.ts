@@ -36,3 +36,49 @@ export function exportName(now: Date): string {
   const p = (n: number) => String(n).padStart(2, "0");
   return `popcorno-miei-dati-${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}.json`;
 }
+
+// Icona e testo breve di ogni tipo, per la cronologia (il titolo va sotto, in grassetto).
+const SHORT: Record<EventKind, { icon: string; label: string }> = {
+  like: { icon: "👍", label: "Ti è piaciuto" },
+  dislike: { icon: "👎", label: "Non ti è piaciuto" },
+  unlike: { icon: "👍", label: "Tolto il mi piace" },
+  undislike: { icon: "👎", label: "Tolto il non mi piace" },
+  seen: { icon: "👁", label: "Visto" },
+  unseen: { icon: "👁", label: "Tolto dai visti" },
+  watch_add: { icon: "🔖", label: "Aggiunto a Da vedere" },
+  watch_remove: { icon: "🔖", label: "Tolto da Da vedere" },
+  open: { icon: "🍿", label: "Aperto" },
+  trailer: { icon: "▶", label: "Trailer" },
+  showtimes: { icon: "🎟", label: "Orari del cinema" },
+  go: { icon: "📺", label: "Link per vederlo" },
+  follow: { icon: "📺", label: "Inizi a seguirla" },
+  unfollow: { icon: "📺", label: "Smetti di seguirla" },
+};
+
+export function eventShort(kind: EventKind): { icon: string; label: string } {
+  return SHORT[kind] ?? { icon: "•", label: kind };
+}
+
+// Intestazione del giorno, nell'ora del dispositivo: "Oggi", "Ieri", "7 novembre" (con l'anno se non è quello corrente).
+export function dayLabel(d: Date, now: Date): string {
+  const day = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  if (day(d) === day(now)) return "Oggi";
+  if (day(d) === day(yesterday)) return "Ieri";
+  return d.toLocaleDateString("it-IT", d.getFullYear() === now.getFullYear()
+    ? { day: "numeric", month: "long" }
+    : { day: "numeric", month: "long", year: "numeric" });
+}
+
+// "21:18", nell'ora del dispositivo.
+export const eventTime = (iso: string): string =>
+  new Date(iso).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+
+// I filtri della cronologia; "Tutto" non filtra.
+export const KIND_FILTERS: { id: string; label: string; kinds: EventKind[] | null }[] = [
+  { id: "tutto", label: "Tutto", kinds: null },
+  { id: "like", label: "Mi piace", kinds: ["like", "dislike", "unlike", "undislike"] },
+  { id: "visti", label: "Visti", kinds: ["seen", "unseen"] },
+  { id: "watch", label: "Da vedere", kinds: ["watch_add", "watch_remove"] },
+  { id: "aperti", label: "Aperti", kinds: ["open", "trailer", "showtimes", "go", "follow", "unfollow"] },
+];
