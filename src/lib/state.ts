@@ -43,6 +43,12 @@ export function toggleWatch(st: Stasera, it: Item): Stasera {
     : { ...st, watch: [...st.watch, refOf(it)] };
 }
 
+export function toggleSeen(st: Stasera, it: Item): Stasera {
+  return st.seen.includes(it.t)
+    ? { ...st, seen: st.seen.filter((x) => x !== it.t) }
+    : { ...st, seen: [...st.seen, it.t] };
+}
+
 export function feedback(st: Stasera, it: Item, v: 1 | -1): Stasera {
   const likes = { ...st.likes, [it.g]: (st.likes[it.g] || 0) + v };
   if (v > 0) {

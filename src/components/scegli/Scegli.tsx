@@ -6,7 +6,7 @@ import { allItems, loadCityShows, nrm, type CityShows } from "../../lib/data";
 import { lucky } from "../../lib/lucky";
 import { candidates, pickNow } from "../../lib/scoring";
 import { mySrc, SRC } from "../../lib/sources";
-import { feedback, inWatch, serieOf, toggleWatch } from "../../lib/state";
+import { feedback, inWatch, serieOf, toggleSeen, toggleWatch } from "../../lib/state";
 import type { Item, Stasera } from "../../lib/types";
 import { Ask } from "./Ask";
 import { Result, type ResultActions } from "./Result";
@@ -75,8 +75,9 @@ export function Scegli() {
   const onLucky = () => { skip.current.clear(); void doLucky(); };
 
   const fb = (it: Item, v: 1 | -1) => {
-    const { st, setSt, toast } = cur.current;
+    const { st, setSt, toast, track } = cur.current;
     setSt(feedback(st, it, v));
+    track(v > 0 ? "like" : "dislike", it);
     if (v > 0) { toast("Buona visione! Popcorno se lo ricorda"); showRes(false); return; }
     toast("Ok, meno " + it.g.toLowerCase() + " d'ora in poi");
     setTimeout(async () => {
@@ -94,16 +95,18 @@ export function Scegli() {
     feedback: fb,
     again: (it) => { skip.current.add(it.t); void doLucky(); },
     watch: (it) => {
-      const { st, setSt, toast } = cur.current;
+      const { st, setSt, toast, track } = cur.current;
       const was = inWatch(st, it);
       setSt(toggleWatch(st, it));
+      track(was ? "watch_remove" : "watch_add", it);
       toast(was ? "Tolto dalla lista" : "Aggiunto a Da vedere 🔖");
       showRes(false);
     },
     serie: (it) => {
-      const { st, setSt, toast, setView } = cur.current;
+      const { st, setSt, toast, setView, track } = cur.current;
       if (!serieOf(st, it)) {
         setSt({ ...st, serie: [...st.serie, { t: it.t, tmdb: it.tmdb || "", s: 1, e: 1 }] });
+        track("follow", it);
         toast("Segnata: riparti dalla stagione 1, episodio 1. Cambiala nel Profilo");
         showRes(false);
         return;
@@ -111,8 +114,26 @@ export function Scegli() {
       setView("prof");
       setTimeout(() => { const el = document.getElementById("serie-list"); if (el) el.scrollIntoView({ behavior: "smooth" }); }, 150);
     },
+    seen: (it) => {
+      const { st, setSt, toast, track } = cur.current;
+      const was = st.seen.includes(it.t);
+      setSt(toggleSeen(st, it));
+      track(was ? "unseen" : "seen", it);
+      toast(was ? "Tolto dai visti" : "Segnato come visto");
+      showRes(false);
+    },
+    trailer: (it) => { cur.current.track("trailer", it); },
+    showtimes: (it) => { cur.current.track("showtimes", it); },
     share: (it) => { void shareIt(it, cur.current.st); },
     mini: (t) => {
+      // Tocco su un titolo della striscia: una scelta (R4). `shown` = la striscia più il titolo principale.
+      const r = cur.current.res;
+      if (r && r.list.length) {
+        const n = r.list.length, main = r.list[r.idx % n];
+        const alts = [1, 2, 3, 4].map((i) => r.list[(r.idx + i) % n]).filter((a, i, arr) => a !== main && arr.indexOf(a) === i);
+        const picked = r.list.find((x) => x.it.t === t);
+        if (picked) cur.current.track("open", picked.it, { shown: [main.it.t, ...alts.map((a) => a.it.t)].slice(0, 10) });
+      }
       showRes(true, (r) => ({ idx: r.list.findIndex((x) => x.it.t === t) }));
       window.scrollTo({ top: 0, behavior: "smooth" });
     },

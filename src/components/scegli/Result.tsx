@@ -19,6 +19,9 @@ export type ResultActions = {
   watch(it: Item): void;
   serie(it: Item): void;
   share(it: Item): void;
+  seen(it: Item): void;
+  trailer(it: Item): void;
+  showtimes(it: Item): void;
   mini(t: string): void;
 };
 
@@ -62,9 +65,9 @@ function Facts({ it }: { it: Item }) {
   );
 }
 
-function Shows({ it, st, shows }: { it: Item; st: Stasera; shows: CityShows | null }) {
+function Shows({ it, st, shows, onTap }: { it: Item; st: Stasera; shows: CityShows | null; onTap(): void }) {
   const g = (
-    <a className="orari" target="_blank" rel="noopener" href={"https://www.google.com/search?q=" + encodeURIComponent(it.t + " orari cinema " + (st.citta || ""))}>
+    <a className="orari" target="_blank" rel="noopener" onClick={onTap} href={"https://www.google.com/search?q=" + encodeURIComponent(it.t + " orari cinema " + (st.citta || ""))}>
       🎟️ {st.citta ? "Cerca orari a " + st.citta : "Cerca orari e sale"}
     </a>
   );
@@ -76,7 +79,7 @@ function Shows({ it, st, shows }: { it: Item; st: Stasera; shows: CityShows | nu
       <h3 className="more-h">Oggi a {shows!.citta}</h3>
       {sh.map((s, i) => (
         <div className="sala" key={i}>
-          <a href={s.url} target="_blank" rel="noopener"><b>{s.n.replace(/^Cinema /, "")}</b><span>{s.ind.replace(/ - [^-]+ \([A-Z]{2}\)$/, "")}</span></a>
+          <a href={s.url} target="_blank" rel="noopener" onClick={onTap}><b>{s.n.replace(/^Cinema /, "")}</b><span>{s.ind.replace(/ - [^-]+ \([A-Z]{2}\)$/, "")}</span></a>
           <div className="ore">{s.o.map((o, j) => <span key={j} className={o < now ? "passato" : undefined}>{o}</span>)}</div>
         </div>
       ))}
@@ -117,7 +120,7 @@ export function Result({ res, pal, act }: { res: Res; pal: Palinsesto | null; ac
   const n = list.length, main = list[res.idx % n], it = main.it;
   const alts = L ? [] : [1, 2, 3, 4].map((i) => list[(res.idx + i) % n]).filter((a, i, arr) => a !== main && arr.indexOf(a) === i);
   const fb = st.liked.includes(it.t) ? "y" : st.disliked.includes(it.t) ? "n" : "";
-  const sr = serieOf(st, it), w = inWatch(st, it);
+  const sr = serieOf(st, it), w = inWatch(st, it), seen = st.seen.includes(it.t);
   const kind = (L ? "🍀 Scelto per te · " : "")
     + (wantEssai(st) && isEssai(it) ? (it.ty === "cinema" ? "D'essai in sala" : "Film d'essai") : TYW[it.ty])
     + (it.time ? " · " + (pal ? pal.etichetta : "") : "");
@@ -134,13 +137,14 @@ export function Result({ res, pal, act }: { res: Res; pal: Palinsesto | null; ac
       </div>
       <Facts it={it} />
       <Plot it={it} />
-      {it.ty === "cinema" && <Shows it={it} st={st} shows={shows} />}
+      {it.ty === "cinema" && <Shows it={it} st={st} shows={shows} onTap={() => act.showtimes(it)} />}
       <p className="why"><Why html={why} /></p>
       <div className="acts">
         {it.ty !== "sport" && <button className={w ? "act on" : "act"} id="a-watch" onClick={() => act.watch(it)}>{w ? "🔖 Nella lista" : "🔖 Da vedere"}</button>}
+        {it.ty !== "sport" && <button className={seen ? "act on" : "act"} id="a-seen" onClick={() => act.seen(it)}>{seen ? "✔ Visto" : "👁 L'ho visto"}</button>}
         {it.ty === "serie" && <button className={sr ? "act on" : "act"} id="a-serie" onClick={() => act.serie(it)}>{sr ? "📺 " + epTxt(sr) : "📺 La seguo"}</button>}
         {it.ty !== "sport" && (
-          <a className="act" id="a-trailer" target="_blank" rel="noopener"
+          <a className="act" id="a-trailer" target="_blank" rel="noopener" onClick={() => act.trailer(it)}
             href={"https://www.youtube.com/results?search_query=" + encodeURIComponent(it.t + (it.y ? " " + it.y : "") + " trailer italiano")}>▶ Trailer</a>
         )}
         <button className="act" id="a-share" onClick={() => act.share(it)}>💬 Condividi</button>

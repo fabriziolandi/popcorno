@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { authInUrl, completeFromUrl, getClient, hasStoredSession, onClientReady } from "./lib/account";
+import { createTracker, eventRow, type EventKind, type SendResult } from "./lib/events";
 import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
 import { parseProfileHash } from "./lib/profile-link";
 import { candidates, type Scored } from "./lib/scoring";
@@ -51,6 +52,8 @@ export type AppState = {
   // "Ricorda le mie scelte" (profiles.track_events): vero con account finché non si legge, falso senza.
   trackEvents: boolean;
   setTrackEvents(on: boolean): Promise<void>;
+  // Registra un segnale di gusto: non fa nulla senza account o con "Ricorda le mie scelte" spento.
+  track(kind: EventKind, it: Item, ctx?: Record<string, unknown>): void;
 };
 
 const Ctx = createContext<AppState | null>(null);
@@ -89,6 +92,35 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const stRef = useRef<Stasera>(st);
   const clocks = useRef<Clocks>(emptyClocks());
   const sync = useRef<Sync | null>(null);
+  const trackRef = useRef(false);
+  trackRef.current = trackEvents;
+
+  // Un solo tracker per provider; legge account e consenso dai ref, mai da valori vecchi.
+  const tracker = useRef<ReturnType<typeof createTracker> | null>(null);
+  if (!tracker.current) {
+    tracker.current = createTracker({
+      storage: typeof window === "undefined" ? null : storage(),
+      enabled: () => !!userRef.current && trackRef.current,
+      now: Date.now,
+      send: async (rows): Promise<SendResult> => {
+        const c = await getClient();
+        const { error } = await c.from("events").insert(rows);
+        if (!error) return "ok";
+        // 42501: permesso negato (consenso tolto): si smette. Il resto (rete, 5xx) si riprova al prossimo segnale.
+        return error.code === "42501" ? "off" : "retry";
+      },
+    });
+  }
+  const track = useCallback((kind: EventKind, it: Item, ctx?: Record<string, unknown>) => {
+    tracker.current!.track(eventRow(kind, it, stRef.current, ctx));
+  }, []);
+  // Si svuota la coda all'ingresso (quando "Ricorda" diventa vero) e quando torna la rete.
+  useEffect(() => { if (user && trackEvents) void tracker.current!.flush(); }, [user, trackEvents]);
+  useEffect(() => {
+    const on = () => { void tracker.current!.flush(); };
+    window.addEventListener("online", on);
+    return () => window.removeEventListener("online", on);
+  }, []);
 
   const setSt = useCallback((next: Stasera) => {
     clocks.current = stamp(stRef.current, next, clocks.current, Date.now());
@@ -286,17 +318,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const { st, shows, catalog } = cur.current;
       const rest = candidates(p, tipo ? { ...st, tipo } : st, { shows, extra: catalog }).filter((x) => x.it !== it);
       const first: Scored = { it, sc: 99, why: ["l'hai cercato tu"].concat(isFree(it) ? ["è <b>gratis</b>"] : []) };
+      track("open", it, { shown: [it.t, ...rest.slice(0, 9).map((x) => x.it.t)] });
       setRes((r) => ({ list: [first, ...rest], idx: 0, lucky: false, zap: false, shown: true, seq: (r?.seq ?? 0) + 1 }));
       setView("scegli");
     });
-  }, [palReady, setView]);
+  }, [palReady, setView, track]);
 
   const value = useMemo<AppState>(
     () => ({
       st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem,
-      user, trackEvents, setTrackEvents,
+      user, trackEvents, setTrackEvents, track,
     }),
-    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents],
+    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

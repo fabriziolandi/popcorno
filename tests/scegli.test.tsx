@@ -303,7 +303,12 @@ describe("domande", () => {
 const controls = (root: Element) =>
   [...root.querySelectorAll("button, a")].map((e) => [e.tagName, e.id, e.getAttribute("aria-label") || "", e.getAttribute("href") || "", (e.textContent || "").replace(/\s+/g, "")]);
 const classes = (root: Element) => [...root.querySelectorAll("*")].flatMap((e) => [...e.classList]).sort();
-const snap = (root: Element) => ({ text: (root.textContent || "").replace(/\s+/g, ""), controls: controls(root), classes: classes(root) });
+// L'app vecchia non ha "L'ho visto" (#a-seen): è un tasto nuovo, quindi la parità si confronta senza.
+const snap = (root0: Element) => {
+  const root = root0.cloneNode(true) as Element;
+  root.querySelector("#a-seen")?.remove();
+  return { text: (root.textContent || "").replace(/\s+/g, ""), controls: controls(root), classes: classes(root) };
+};
 
 const CASES: [string, Partial<Stasera>, (d: Document) => void][] = [
   ["predefinito, prima proposta", {}, (d) => d.querySelector<HTMLElement>("#go")!.click()],
@@ -334,5 +339,66 @@ describe.each(CASES)("parità di #res con l'app vecchia: %s", (name, prof, start
     await act(async () => { start(document); });
     for (let i = 0; i < zaps; i++) await click("#other");
     await waitFor(() => expect(snap($("#res")!)).toEqual(old));
+  });
+});
+
+describe("L'ho visto e storico", () => {
+  it("il tasto L'ho visto segna e toglie il titolo da seen", async () => {
+    await mount({ tipo: "serie" });
+    await click("#go");
+    const t = text("#res .title");
+    expect(text("#a-seen")).toBe("👁 L'ho visto");
+    expect($("#a-seen")!.className).toBe("act");
+    await click("#a-seen");
+    expect(text("#toast")).toBe("Segnato come visto");
+    expect(text("#a-seen")).toBe("✔ Visto");
+    expect($("#a-seen")!.className).toBe("act on");
+    expect(JSON.parse(localStorage.getItem("stasera")!).seen).toEqual([t]);
+    await click("#a-seen");
+    expect(text("#toast")).toBe("Tolto dai visti");
+    expect(text("#a-seen")).toBe("👁 L'ho visto");
+    expect(JSON.parse(localStorage.getItem("stasera")!).seen).toEqual([]);
+    expect(localStorage.getItem("popcorno-eventi")).toBeNull(); // senza account niente coda
+  });
+
+  it("il tasto non c'è per lo sport", async () => {
+    await mount({ tipo: "sport", team: "Nessuna" });
+    await click("#go");
+    if ($("#res .title")) expect($("#a-seen")).toBeNull();
+  });
+
+  it("con account, 👍 registra like", async () => {
+    const inserted: any[][] = [];
+    const none = { data: null, error: null, status: 200 };
+    const client = {
+      auth: {
+        getSession: async () => ({ data: { session: null }, error: null }),
+        onAuthStateChange: (cb: (ev: string, s: unknown) => void) => {
+          queueMicrotask(() => cb("INITIAL_SESSION", { user: { id: "u1", email: "a@b.it" } }));
+          return { data: { subscription: { unsubscribe() {} } } };
+        },
+      },
+      from: (table: string) => table === "events"
+        ? { insert: async (rows: any[]) => { inserted.push(rows); return { error: null }; } }
+        : {
+            select: () => ({ eq: () => ({ maybeSingle: async () => (table === "profiles" ? { data: { track_events: true }, error: null } : none) }) }),
+            upsert: async () => ({ error: null, status: 201 }),
+          },
+    };
+    const { setClientForTests, SESSION_KEY } = await import("../src/lib/account");
+    setClientForTests(client);
+    try {
+      localStorage.setItem(SESSION_KEY, "{}");
+      await mount({ tipo: "serie" });
+      await click("#go");
+      const t = text("#res .title");
+      await act(async () => { await new Promise((r) => setTimeout(r, 30)); });
+      await click("#yes");
+      await act(async () => { await new Promise((r) => setTimeout(r, 30)); });
+      const rows = inserted.flat();
+      expect(rows.map((r) => r.kind)).toContain("like");
+      expect(rows.find((r) => r.kind === "like").title).toBe(t);
+      expect(rows.find((r) => r.kind === "like").title_ref).toMatch(new RegExp("^(tv/|serie:)"));
+    } finally { setClientForTests(null); }
   });
 });

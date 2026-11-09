@@ -5,12 +5,13 @@ import { TEAMS } from "../../lib/genres";
 import { profileLink } from "../../lib/profile-link";
 import { epTxt } from "../../lib/scoring";
 import { SRC } from "../../lib/sources";
+import type { Item } from "../../lib/types";
 
 const input = { width: "100%", padding: 14, borderRadius: 14, background: "var(--notte2)", color: "var(--testo)", border: "1.5px solid var(--bordo)", font: "600 15px Figtree,sans-serif" } as const;
 
 // Vista Profilo (renderProf dell'app vecchia).
 export function Profile() {
-  const { st, setSt, toast, addCatalog } = useApp();
+  const { st, setSt, toast, addCatalog, track } = useApp();
   const stRef = useRef(st);
   stRef.current = st;
 
@@ -95,7 +96,10 @@ export function Profile() {
                 <span className="ee">{epTxt(x)}</span>
                 <button aria-label="Episodio successivo" onClick={() => setSerie(i, (y) => ({ ...y, e: Math.max(1, y.e + 1) }))}>+</button>
                 <button aria-label="Stagione successiva" style={{ width: "auto", padding: "0 10px", fontSize: 13 }} onClick={() => setSerie(i, (y) => ({ ...y, s: y.s + 1, e: 1 }))}>Stag. +1</button>
-                <button aria-label="Smetti di seguirla" style={{ color: "var(--muto)" }} onClick={() => setSerie(i, () => null)}>✕</button>
+                <button aria-label="Smetti di seguirla" style={{ color: "var(--muto)" }} onClick={() => {
+                  track("unfollow", { t: x.t, ty: "serie", s: "", m: [], w: [], tmdb: x.tmdb || undefined, g: "" } satisfies Item);
+                  setSerie(i, () => null);
+                }}>✕</button>
               </div>
             </div>
           )) : <p style={{ fontSize: 13, color: "var(--muto)" }}>Nessuna serie. Tocca “📺 La seguo” sotto una serie.</p>}
