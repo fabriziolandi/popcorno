@@ -1,14 +1,9 @@
 # Dati generati ogni giorno dal workflow: vanno nel sito, non nella cronologia
-data/catalogo/
-data/trame/
-data/cinema/
-data/oggi.js
 public/data/catalogo/
 public/data/trame/
 public/data/cinema/
 public/data/oggi.json
 public/data/oggi.js
-data/versione.txt
 __pycache__/
 
 # Segreti: password del database e chiavi Supabase
@@ -40,5 +35,3 @@ node_modules/
 dist/
 .wrangler/
 
-# Sito di GitHub Pages preparato dal workflow
-_pages/

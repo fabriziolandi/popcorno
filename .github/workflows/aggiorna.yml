@@ -85,27 +85,19 @@ jobs:
           python3 -m json.tool public/data/oggi.json > /dev/null
 
       # Per i telefoni con la versione vecchia dell'app (legge oggi.js).
-      # togliere dopo il AAAA-MM-GG (data del cambio + 30 giorni)
+      # togliere dopo il 2026-12-09 (data del cambio + 30 giorni)
       - name: Componi public/data/oggi.js (versione vecchia)
         run: |
           python3 scripts/build.py public/data/meta.json /tmp/items.json /tmp/tmdb.json > public/data/oggi.js
           node --check public/data/oggi.js
 
-      # Sito di GitHub Pages: stessa struttura di oggi (dati, font, icone in radice).
-      # Preparato prima dei passi Node cosi' non include node_modules/ ne' dist/, e il
-      # deploy di Pages non dipende da test e Cloudflare.
-      # TODO Task 11: pubblicare solo gh-redirect/
-      - name: Prepara il sito per GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        run: |
-          mkdir _pages
-          cp -r public/. _pages/
-          cp -r index.html sw.js privacy CNAME .nojekyll _pages/
+      # Vecchio indirizzo fabriziolandi.github.io/popcorno/: solo la pagina che porta a popcorno.it
+      # con le preferenze salvate li'. Pubblicata anche se test o Cloudflare falliscono.
       - name: Pacchetto per GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _pages
+          path: gh-redirect
 
       - name: Salva la guida TV (solo i file piccoli)
         if: github.event_name != 'push' && github.ref == 'refs/heads/main'
@@ -142,7 +134,7 @@ jobs:
         run: npx wrangler deploy
 
   pagine:
-    # Solo su main: sul ramo riscrittura-react si pubblica soltanto su Cloudflare.
+    # Solo su main: sugli altri rami si pubblica soltanto su Cloudflare.
     if: always() && github.ref == 'refs/heads/main'
     needs: aggiorna
     runs-on: ubuntu-latest

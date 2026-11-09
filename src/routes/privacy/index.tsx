@@ -43,7 +43,7 @@ function Privacy() {
     <div className="wrap">
       <a className="top" href="/"><img src="/icons/icon-180.png" alt="" />Popcorno</a>
       <h1>Informativa privacy</h1>
-      <p className="muto">Ultimo aggiornamento: 7 novembre 2026</p>
+      <p className="muto">Ultimo aggiornamento: 9 novembre 2026</p>
 
       <div className="box">
       <p><strong>In breve:</strong> Popcorno non ti chiede di registrarti, non usa cookie di tracciamento, non fa statistiche sulle visite e non mostra pubblicità. Le tue preferenze restano sul tuo dispositivo.</p>
@@ -61,7 +61,8 @@ function Privacy() {
 
       <h2>Servizi esterni</h2>
       <ul>
-      <li><strong>GitHub Pages</strong> (GitHub, Inc., gruppo Microsoft) ospita il sito. Può registrare l'indirizzo IP per sicurezza e funzionamento del servizio; i server possono trovarsi negli Stati Uniti. <a href="https://docs.github.com/it/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">Informativa di GitHub</a>.</li>
+      <li><strong>Cloudflare</strong> (Cloudflare, Inc.) ospita il sito e gestisce il dominio popcorno.it. Per far funzionare il servizio, velocizzarlo e proteggerlo da attacchi riceve l'indirizzo IP e i dati tecnici di ogni richiesta. I suoi server sono distribuiti in molti Paesi, anche fuori dall'Unione europea (per esempio negli Stati Uniti): in quel caso il trasferimento avviene con le garanzie previste dal GDPR. <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Informativa di Cloudflare</a>.</li>
+      <li><strong>GitHub Pages</strong> (GitHub, Inc., gruppo Microsoft) ospita solo il vecchio indirizzo fabriziolandi.github.io/popcorno/, che serve unicamente a portarti su popcorno.it. Se lo apri, può registrare l'indirizzo IP per sicurezza e funzionamento del servizio; i server possono trovarsi negli Stati Uniti. <a href="https://docs.github.com/it/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">Informativa di GitHub</a>.</li>
       <li><strong>TMDB</strong> (The Movie Database) fornisce le locandine: per mostrarle, il browser le scarica da image.tmdb.org, che riceve l'indirizzo IP come per qualsiasi immagine sul web. <a href="https://www.themoviedb.org/privacy-policy" rel="noopener">Informativa di TMDB</a>.</li>
       <li><strong>Link esterni.</strong> I pulsanti Trailer (YouTube), orari del cinema (Google) e Condividi (WhatsApp) aprono altri siti solo quando li tocchi tu. Da quel momento vale l'informativa di quei siti.</li>
       </ul>
