@@ -177,24 +177,43 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       void sync.current.pull();
     };
 
-    const signedIn = (c: SupabaseClient, u: User) => {
-      userRef.current = u;
-      setUser(u);
-      setTrackRaw(true);
-      void c.from("profiles").select("track_events").eq("id", u.id).maybeSingle().then(
-        ({ data }) => {
-          const v = (data as { track_events?: unknown } | null)?.track_events;
-          if (alive && userRef.current?.id === u.id && typeof v === "boolean") setTrackRaw(v);
-        },
-        () => { /* resta il valore predefinito */ },
-      );
-      pull();
-    };
     // All'uscita (o con una sessione non più valida) lo stato locale resta com'è.
     const signedOut = () => {
       userRef.current = null;
       setUser(null);
       setTrackRaw(false);
+    };
+
+    // Ogni accesso ha un motore nuovo: quello di prima (anche spento da un 401) non si riusa.
+    const newSync = (c: SupabaseClient) => {
+      sync.current?.stop();
+      sync.current = createSync({
+        client: getClient,
+        local: () => ({ st: stRef.current, ck: clocks.current }),
+        apply,
+        now: Date.now,
+        // Sessione rifiutata: si esce anche da supabase-js, così interfaccia e sessione coincidono.
+        onDenied: () => {
+          signedOut();
+          void c.auth.signOut({ scope: "local" }).catch(() => { /* già fuori */ });
+        },
+      });
+    };
+
+    const signedIn = (c: SupabaseClient, u: User) => {
+      userRef.current = u;
+      setUser(u);
+      // "Ricorda le mie scelte" vale solo dopo averlo letto come vero; una lettura fallita lo lascia spento.
+      setTrackRaw(false);
+      void c.from("profiles").select("track_events").eq("id", u.id).maybeSingle().then(
+        ({ data, error }) => {
+          const v = (data as { track_events?: unknown } | null)?.track_events;
+          if (alive && !error && userRef.current?.id === u.id) setTrackRaw(v === true);
+        },
+        () => { /* resta spento */ },
+      );
+      newSync(c);
+      pull();
     };
 
     const start = async (c: SupabaseClient) => {
@@ -211,13 +230,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       }
       if (!alive) return;
-      sync.current = createSync({
-        client: getClient,
-        local: () => ({ st: stRef.current, ck: clocks.current }),
-        apply,
-        now: Date.now,
-        onDenied: signedOut,
-      });
       const { data } = c.auth.onAuthStateChange((_ev, session) => {
         // Le chiamate a Supabase si fanno fuori dalla callback.
         setTimeout(() => {

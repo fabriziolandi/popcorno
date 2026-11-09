@@ -12,8 +12,10 @@ function fakeClient(row: unknown = null) {
   const db = { row: row as { data: unknown } | null };
   const calls: { op: string; arg?: unknown }[] = [];
   let fail: Resp | null = null;
+  let uid: string | null = "u1";
+  let onSelect: (() => void) | null = null;
   const c = {
-    auth: { getSession: vi.fn(async () => ({ data: { session: { user: { id: "u1" } } }, error: null })) },
+    auth: { getSession: vi.fn(async () => ({ data: { session: uid ? { user: { id: uid } } : null }, error: null })) },
     from: vi.fn((table: string) => {
       expect(table).toBe("preferences");
       return {
@@ -21,6 +23,7 @@ function fakeClient(row: unknown = null) {
           eq: (_k: string, v: string) => ({
             maybeSingle: async () => {
               calls.push({ op: "select", arg: v });
+              onSelect?.();
               if (fail) return { data: null, ...fail };
               return { data: db.row, error: null, status: 200 };
             },
@@ -40,6 +43,8 @@ function fakeClient(row: unknown = null) {
     db,
     calls,
     setFail(r: Resp | null) { fail = r; },
+    setUid(u: string | null) { uid = u; },
+    onSelect(f: (() => void) | null) { onSelect = f; },
   };
 }
 
@@ -184,6 +189,63 @@ describe("createSync", () => {
     await h.sync.pull();
     await vi.advanceTimersByTimeAsync(60000);
     expect(f.calls).toHaveLength(1);
+  });
+
+  it("403 (permessi, 42501) non chiude la sessione: push fallito, si riprova alla modifica dopo, senza ciclo", async () => {
+    vi.useFakeTimers();
+    const f = fakeClient(null);
+    const h = harness(f, { st: st({ citta: "Roma" }), ck: emptyClocks() });
+    f.setFail({ error: { code: "42501", message: "permission denied" }, status: 403 });
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(1500);
+    window.dispatchEvent(new Event("online"));
+    await vi.advanceTimersByTimeAsync(60000);
+    expect(f.calls).toHaveLength(1);
+    expect(h.onDenied).not.toHaveBeenCalled();
+    f.setFail(null);
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(f.calls.map((x) => x.op)).toEqual(["upsert", "upsert"]);
+    expect((f.db.row!.data as Synced).st.citta).toBe("Roma");
+  });
+
+  it("401 su push chiama onDenied", async () => {
+    vi.useFakeTimers();
+    const f = fakeClient(null);
+    const h = harness(f, { st: st(), ck: emptyClocks() });
+    f.setFail({ error: { message: "JWT expired" }, status: 401 });
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(h.onDenied).toHaveBeenCalledTimes(1);
+  });
+
+  it("cambio di account durante il pull: il risultato si scarta, niente apply né push", async () => {
+    vi.useFakeTimers();
+    const f = fakeClient({ data: { v: 1, st: st({ liked: ["B"] }), ck: emptyClocks() } });
+    const h = harness(f, { st: st({ liked: ["A"] }), ck: emptyClocks() });
+    f.onSelect(() => f.setUid("u2"));
+    await h.sync.pull();
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(h.apply).not.toHaveBeenCalled();
+    expect(f.calls.map((x) => x.op)).toEqual(["select"]);
+  });
+
+  it("push dopo un cambio di account non manda i dati del primo all'altro", async () => {
+    vi.useFakeTimers();
+    const f = fakeClient(null);
+    const h = harness(f, { st: st({ liked: ["A"] }), ck: emptyClocks() });
+    await h.sync.pull();
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(f.calls.map((x) => x.op)).toEqual(["select", "upsert"]);
+    f.setUid("u2");
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(f.calls.map((x) => x.op)).toEqual(["select", "upsert"]);
+    // un nuovo pull per u2 lega di nuovo il motore al nuovo account
+    await h.sync.pull();
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(f.calls.map((x) => x.op)).toEqual(["select", "upsert", "select", "upsert"]);
+    expect((f.calls[3]!.arg as { user_id: string }).user_id).toBe("u2");
   });
 
   it("stop annulla la modifica in attesa e ferma il motore", async () => {

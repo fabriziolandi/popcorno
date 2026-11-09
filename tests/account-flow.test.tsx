@@ -31,7 +31,7 @@ type Session = { user: { id: string; email: string } } | null;
 type Resp = { error: { code?: string; message?: string } | null; status: number };
 
 // Client finto: sessione, ascoltatori dell'accesso, preferences e profiles in memoria.
-function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean } = {}) {
+function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean; profilesRead?: () => Promise<unknown> } = {}) {
   let session: Session = opts.session ?? null;
   const cbs: ((ev: string, s: Session) => void)[] = [];
   const log: string[] = [];
@@ -48,6 +48,12 @@ function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean 
         session = { user: { id: "u1", email: "a@b.it" } };
         return { error: null };
       }),
+      signOut: vi.fn(async (_o: { scope: string }) => {
+        log.push("signOut");
+        session = null;
+        for (const cb of cbs) cb("SIGNED_OUT", null);
+        return { error: null };
+      }),
       onAuthStateChange: vi.fn((cb: (ev: string, s: Session) => void) => {
         cbs.push(cb);
         queueMicrotask(() => cb("INITIAL_SESSION", session));
@@ -58,7 +64,13 @@ function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean 
       if (table === "profiles") {
         return {
           select: () => ({
-            eq: () => ({ maybeSingle: async () => { log.push("profiles.select"); return { data: { track_events: db.track }, error: null }; } }),
+            eq: () => ({
+              maybeSingle: async () => {
+                log.push("profiles.select");
+                if (opts.profilesRead) return opts.profilesRead();
+                return { data: { track_events: db.track }, error: null };
+              },
+            }),
           }),
           update: (v: { track_events: boolean }) => ({
             eq: async (k: string, id: string) => {
@@ -207,7 +219,43 @@ describe("con account", () => {
     expect(typeof (f.db.prefs as { ck: { f: Record<string, number> } }).ck.f.citta).toBe("number");
   });
 
-  it("trackEvents è vero finché non si legge, setTrackEvents aggiorna profiles", async () => {
+  it("trackEvents è falso finché profiles non dice true", async () => {
+    localStorage.setItem(SESSION_KEY, "{}");
+    let resolve!: (v: unknown) => void;
+    const f = fakeClient({
+      session: { user: { id: "u1", email: "a@b.it" } },
+      profilesRead: () => new Promise((r) => { resolve = r; }),
+    });
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    expect(app.trackEvents).toBe(false);
+    await act(async () => { resolve({ data: { track_events: true }, error: null }); });
+    expect(app.trackEvents).toBe(true);
+  });
+
+  it("lettura di profiles fallita: trackEvents resta falso", async () => {
+    localStorage.setItem(SESSION_KEY, "{}");
+    const f = fakeClient({
+      session: { user: { id: "u1", email: "a@b.it" } },
+      profilesRead: async () => ({ data: null, error: { message: "boom" } }),
+    });
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    expect(app.trackEvents).toBe(false);
+    const g = fakeClient({ session: { user: { id: "u1", email: "a@b.it" } }, profilesRead: () => Promise.reject(new Error("rete")) });
+    cleanup();
+    setClientForTests(g.c);
+    mount();
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    expect(app.trackEvents).toBe(false);
+  });
+
+  it("setTrackEvents aggiorna profiles", async () => {
     localStorage.setItem(SESSION_KEY, "{}");
     const f = fakeClient({ session: { user: { id: "u1", email: "a@b.it" } }, track: true });
     setClientForTests(f.c);
@@ -247,6 +295,35 @@ describe("con account", () => {
     window.dispatchEvent(new Event("online"));
     await new Promise((r) => setTimeout(r, 1700));
     expect(f.log.filter((x) => x.startsWith("preferences."))).toEqual(["preferences.select"]);
+  });
+
+  it("401: esce anche da supabase-js; un nuovo accesso riavvia pull e push", async () => {
+    localStorage.setItem(SESSION_KEY, "{}");
+    const f = fakeClient({ session: { user: { id: "u1", email: "a@b.it" } } });
+    f.setFail({ error: { code: "PGRST301", message: "JWT expired" }, status: 401 });
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    expect(app.user).toBeNull();
+    expect(f.c.auth.signOut).toHaveBeenCalledWith({ scope: "local" });
+    f.setFail(null);
+    act(() => f.emit("SIGNED_IN", { user: { id: "u1", email: "a@b.it" } }));
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    expect(f.log.filter((x) => x === "preferences.select")).toHaveLength(2);
+    // account vuoto: i dati locali si caricano
+    await vi.waitFor(() => expect(f.log).toContain("preferences.upsert"), { timeout: 3000 });
+  });
+
+  it("403 (permessi) non fa uscire", async () => {
+    localStorage.setItem(SESSION_KEY, "{}");
+    const f = fakeClient({ session: { user: { id: "u1", email: "a@b.it" } } });
+    f.setFail({ error: { code: "42501", message: "permission denied" }, status: 403 });
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    expect(f.c.auth.signOut).not.toHaveBeenCalled();
   });
 
   it("accesso chiesto più tardi (Mandami il link / codice): il client nato dal gesto avvia la sincronizzazione", async () => {

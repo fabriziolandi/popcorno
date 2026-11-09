@@ -12,7 +12,7 @@ export type SyncOpts = {
   local: () => Synced;
   apply: (s: Synced) => void;
   now: () => number;
-  // La sessione non vale più (401/403): l'app resta in locale.
+  // La sessione non vale più (401, JWT scaduto o non valido): l'app resta in locale.
   onDenied?: () => void;
 };
 
@@ -44,12 +44,16 @@ function remoteOf(data: unknown): Synced | null {
 }
 
 const offline = (r: Res) => r.status === 0 || (typeof navigator !== "undefined" && navigator.onLine === false);
-const denied = (r: Res) => r.status === 401 || r.status === 403 || r.error?.code === "PGRST301" || r.error?.code === "PGRST303";
+// Solo una sessione rifiutata conta; un 403/42501 (permessi o RLS) è un errore qualunque.
+const denied = (r: Res) => r.status === 401 || r.error?.code === "PGRST301" || r.error?.code === "PGRST303";
 
 export function createSync(opts: SyncOpts): Sync {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let waiting: "pull" | "push" | null = null;
   let dead = false;
+  // L'account a cui appartengono i dati locali uniti (legato dal primo pull o push riuscito):
+  // un push con un altro account in sessione non parte finché un pull non lega il nuovo.
+  let owner: string | null = null;
 
   const userId = async (c: Client): Promise<string | null> => {
     const { data } = await c.auth.getSession();
@@ -88,7 +92,8 @@ export function createSync(opts: SyncOpts): Sync {
     try {
       const c = await opts.client();
       const uid = await userId(c);
-      if (!uid || dead) return;
+      if (!uid || dead || (owner && uid !== owner)) return;
+      owner = uid;
       const { st, ck } = opts.local();
       const r = (await c.from("preferences").upsert({
         user_id: uid,
@@ -119,7 +124,10 @@ export function createSync(opts: SyncOpts): Sync {
       const r = (await c.from("preferences").select("data").eq("user_id", uid).maybeSingle()) as Res & {
         data: { data?: unknown } | null;
       };
+      // L'account è cambiato mentre si leggeva: il risultato non è suo, si scarta.
+      if ((await userId(c)) !== uid || dead) return;
       if (!handle(r, "pull")) return;
+      owner = uid;
       const remote = remoteOf(r.data?.data);
       const loc = opts.local();
       const merged = remote ? merge(loc, remote, opts.now()) : loc;
