@@ -10,8 +10,9 @@ const FAIL = "Non ci sono riuscito, riprova tra poco";
 type Meta = { created_at: string | null; track_events: boolean | null };
 
 // "I miei dati": cosa Popcorno sa di te, con scarico e cancellazione. Niente senza account.
+// Shell lo rimonta a ogni cambio di account (key), così non resta niente dell'account di prima.
 export function MieiDati() {
-  const { user, view, st, trackEvents, setTrackEvents, toast, setView } = useApp();
+  const { user, view, st, trackEvents, setTrackEvents, clearEvents, toast, setView } = useApp();
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [more, setMore] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -28,7 +29,8 @@ export function MieiDati() {
   const fetchPage = useCallback(async (from: number): Promise<StoredEvent[]> => {
     const c = await getClient();
     const { data, error } = await c.from("events").select("kind,title,created_at")
-      .order("created_at", { ascending: false }).range(from, from + PAGE - 1);
+      // A parità di data (un lotto di segnali) decide l'id: le pagine non saltano né ripetono righe.
+      .order("created_at", { ascending: false }).order("id", { ascending: false }).range(from, from + PAGE - 1);
     if (error) throw error;
     return (data ?? []) as StoredEvent[];
   }, []);
@@ -79,6 +81,7 @@ export function MieiDati() {
     const c = await getClient();
     const { error } = await c.from("events").delete().eq("user_id", user.id);
     if (error) throw error;
+    clearEvents();
     setEvents([]);
     setMore(false);
     toast("Storico cancellato");

@@ -9,7 +9,7 @@ import { Toast } from "./Toast";
 
 // Una sola pagina: la barra in basso mostra una sezione e nasconde le altre (.hide), come l'app vecchia.
 export function Shell() {
-  const { view } = useApp();
+  const { view, user } = useApp();
   const hide = (v: string) => (view === v ? undefined : "hide");
   return (
     <>
@@ -18,7 +18,7 @@ export function Shell() {
         <section id="v-scegli" className={hide("scegli")}><Scegli /></section>
         <section id="v-onda" className={hide("onda")}><Guide /></section>
         <section id="v-prof" className={hide("prof")}><Profile /></section>
-        <section id="v-dati" className={hide("dati")}><MieiDati /></section>
+        <section id="v-dati" className={hide("dati")}><MieiDati key={user?.id ?? "-"} /></section>
       </div>
       <Nav />
       <Toast />
