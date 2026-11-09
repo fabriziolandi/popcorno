@@ -54,7 +54,7 @@ function Privacy() {
 
       <h2>Quali dati usa l'app</h2>
       <ul>
-      <li><strong>Preferenze salvate sul tuo dispositivo.</strong> Abbonamenti, squadra del cuore, città, generi, lista "Da vedere", serie che segui e gradimenti vengono salvati nella memoria locale del browser (localStorage). Non vengono inviati a noi né a nessun altro. Puoi cancellarli in qualsiasi momento svuotando i dati del sito dalle impostazioni del browser.</li>
+      <li><strong>Preferenze salvate sul tuo dispositivo.</strong> Abbonamenti, squadra del cuore, città, generi, lista "Da vedere", serie che segui e gradimenti vengono salvati nella memoria locale del browser (localStorage). Senza account, non vengono inviati a noi né a nessun altro. Puoi cancellarli in qualsiasi momento svuotando i dati del sito dalle impostazioni del browser.</li>
       <li><strong>Link di sincronizzazione.</strong> Se usi "Copia il mio link", le preferenze vengono inserite nel link stesso. Il link resta nelle tue mani: lo condividi tu, e noi non lo riceviamo.</li>
       <li><strong>Dati tecnici di navigazione.</strong> Come ogni sito, quando apri Popcorno il tuo browser comunica ai server che lo ospitano alcuni dati tecnici, come indirizzo IP, tipo di browser e pagina richiesta. Li tratta il fornitore dell'hosting, solo per far funzionare e proteggere il servizio. Noi non li raccogliamo né li analizziamo.</li>
       </ul>

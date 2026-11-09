@@ -46,6 +46,9 @@ describe("pagina privacy", () => {
     expect(testo).not.toContain("non ti chiede di registrarti");
     expect(testo).toContain("L'account è facoltativo");
   });
+  it("le preferenze sul dispositivo non partono solo senza account", () => {
+    expect(testo).toContain("Senza account, non vengono inviati a noi né a nessun altro.");
+  });
   it("ha il canonical", () => {
     expect(head.links.find((l: any) => l.rel === "canonical").href).toBe("https://popcorno.it/privacy/");
   });
