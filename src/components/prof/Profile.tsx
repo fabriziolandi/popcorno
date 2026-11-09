@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { track } from "../../lib/analytics";
 import { useApp } from "../../app-state";
 import { loadCatalogs } from "../../lib/data";
 import { TEAMS } from "../../lib/genres";
@@ -53,6 +54,7 @@ export function Profile() {
   const [link, setLink] = useState<string | null>(null);
   const out = useRef<HTMLInputElement>(null);
   const copy = async () => {
+    track("link_profilo_copiato");
     const l = profileLink(st, location.origin + location.pathname);
     setLink(l);
     try {

@@ -1,5 +1,6 @@
 // La scheda della proposta (showRes, osd, facts, showsHtml dell'app vecchia, righe 417–483, 603–611).
 import { useEffect, useState } from "react";
+import { track } from "../../lib/analytics";
 import { useApp, type Res } from "../../app-state";
 import { filmShows, loadPlot, nowHM, type CityShows, type Palinsesto } from "../../lib/data";
 import { isEssai, TYW, wantEssai } from "../../lib/genres";
@@ -141,6 +142,7 @@ export function Result({ res, pal, act }: { res: Res; pal: Palinsesto | null; ac
         {it.ty === "serie" && <button className={sr ? "act on" : "act"} id="a-serie" onClick={() => act.serie(it)}>{sr ? "📺 " + epTxt(sr) : "📺 La seguo"}</button>}
         {it.ty !== "sport" && (
           <a className="act" id="a-trailer" target="_blank" rel="noopener"
+            onClick={() => track("trailer", { titolo: it.t, tipo: it.ty })}
             href={"https://www.youtube.com/results?search_query=" + encodeURIComponent(it.t + (it.y ? " " + it.y : "") + " trailer italiano")}>▶ Trailer</a>
         )}
         <button className="act" id="a-share" onClick={() => act.share(it)}>💬 Condividi</button>

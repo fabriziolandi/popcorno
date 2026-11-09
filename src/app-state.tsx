@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { analytics, prefEvents, track } from "./lib/analytics";
 import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
 import { parseProfileHash } from "./lib/profile-link";
 import { candidates, type Scored } from "./lib/scoring";
@@ -68,15 +69,30 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToastOn(false), 1700);
   }, []);
 
+  // Lo stato attuale, per confrontarlo con il nuovo nelle statistiche.
+  const stRef = useRef(st);
+  stRef.current = st;
   const setSt = useCallback((next: Stasera) => {
+    for (const e of prefEvents(stRef.current, next)) track(e.name, e.props);
     setStRaw(next);
     saveState(next, storage());
   }, []);
 
   const setView = useCallback((v: View) => {
+    track("vista_aperta", { vista: v });
     setViewRaw(v);
     window.scrollTo({ top: 0 });
   }, []);
+
+  // Statistiche: PostHog si carica quando il browser è libero, dopo il primo disegno.
+  useEffect(() => { analytics.start(); }, []);
+
+  // Ogni proposta mostrata (anche "Cambia canale" e "Un'altra proposta", che cambiano idx o seq).
+  useEffect(() => {
+    if (!res?.shown) return;
+    const it = res.list[res.idx]?.it;
+    if (it) track("proposta_mostrata", { titolo: it.t, tipo: it.ty, canale: it.s, posizione: res.idx, fortunato: res.lucky });
+  }, [res?.seq, res?.idx, res?.shown]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const before = loadState(storage());
@@ -128,6 +144,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const cur = useRef({ st, shows, catalog });
   cur.current = { st, shows, catalog };
   const openItem = useCallback((it: Item, tipo?: string) => {
+    track("titolo_aperto", { titolo: it.t, tipo: it.ty, canale: it.s });
     void palReady().then((p) => {
       const { st, shows, catalog } = cur.current;
       const rest = candidates(p, tipo ? { ...st, tipo } : st, { shows, extra: catalog }).filter((x) => x.it !== it);

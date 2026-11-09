@@ -95,14 +95,14 @@ describe("pagina privacy", () => {
     return server.fetch(new Request("http://localhost" + path));
   };
 
-  it("/privacy/ risponde 200 con title e meta description della vecchia, senza il CSS dell'app", async () => {
+  it("/privacy/ risponde 200 con il title della vecchia, la descrizione aggiornata (statistiche), senza il CSS dell'app", async () => {
     const vecchia = readFileSync("tests/legacy/privacy.legacy.html", "utf8");
     const res = await get("/privacy/");
     const html = await res.text();
     expect(res.status).toBe(200);
     expect(titolo(html)).toBe(titolo(vecchia));
     const desc = (h: string) => /<meta name="description" content="([^"]*)"/.exec(h)?.[1].replace(/&#x27;/g, "'");
-    expect(desc(html)).toBe(desc(vecchia));
+    expect(desc(html)).toContain("statistiche d'uso");
     expect(html).not.toMatch(/<link rel="stylesheet"/);
     expect(html).not.toContain("og:title");
   });

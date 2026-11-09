@@ -30,7 +30,7 @@ export const Route = createFileRoute("/privacy/")({
     meta: [
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Privacy – Popcorno" },
-      { name: "description", content: "Informativa privacy di Popcorno: quali dati usa l'app (quasi nessuno), dove restano e come contattarci." },
+      { name: "description", content: "Informativa privacy di Popcorno: quali dati usa l'app, le statistiche d'uso, dove restano i dati e come contattarci." },
     ],
     links: [{ rel: "canonical", href: "https://popcorno.it/privacy/" }],
     styles: [{ children: css }],
@@ -43,10 +43,10 @@ function Privacy() {
     <div className="wrap">
       <a className="top" href="/"><img src="/icons/icon-180.png" alt="" />Popcorno</a>
       <h1>Informativa privacy</h1>
-      <p className="muto">Ultimo aggiornamento: 9 novembre 2026</p>
+      <p className="muto">Ultimo aggiornamento: 10 novembre 2026</p>
 
       <div className="box">
-      <p><strong>In breve:</strong> Popcorno non ti chiede di registrarti, non usa cookie di tracciamento, non fa statistiche sulle visite e non mostra pubblicità. Le tue preferenze restano sul tuo dispositivo.</p>
+      <p><strong>In breve:</strong> Popcorno non ti chiede di registrarti e non mostra pubblicità. Per capire come viene usata l'app e migliorarla raccogliamo statistiche d'uso con PostHog: pagine viste, tocchi, scelte fatte nell'app, errori e una registrazione anonima della sessione (i campi di testo sono sempre oscurati). Le tue preferenze restano sul tuo dispositivo.</p>
       </div>
 
       <h2>Chi è il titolare del trattamento</h2>
@@ -56,12 +56,14 @@ function Privacy() {
       <ul>
       <li><strong>Preferenze salvate sul tuo dispositivo.</strong> Abbonamenti, squadra del cuore, città, generi, lista "Da vedere", serie che segui e gradimenti vengono salvati nella memoria locale del browser (localStorage). Non vengono inviati a noi né a nessun altro. Puoi cancellarli in qualsiasi momento svuotando i dati del sito dalle impostazioni del browser.</li>
       <li><strong>Link di sincronizzazione.</strong> Se usi "Copia il mio link", le preferenze vengono inserite nel link stesso. Il link resta nelle tue mani: lo condividi tu, e noi non lo riceviamo.</li>
+      <li><strong>Statistiche d'uso.</strong> Mentre usi Popcorno registriamo le pagine che apri, i pulsanti che tocchi, le risposte alle domande, le proposte che ti mostriamo e cosa ne fai (Da vedere, 👍/👎, Trailer, Condividi), i filtri e le ricerche nella guida, la città e gli abbonamenti scelti, gli errori dell'app e una registrazione della sessione (cosa compare sullo schermo e dove tocchi; quello che scrivi nei campi di testo è oscurato). Per riconoscere le visite successive dallo stesso browser salviamo un identificativo casuale nella memoria del browser e in un cookie. Non conosciamo il tuo nome né la tua email, e non usiamo questi dati per pubblicità.</li>
       <li><strong>Dati tecnici di navigazione.</strong> Come ogni sito, quando apri Popcorno il tuo browser comunica ai server che lo ospitano alcuni dati tecnici, come indirizzo IP, tipo di browser e pagina richiesta. Li tratta il fornitore dell'hosting, solo per far funzionare e proteggere il servizio. Noi non li raccogliamo né li analizziamo.</li>
       </ul>
 
       <h2>Servizi esterni</h2>
       <ul>
       <li><strong>Cloudflare</strong> (Cloudflare, Inc.) ospita il sito e gestisce il dominio popcorno.it. Per far funzionare il servizio, velocizzarlo e proteggerlo da attacchi riceve l'indirizzo IP e i dati tecnici di ogni richiesta. I suoi server sono distribuiti in molti Paesi, anche fuori dall'Unione europea (per esempio negli Stati Uniti): in quel caso il trasferimento avviene con le garanzie previste dal GDPR. <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Informativa di Cloudflare</a>.</li>
+      <li><strong>PostHog</strong> (PostHog Inc.) raccoglie le statistiche d'uso per nostro conto, come responsabile del trattamento. I dati sono conservati nella sua regione europea, ma PostHog Inc. ha sede negli Stati Uniti: eventuali accessi da fuori dall'Unione europea avvengono con le garanzie previste dal GDPR. <a href="https://posthog.com/privacy" rel="noopener">Informativa di PostHog</a>.</li>
       <li><strong>GitHub Pages</strong> (GitHub, Inc., gruppo Microsoft) ospita solo il vecchio indirizzo fabriziolandi.github.io/popcorno/, che serve unicamente a portarti su popcorno.it. Se lo apri, può registrare l'indirizzo IP per sicurezza e funzionamento del servizio; i server possono trovarsi negli Stati Uniti. <a href="https://docs.github.com/it/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">Informativa di GitHub</a>.</li>
       <li><strong>TMDB</strong> (The Movie Database) fornisce le locandine: per mostrarle, il browser le scarica da image.tmdb.org, che riceve l'indirizzo IP come per qualsiasi immagine sul web. <a href="https://www.themoviedb.org/privacy-policy" rel="noopener">Informativa di TMDB</a>.</li>
       <li><strong>Link esterni.</strong> I pulsanti Trailer (YouTube), orari del cinema (Google) e Condividi (WhatsApp) aprono altri siti solo quando li tocchi tu. Da quel momento vale l'informativa di quei siti.</li>
@@ -69,10 +71,10 @@ function Privacy() {
       <p>I caratteri tipografici sono ospitati direttamente su popcorno.it: nessuna richiesta parte verso Google Fonts.</p>
 
       <h2>Cookie</h2>
-      <p>Popcorno non usa cookie. Usa solo la memoria locale del browser per ricordare le tue preferenze e una cache per funzionare più velocemente e anche senza rete. Si tratta di strumenti tecnici necessari al servizio, per cui non serve alcun consenso.</p>
+      <p>Popcorno usa la memoria locale del browser e una cache, strumenti tecnici necessari per ricordare le tue preferenze e funzionare anche senza rete. Usa inoltre un cookie e una voce nella memoria del browser di PostHog (il nome inizia con <code>ph_</code>) per le statistiche d'uso descritte sopra. Puoi cancellarli in qualsiasi momento svuotando i dati del sito dalle impostazioni del browser.</p>
 
       <h2>Base giuridica e conservazione</h2>
-      <p>I dati tecnici sono trattati per l'interesse legittimo a fornire un sito funzionante e sicuro (art. 6.1.f GDPR), per il tempo deciso dal fornitore di hosting. Le preferenze locali restano sul tuo dispositivo finché non le cancelli.</p>
+      <p>I dati tecnici sono trattati per l'interesse legittimo a fornire un sito funzionante e sicuro (art. 6.1.f GDPR), per il tempo deciso dal fornitore di hosting. Le statistiche d'uso sono trattate per il nostro interesse legittimo a capire come viene usata l'app e a correggerne gli errori (art. 6.1.f GDPR) e sono conservate per il periodo previsto dal piano PostHog in uso (le registrazioni delle sessioni per un mese, gli altri dati fino a un anno). Le preferenze locali restano sul tuo dispositivo finché non le cancelli.</p>
 
       <h2>I tuoi diritti</h2>
       <p>Hai diritto di chiedere accesso, rettifica, cancellazione, limitazione od opposizione al trattamento dei tuoi dati, oltre alla portabilità (artt. 15–21 GDPR), scrivendo a <a href="mailto:privacy@popcorno.it">privacy@popcorno.it</a>. Hai anche il diritto di presentare reclamo al <a href="https://www.garanteprivacy.it" rel="noopener">Garante per la protezione dei dati personali</a>.</p>
@@ -85,3 +87,4 @@ function Privacy() {
     </div>
   );
 }
+

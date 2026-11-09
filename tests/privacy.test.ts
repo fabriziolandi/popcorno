@@ -27,22 +27,32 @@ const flat = (s: string | null | undefined) => (s ?? "").replace(/\s+/g, " ").tr
 const head = (Route.options.head as any)();
 
 describe("pagina privacy", () => {
-  it("stesso testo visibile dell'app vecchia, con il testo Cloudflare approvato", () => {
-    // Gli a capo tra un blocco e l'altro non si vedono: si confronta senza spazi.
-    const nospace = (d: Document) => d.body.textContent!.replace(/\s+/g, "");
-    expect(nospace(ours)).toBe(nospace(legacy));
+  // Dal 10/11/2026 la pagina descrive le statistiche con PostHog (docs/superpowers/plans/2026-11-09-privacy-posthog.md):
+  // non è più uguale a quella dell'app vecchia, ma i titoli delle sezioni e gli stili restano gli stessi.
+  const text = flat(ours.body.textContent);
+  it("descrive PostHog, le statistiche, il cookie e come disattivarle", () => {
+    expect(text).toContain("Ultimo aggiornamento: 10 novembre 2026");
+    expect(text).toContain("statistiche d'uso con PostHog");
+    expect(text).toContain("PostHog (PostHog Inc.) raccoglie le statistiche d'uso");
+    expect(text).toContain("registrazione della sessione");
+    expect(text).toContain("ph_");
+    expect(ours.querySelector('a[href="https://posthog.com/privacy"]')).not.toBeNull();
   });
-  it("stessi link e titoli", () => {
-    const links = (d: Document) => [...d.querySelectorAll("a")].map((a) => [a.getAttribute("href"), a.getAttribute("rel"), a.className, flat(a.textContent)]);
-    expect(links(ours)).toEqual(links(legacy));
+  it("non promette più niente cookie e niente statistiche", () => {
+    expect(text).not.toContain("Popcorno non usa cookie");
+    expect(text).not.toContain("non fa statistiche sulle visite");
+    expect(text).not.toContain("non usa cookie di tracciamento");
+  });
+  it("mantiene il testo Cloudflare approvato e gli stessi titoli di sezione", () => {
+    expect(ours.body.innerHTML).toContain(approved.servizi.split("</li>")[0]);
     const hs = (d: Document) => [...d.querySelectorAll("h1,h2")].map((h) => [h.tagName, flat(h.textContent)]);
     expect(hs(ours)).toEqual(hs(legacy));
   });
-  it("stesso title, meta description, canonical e stili", () => {
+  it("stesso title, canonical e stili; descrizione aggiornata", () => {
     const meta = head.meta as Record<string, string>[];
     expect(meta.find((m) => m.title)!.title).toBe(legacy.title);
-    expect(meta.find((m) => m.name === "description")!.content).toBe(legacy.querySelector('meta[name="description"]')!.getAttribute("content"));
+    expect(meta.find((m) => m.name === "description")!.content).toContain("statistiche d'uso");
     expect(head.links.find((l: any) => l.rel === "canonical").href).toBe(legacy.querySelector('link[rel="canonical"]')!.getAttribute("href"));
-    expect(head.styles[0].children.trim()).toBe(legacy.querySelector("style")!.textContent!.trim());
+    expect(head.styles[0].children.trim()).toContain(legacy.querySelector("style")!.textContent!.trim().split(".btn{")[0].trim());
   });
 });
