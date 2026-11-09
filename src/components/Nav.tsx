@@ -13,7 +13,7 @@ export function Nav() {
   return (
     <nav aria-label="Sezioni">
       {BTN.map(([v, icon, label]) => (
-        <button key={v} className={view === v ? "on" : undefined} data-v={v} onClick={() => setView(v)}>
+        <button key={v} className={view === v || (v === "prof" && view === "dati") ? "on" : undefined} data-v={v} onClick={() => setView(v)}>
           {icon}
           {label}
         </button>

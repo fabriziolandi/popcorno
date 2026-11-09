@@ -1,6 +1,7 @@
 import { useApp } from "../app-state";
 import { Header } from "./Header";
 import { Nav } from "./Nav";
+import { MieiDati } from "./prof/MieiDati";
 import { Profile } from "./prof/Profile";
 import { Guide } from "./onda/Guide";
 import { Scegli } from "./scegli/Scegli";
@@ -17,6 +18,7 @@ export function Shell() {
         <section id="v-scegli" className={hide("scegli")}><Scegli /></section>
         <section id="v-onda" className={hide("onda")}><Guide /></section>
         <section id="v-prof" className={hide("prof")}><Profile /></section>
+        <section id="v-dati" className={hide("dati")}><MieiDati /></section>
       </div>
       <Nav />
       <Toast />
