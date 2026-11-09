@@ -32,7 +32,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Popcorno ti dice cosa guardare stasera: film, serie e sport in TV (Rai, Mediaset, Sky, DAZN, Pluto TV), su Netflix, Prime Video, Disney+ e al cinema nella tua città. Gratis, senza registrazione.",
+          "Popcorno ti dice cosa guardare stasera: film, serie e sport in TV (Rai, Mediaset, Sky, DAZN, Pluto TV), su Netflix, Prime Video, Disney+ e al cinema nella tua città. Gratis, registrazione facoltativa.",
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Popcorno" },

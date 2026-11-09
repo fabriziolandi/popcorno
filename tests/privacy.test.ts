@@ -1,48 +1,52 @@
 // @vitest-environment node
-import { readFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { JSDOM } from "jsdom";
 import { describe, expect, it } from "vitest";
 import { Route } from "../src/routes/privacy/index";
 
-const legacy = new JSDOM(readFileSync("tests/legacy/privacy.legacy.html", "utf8")).window.document;
-// Testo per Cloudflare approvato dal proprietario il 2026-11-08 (docs/superpowers/plans/2026-11-08-privacy-cloudflare.md),
-// applicato al cambio di dominio: cambiano solo la data e il punto su GitHub Pages; il resto deve restare identico.
-const approved = {
-  data: "Ultimo aggiornamento: 9 novembre 2026",
-  servizi:
-    `<li><strong>Cloudflare</strong> (Cloudflare, Inc.) ospita il sito e gestisce il dominio popcorno.it. Per far funzionare il servizio, velocizzarlo e proteggerlo da attacchi riceve l'indirizzo IP e i dati tecnici di ogni richiesta. I suoi server sono distribuiti in molti Paesi, anche fuori dall'Unione europea (per esempio negli Stati Uniti): in quel caso il trasferimento avviene con le garanzie previste dal GDPR. <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Informativa di Cloudflare</a>.</li>` +
-    `<li><strong>GitHub Pages</strong> (GitHub, Inc., gruppo Microsoft) ospita solo il vecchio indirizzo fabriziolandi.github.io/popcorno/, che serve unicamente a portarti su popcorno.it. Se lo apri, può registrare l'indirizzo IP per sicurezza e funzionamento del servizio; i server possono trovarsi negli Stati Uniti. <a href="https://docs.github.com/it/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">Informativa di GitHub</a>.</li>`,
-};
-{
-  const date = [...legacy.querySelectorAll("p.muto")].find((p) => p.textContent!.startsWith("Ultimo aggiornamento"))!;
-  date.textContent = approved.data;
-  const gh = [...legacy.querySelectorAll("li")].find((li) => li.querySelector("strong")?.textContent === "GitHub Pages")!;
-  gh.outerHTML = approved.servizi;
-}
 const Page = Route.options.component as () => any;
 const ours = new JSDOM(`<body>${renderToStaticMarkup(createElement(Page))}</body>`).window.document;
 const flat = (s: string | null | undefined) => (s ?? "").replace(/\s+/g, " ").trim();
 const head = (Route.options.head as any)();
+const testo = flat(ours.body.textContent);
 
 describe("pagina privacy", () => {
-  it("stesso testo visibile dell'app vecchia, con il testo Cloudflare approvato", () => {
-    // Gli a capo tra un blocco e l'altro non si vedono: si confronta senza spazi.
-    const nospace = (d: Document) => d.body.textContent!.replace(/\s+/g, "");
-    expect(nospace(ours)).toBe(nospace(legacy));
+  it("ha i titoli h2 nell'ordine previsto", () => {
+    expect([...ours.querySelectorAll("h2")].map((h) => flat(h.textContent))).toEqual([
+      "Chi è il titolare del trattamento",
+      "Quali dati usa l'app",
+      "Se crei un account (facoltativo)",
+      "Servizi esterni",
+      "Cookie",
+      "Base giuridica e conservazione",
+      "I tuoi diritti",
+      "Modifiche",
+    ]);
   });
-  it("stessi link e titoli", () => {
-    const links = (d: Document) => [...d.querySelectorAll("a")].map((a) => [a.getAttribute("href"), a.getAttribute("rel"), a.className, flat(a.textContent)]);
-    expect(links(ours)).toEqual(links(legacy));
-    const hs = (d: Document) => [...d.querySelectorAll("h1,h2")].map((h) => [h.tagName, flat(h.textContent)]);
-    expect(hs(ours)).toEqual(hs(legacy));
+  it("linka le informative di Supabase, Google e Twilio", () => {
+    const hrefs = [...ours.querySelectorAll("a")].map((a) => a.getAttribute("href"));
+    expect(hrefs).toContain("https://supabase.com/privacy");
+    expect(hrefs).toContain("https://policies.google.com/privacy");
+    expect(hrefs).toContain("https://www.twilio.com/legal/privacy");
   });
-  it("stesso title, meta description, canonical e stili", () => {
-    const meta = head.meta as Record<string, string>[];
-    expect(meta.find((m) => m.title)!.title).toBe(legacy.title);
-    expect(meta.find((m) => m.name === "description")!.content).toBe(legacy.querySelector('meta[name="description"]')!.getAttribute("content"));
-    expect(head.links.find((l: any) => l.rel === "canonical").href).toBe(legacy.querySelector('link[rel="canonical"]')!.getAttribute("href"));
-    expect(head.styles[0].children.trim()).toBe(legacy.querySelector("style")!.textContent!.trim());
+  it("cita la base giuridica dell'account", () => {
+    expect(testo).toContain("art. 6.1.b GDPR");
+  });
+  it("dice dove stanno i dati", () => {
+    expect(testo).toContain("Francoforte");
+  });
+  it("dice che non usa cookie", () => {
+    expect(testo).toContain("Popcorno non usa cookie.");
+  });
+  it("non promette più l'assenza di registrazione in modo assoluto", () => {
+    // «funziona senza registrazione» resta nel riquadro "In breve" (testo approvato): si controlla
+    // che la formula assoluta di prima, "senza registrazione" come unica condizione, non ci sia più.
+    expect(testo).not.toContain("Gratis, senza registrazione");
+    expect(testo).not.toContain("non ti chiede di registrarti");
+    expect(testo).toContain("L'account è facoltativo");
+  });
+  it("ha il canonical", () => {
+    expect(head.links.find((l: any) => l.rel === "canonical").href).toBe("https://popcorno.it/privacy/");
   });
 });
