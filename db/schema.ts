@@ -50,7 +50,7 @@ export const preferences = pgTable(
   {
     userId: uuid("user_id")
       .primaryKey()
-      .default(authUid)
+      .default(sql`auth.uid()`)
       .references(() => authUsers.id, { onDelete: "cascade" }),
     data: jsonb("data").notNull().default({}),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -92,7 +92,7 @@ export const events = pgTable(
     id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
     userId: uuid("user_id")
       .notNull()
-      .default(authUid)
+      .default(sql`auth.uid()`)
       .references(() => authUsers.id, { onDelete: "cascade" }),
     // Ora del server: il browser non può impostarla (vedi permessi nella migrazione custom).
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

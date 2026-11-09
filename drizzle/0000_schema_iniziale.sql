@@ -1,6 +1,6 @@
 CREATE TABLE "events" (
 	"id" bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "events_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1 CACHE 1),
-	"user_id" uuid DEFAULT (select auth.uid()) NOT NULL,
+	"user_id" uuid DEFAULT auth.uid() NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"kind" text NOT NULL,
 	"title_ref" text,
@@ -17,7 +17,7 @@ CREATE TABLE "events" (
 --> statement-breakpoint
 ALTER TABLE "events" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "preferences" (
-	"user_id" uuid PRIMARY KEY DEFAULT (select auth.uid()) NOT NULL,
+	"user_id" uuid PRIMARY KEY DEFAULT auth.uid() NOT NULL,
 	"data" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "preferences_data_size" CHECK (pg_column_size("preferences"."data") <= 262144)

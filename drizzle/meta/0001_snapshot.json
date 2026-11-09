@@ -30,7 +30,7 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true,
-          "default": "(select auth.uid())"
+          "default": "auth.uid()"
         },
         "created_at": {
           "name": "created_at",
@@ -181,7 +181,7 @@
           "type": "uuid",
           "primaryKey": true,
           "notNull": true,
-          "default": "(select auth.uid())"
+          "default": "auth.uid()"
         },
         "data": {
           "name": "data",
