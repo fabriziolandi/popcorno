@@ -11,7 +11,7 @@ import { createSync, type Sync } from "./lib/sync";
 import { emptyClocks, loadClocks, saveClocks, stamp, type Clocks, type Synced } from "./lib/sync-merge";
 import type { Item, Stasera } from "./lib/types";
 
-export type View = "scegli" | "onda" | "prof";
+export type View = "scegli" | "onda" | "prof" | "dati";
 
 export type User = { id: string; email: string };
 

@@ -3,6 +3,7 @@ import { useApp } from "../../app-state";
 import { loadCatalogs } from "../../lib/data";
 import { TEAMS } from "../../lib/genres";
 import { profileLink } from "../../lib/profile-link";
+import { Account } from "./Account";
 import { epTxt } from "../../lib/scoring";
 import { SRC } from "../../lib/sources";
 import type { Item } from "../../lib/types";
@@ -113,6 +114,7 @@ export function Profile() {
         </div>
       </div>
       <div className="grp"><h3>Sempre inclusi, gratis</h3><p className="free-list" id="freesrc">{freeSrc}</p></div>
+      <Account />
       <div className="grp"><h3>Usa Popcorno su un altro dispositivo</h3><p>Copia il tuo link personale e aprilo sull'altro telefono o tablet: ritrovi abbonamenti, gusti, lista e serie.</p>
         <button className="act" id="sync" style={{ width: "100%" }} onClick={copy}>🔗 Copia il mio link</button>
         <input id="sync-out" ref={out} readOnly className={link ? undefined : "hide"} value={link ?? ""} style={{ width: "100%", marginTop: 10, padding: 12, borderRadius: 12, background: "var(--notte2)", color: "var(--testo)", border: "1.5px solid var(--bordo)", font: "500 12px Figtree,sans-serif" }} />
