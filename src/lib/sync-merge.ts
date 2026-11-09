@@ -1,3 +1,4 @@
+import { DEFAULT_STATE } from "./state";
 import type { Stasera } from "./types";
 
 // Date di modifica (ms) per l'unione tra dispositivi.
@@ -30,7 +31,7 @@ export const emptyClocks = (): Clocks => ({ f: {}, l: {}, rm: {} });
 const isRec = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const cleanNums = (v: unknown): Record<string, number> => {
   const out: Record<string, number> = {};
-  if (isRec(v)) for (const k of Object.keys(v)) if (typeof v[k] === "number") out[k] = v[k] as number;
+  if (isRec(v)) for (const k of Object.keys(v)) if (typeof v[k] === "number" && Number.isFinite(v[k])) out[k] = v[k] as number;
   return out;
 };
 const cleanLists = (v: unknown): Record<string, Record<string, number>> => {
@@ -39,11 +40,15 @@ const cleanLists = (v: unknown): Record<string, Record<string, number>> => {
   return out;
 };
 
+// Date mancanti o malformate: si scartano (valgono 0).
+export function normClocks(raw: unknown): Clocks {
+  if (!isRec(raw)) return emptyClocks();
+  return { f: cleanNums(raw.f), l: cleanLists(raw.l), rm: cleanLists(raw.rm) };
+}
+
 export function loadClocks(storage: Storage | null): Clocks {
   try {
-    const raw = JSON.parse((storage as Storage).getItem(CLOCK_KEY) || "null");
-    if (!isRec(raw)) return emptyClocks();
-    return { f: cleanNums(raw.f), l: cleanLists(raw.l), rm: cleanLists(raw.rm) };
+    return normClocks(JSON.parse((storage as Storage).getItem(CLOCK_KEY) || "null"));
   } catch {
     return emptyClocks();
   }
@@ -107,7 +112,9 @@ export function gcClocks(c: Clocks, now: number): Clocks {
   return out;
 }
 
-export function merge(a: Synced, b: Synced, now: number): Synced {
+export function merge(a0: Synced, b0: Synced, now: number): Synced {
+  const a: Synced = { st: a0.st, ck: normClocks(a0.ck) };
+  const b: Synced = { st: b0.st, ck: normClocks(b0.ck) };
   const st = structuredClone(a.st);
   const ck = emptyClocks();
   const rec = st as unknown as Record<string, unknown>;
@@ -115,7 +122,10 @@ export function merge(a: Synced, b: Synced, now: number): Synced {
   for (const k of SCALAR_KEYS) {
     const fa = a.ck.f[k] ?? 0;
     const fb = b.ck.f[k] ?? 0;
-    if (fb > fa) rec[k] = structuredClone((b.st as unknown as Record<string, unknown>)[k]);
+    const dflt = (s: Stasera) => !same(s[k], DEFAULT_STATE[k]);
+    // senza date su entrambi i lati vince il valore diverso dal predefinito, altrimenti a
+    const bWins = fb > fa || (fb === fa && fa === 0 && dflt(b.st) && !dflt(a.st));
+    if (bWins) rec[k] = structuredClone((b.st as unknown as Record<string, unknown>)[k]);
     if (k in a.ck.f || k in b.ck.f) ck.f[k] = Math.max(fa, fb);
   }
 

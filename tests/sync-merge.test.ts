@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_STATE } from "../src/lib/state";
-import { emptyClocks, gcClocks, loadClocks, merge, stamp, type Clocks, type Synced } from "../src/lib/sync-merge";
+import { emptyClocks, gcClocks, loadClocks, merge, normClocks, stamp, type Clocks, type Synced } from "../src/lib/sync-merge";
 import type { Stasera } from "../src/lib/types";
 
 const st = (o: Partial<Stasera> = {}): Stasera => ({ ...structuredClone(DEFAULT_STATE), ...o });
@@ -46,6 +46,21 @@ describe("merge", () => {
   it("a parità vince il locale", () => {
     const r = merge(sy({ citta: "Roma" }, { f: { citta: 10 } }), sy({ citta: "Milano" }, { f: { citta: 10 } }), 30);
     expect(r.st.citta).toBe("Roma");
+  });
+  it("senza date, il valore diverso dal predefinito vince (in entrambi gli ordini)", () => {
+    expect(merge(sy({}), sy({ citta: "Milano" }), 30).st.citta).toBe("Milano");
+    expect(merge(sy({ citta: "Milano" }), sy({}), 30).st.citta).toBe("Milano");
+    expect(merge(sy({ citta: "Roma" }), sy({ citta: "Milano" }), 30).st.citta).toBe("Roma");
+  });
+  it("tollera clocks mancanti o malformati", () => {
+    const bad = { st: st({ citta: "Milano" }), ck: undefined as any } as Synced;
+    expect(merge(sy({}), bad, 30).st.citta).toBe("Milano");
+    const odd = { st: st({ citta: "Milano" }), ck: { f: { citta: "9", team: NaN }, l: null, rm: { liked: { Z: NaN } } } as any } as Synced;
+    const r = merge(sy({ citta: "Roma" }, { f: { citta: 1 } }), odd, 30);
+    expect(r.st.citta).toBe("Roma");
+    expect(r.ck.f.team).toBeUndefined();
+    expect(r.ck.rm.liked).toEqual({});
+    expect(normClocks(undefined)).toEqual(emptyClocks());
   });
   it("dati vecchi senza date", () => {
     const r = merge(sy({ citta: "Roma", liked: ["A"] }), sy({ citta: "Milano", liked: ["B"] }, { f: { citta: 5 } }), 30);
