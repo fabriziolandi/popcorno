@@ -17,3 +17,9 @@ export function assetUrlsFromHtml(html: string, origin: string): string[] {
   }
   return out;
 }
+
+// Il ritorno da un link di accesso (token_hash, code, error_description) non va mai salvato in cache.
+// La stessa logica è copiata in public/sw.js.
+export function isAuthNavigation(url: URL): boolean {
+  return ["code", "token_hash", "error_description"].some((k) => url.searchParams.has(k));
+}

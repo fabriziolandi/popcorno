@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { describe, expect, it } from "vitest";
-import { assetUrlsFromHtml, cachesToDelete } from "../src/lib/sw-caches";
+import { assetUrlsFromHtml, cachesToDelete, isAuthNavigation } from "../src/lib/sw-caches";
 
 // Pagina SSR finta: i file con l'impronta in /assets/ e altri indirizzi da non salvare.
 const PAGINA = `<!DOCTYPE html><html><head>
@@ -20,9 +20,21 @@ describe("cachesToDelete", () => {
     expect(
       cachesToDelete(
         ["popcorno-shell-v3", "popcorno-dati", "popcorno-img", "altro"],
-        ["popcorno-shell-v4", "popcorno-dati-v2", "popcorno-img"],
+        ["popcorno-shell-v5", "popcorno-dati-v2", "popcorno-img"],
       ),
     ).toEqual(["popcorno-shell-v3", "popcorno-dati"]);
+  });
+});
+
+describe("isAuthNavigation", () => {
+  it("vera se la query ha code, token_hash o error_description", () => {
+    expect(isAuthNavigation(new URL("https://popcorno.it/?token_hash=abc&type=email"))).toBe(true);
+    expect(isAuthNavigation(new URL("https://popcorno.it/?code=xyz"))).toBe(true);
+    expect(isAuthNavigation(new URL("https://popcorno.it/?error_description=scaduto"))).toBe(true);
+  });
+  it("falsa per le pagine normali", () => {
+    expect(isAuthNavigation(new URL("https://popcorno.it/"))).toBe(false);
+    expect(isAuthNavigation(new URL("https://popcorno.it/?v=1&tipo=film"))).toBe(false);
   });
 });
 
@@ -80,18 +92,18 @@ describe("public/sw.js", () => {
   }
   const ok = (t = "x") => new Response(t);
 
-  it("install: salva la shell in popcorno-shell-v4 e chiama skipWaiting", async () => {
+  it("install: salva la shell in popcorno-shell-v5 e chiama skipWaiting", async () => {
     const sw = carica(() => ok());
     await sw.run("install");
-    expect([...sw.store.keys()]).toEqual(["popcorno-shell-v4"]);
-    expect([...sw.store.get("popcorno-shell-v4")!.keys()]).toContain("https://popcorno.it/");
+    expect([...sw.store.keys()]).toEqual(["popcorno-shell-v5"]);
+    expect([...sw.store.get("popcorno-shell-v5")!.keys()]).toContain("https://popcorno.it/");
     expect(sw.log.skipWaiting).toBe(1);
   });
 
   it("install: salva anche i file /assets/ della pagina, non quelli di altri siti", async () => {
     const sw = carica((u) => (u === "/" ? ok(PAGINA) : ok("file " + u)));
     await sw.run("install");
-    const shell = sw.store.get("popcorno-shell-v4")!;
+    const shell = sw.store.get("popcorno-shell-v5")!;
     const attesi = [...["/", "/manifest.webmanifest", "/icons/icon-180.png", "/icons/icon-512.png"], ...ASSETS].map((u) => "https://popcorno.it" + u);
     expect([...shell.keys()].sort()).toEqual(attesi.sort());
     expect(await shell.get("https://popcorno.it/assets/index-def.js")!.clone().text()).toBe("file /assets/index-def.js");
@@ -104,7 +116,7 @@ describe("public/sw.js", () => {
     const sw = carica(() => ok("<p>niente</p>"));
     const [r] = await sw.run("install");
     expect(r).toBeUndefined();
-    expect(sw.store.get("popcorno-shell-v4")!.size).toBe(4);
+    expect(sw.store.get("popcorno-shell-v5")!.size).toBe(4);
   });
 
   it("fetch: un file /assets/ salvato arriva dalla cache anche offline; uno nuovo va in rete e si salva", async () => {
@@ -119,13 +131,13 @@ describe("public/sw.js", () => {
     const [r2] = await sw.run("fetch", { request: sw.richiesta(nuovo) });
     expect(await r2.text()).toBe("rete " + nuovo);
     await new Promise((r) => setTimeout(r, 0));
-    expect(sw.store.get("popcorno-shell-v4")!.has(nuovo)).toBe(true);
+    expect(sw.store.get("popcorno-shell-v5")!.has(nuovo)).toBe(true);
   });
 
   it("activate: toglie popcorno-shell-v3 e popcorno-dati, tiene popcorno-img e le altre", async () => {
-    const sw = carica(() => ok(), ["popcorno-shell-v3", "popcorno-dati", "popcorno-img", "popcorno-shell-v4", "altro"]);
+    const sw = carica(() => ok(), ["popcorno-shell-v3", "popcorno-dati", "popcorno-img", "popcorno-shell-v5", "altro"]);
     await sw.run("activate");
-    expect([...sw.store.keys()].sort()).toEqual(["altro", "popcorno-img", "popcorno-shell-v4"]);
+    expect([...sw.store.keys()].sort()).toEqual(["altro", "popcorno-img", "popcorno-shell-v5"]);
     expect(sw.log.claim).toBe(1);
   });
 
@@ -169,5 +181,23 @@ describe("public/sw.js", () => {
     online = false;
     const [r] = await sw.run("fetch", { request: sw.richiesta("https://popcorno.it/", { mode: "navigate" }) });
     expect(await r.text()).toBe("pagina");
+  });
+
+  it("fetch: le richieste a supabase.co non passano dal service worker", async () => {
+    const sw = carica(() => ok());
+    const risposte = await sw.run("fetch", { request: sw.richiesta("https://gvdarnmxnigprebwjglq.supabase.co/rest/v1/events") });
+    expect(risposte).toEqual([]);
+    expect(sw.log.fetched).toEqual([]);
+    expect(sw.store.size).toBe(0);
+  });
+
+  it("fetch: una navigazione con token_hash va in rete e non si salva in cache", async () => {
+    const sw = carica(() => ok("accesso"));
+    const url = "https://popcorno.it/?token_hash=abc&type=email";
+    const [r] = await sw.run("fetch", { request: sw.richiesta(url, { mode: "navigate" }) });
+    expect(await r.text()).toBe("accesso");
+    await new Promise((x) => setTimeout(x, 0));
+    expect(sw.log.fetched).toEqual([url]);
+    expect(sw.store.size).toBe(0);
   });
 });

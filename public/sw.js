@@ -1,5 +1,5 @@
 // Popcorno: l'app si apre subito anche con poca rete.
-const SHELL = "popcorno-shell-v4", DATI = "popcorno-dati-v2", IMG = "popcorno-img";
+const SHELL = "popcorno-shell-v5", DATI = "popcorno-dati-v2", IMG = "popcorno-img";
 const FILES = ["/", "/manifest.webmanifest", "/icons/icon-180.png", "/icons/icon-512.png"];
 // Stessa logica di cachesToDelete in src/lib/sw-caches.ts.
 const cachesToDelete = (names, keep) => names.filter(n => n.startsWith("popcorno-") && !keep.includes(n));
@@ -14,6 +14,8 @@ const assetUrlsFromHtml = (html, origin) => {
   }
   return out;
 };
+// Stessa logica di isAuthNavigation in src/lib/sw-caches.ts.
+const isAuthNavigation = u => ["code", "token_hash", "error_description"].some(k => u.searchParams.has(k));
 // La pagina "/" si scarica una volta: si salva e se ne leggono i file /assets/ da salvare con gli altri.
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(SHELL).then(c => fetch("/").then(r => {
@@ -33,6 +35,10 @@ self.addEventListener("fetch", e => {
   if (u.origin !== location.origin) return;
   if (u.pathname.includes("/data/")) {              // dati: prima la rete, se manca la copia salvata
     e.respondWith(fetch(e.request).then(n => { const c = n.clone(); caches.open(DATI).then(x => x.put(e.request, c)); return n; }).catch(() => caches.match(e.request)));
+    return;
+  }
+  if (e.request.mode === "navigate" && isAuthNavigation(u)) {   // ritorno da un link di accesso: solo rete, mai in cache
+    e.respondWith(fetch(e.request));
     return;
   }
   if (e.request.mode === "navigate") {              // pagina: prima la rete, offline la copia di "/"
