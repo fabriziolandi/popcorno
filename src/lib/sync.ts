@@ -1,0 +1,147 @@
+// Sincronizzazione delle preferenze (`stasera`) con l'account: preferences.data = { v: 1, st, ck }.
+// Si usa solo con una sessione: senza account il motore non si crea nemmeno.
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { DEFAULT_STATE } from "./state";
+import { merge, normClocks, type Synced } from "./sync-merge";
+import type { Stasera } from "./types";
+
+export type Client = Pick<SupabaseClient, "auth" | "from">;
+
+export type SyncOpts = {
+  client: () => Promise<Client>;
+  local: () => Synced;
+  apply: (s: Synced) => void;
+  now: () => number;
+  // La sessione non vale più (401/403): l'app resta in locale.
+  onDenied?: () => void;
+};
+
+// stop: il motore smette per sempre (uscita dal provider), senza mandare ciò che è in attesa.
+export type Sync = { pull(): Promise<void>; push(): void; flush(): Promise<void>; stop(): void };
+
+const PUSH_MS = 1500;
+
+type Res = { error: { code?: string; message?: string } | null; status?: number };
+
+// Uguaglianza che ignora l'ordine delle chiavi (jsonb le riordina).
+function eq(x: unknown, y: unknown): boolean {
+  if (x === y) return true;
+  if (Array.isArray(x) || Array.isArray(y)) {
+    return Array.isArray(x) && Array.isArray(y) && x.length === y.length && x.every((v, i) => eq(v, y[i]));
+  }
+  if (!x || !y || typeof x !== "object" || typeof y !== "object") return false;
+  const a = x as Record<string, unknown>, b = y as Record<string, unknown>;
+  const ka = Object.keys(a).filter((k) => a[k] !== undefined);
+  const kb = Object.keys(b).filter((k) => b[k] !== undefined);
+  return ka.length === kb.length && ka.every((k) => eq(a[k], b[k]));
+}
+
+function remoteOf(data: unknown): Synced | null {
+  const d = data as { v?: unknown; st?: unknown; ck?: unknown } | null;
+  if (!d || d.v !== 1 || !d.st || typeof d.st !== "object") return null;
+  const st: Stasera = Object.assign(structuredClone(DEFAULT_STATE), d.st);
+  return { st, ck: normClocks(d.ck) };
+}
+
+const offline = (r: Res) => r.status === 0 || (typeof navigator !== "undefined" && navigator.onLine === false);
+const denied = (r: Res) => r.status === 401 || r.status === 403 || r.error?.code === "PGRST301" || r.error?.code === "PGRST303";
+
+export function createSync(opts: SyncOpts): Sync {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let waiting: "pull" | "push" | null = null;
+  let dead = false;
+
+  const userId = async (c: Client): Promise<string | null> => {
+    const { data } = await c.auth.getSession();
+    return data.session?.user.id ?? null;
+  };
+
+  // Senza rete si riprova una volta sola, all'evento `online`; un pull in attesa vale anche come push.
+  const retryOnline = (what: "pull" | "push") => {
+    if (waiting) {
+      if (what === "pull") waiting = "pull";
+      return;
+    }
+    waiting = what;
+    window.addEventListener("online", () => {
+      const w = waiting;
+      waiting = null;
+      void (w === "pull" ? pull() : send());
+    }, { once: true });
+  };
+
+  // Ritorna true se si può andare avanti.
+  const handle = (r: Res, what: "pull" | "push"): boolean => {
+    if (!r.error) return true;
+    if (denied(r)) {
+      dead = true;
+      opts.onDenied?.();
+    } else if (offline(r)) {
+      retryOnline(what);
+    }
+    // altri errori: nessun nuovo tentativo, si riprova al prossimo cambio o rientro
+    return false;
+  };
+
+  async function send(): Promise<void> {
+    if (dead) return;
+    try {
+      const c = await opts.client();
+      const uid = await userId(c);
+      if (!uid || dead) return;
+      const { st, ck } = opts.local();
+      const r = (await c.from("preferences").upsert({
+        user_id: uid,
+        data: { v: 1, st, ck },
+        updated_at: new Date(opts.now()).toISOString(),
+      })) as Res;
+      handle(r, "push");
+    } catch {
+      retryOnline("push");
+    }
+  }
+
+  function push(): void {
+    if (dead) return;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+      void send();
+    }, PUSH_MS);
+  }
+
+  async function pull(): Promise<void> {
+    if (dead) return;
+    try {
+      const c = await opts.client();
+      const uid = await userId(c);
+      if (!uid || dead) return;
+      const r = (await c.from("preferences").select("data").eq("user_id", uid).maybeSingle()) as Res & {
+        data: { data?: unknown } | null;
+      };
+      if (!handle(r, "pull")) return;
+      const remote = remoteOf(r.data?.data);
+      const loc = opts.local();
+      const merged = remote ? merge(loc, remote, opts.now()) : loc;
+      if (!eq(merged, loc)) opts.apply(merged);
+      if (!remote || !eq(merged, remote)) push();
+    } catch {
+      retryOnline("pull");
+    }
+  }
+
+  async function flush(): Promise<void> {
+    if (!timer) return;
+    clearTimeout(timer);
+    timer = null;
+    await send();
+  }
+
+  function stop(): void {
+    dead = true;
+    if (timer) clearTimeout(timer);
+    timer = null;
+  }
+
+  return { pull, push, flush, stop };
+}

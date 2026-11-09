@@ -1,12 +1,21 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { authInUrl, completeFromUrl, getClient, hasStoredSession, onClientReady } from "./lib/account";
 import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
 import { parseProfileHash } from "./lib/profile-link";
 import { candidates, type Scored } from "./lib/scoring";
 import { isFree } from "./lib/sources";
 import { DEFAULT_STATE, loadState, saveState } from "./lib/state";
+import { createSync, type Sync } from "./lib/sync";
+import { emptyClocks, loadClocks, saveClocks, stamp, type Clocks, type Synced } from "./lib/sync-merge";
 import type { Item, Stasera } from "./lib/types";
 
 export type View = "scegli" | "onda" | "prof";
+
+export type User = { id: string; email: string };
+
+// Un rientro nell'app rilegge l'account al massimo ogni 5 minuti.
+const PULL_EVERY_MS = 5 * 60_000;
 
 // La proposta della vista Scegli (list, idx, luckyMode dell'app vecchia). `shown`: #res visibile
 // al posto delle domande; `zap`: effetto cambio canale; `seq` cresce a ogni showRes e rifà la scheda.
@@ -37,6 +46,11 @@ export type AppState = {
   // per il componente Toast
   toastMsg: string;
   toastOn: boolean;
+  // Account (facoltativo): null senza accesso.
+  user: User | null;
+  // "Ricorda le mie scelte" (profiles.track_events): vero con account finché non si legge, falso senza.
+  trackEvents: boolean;
+  setTrackEvents(on: boolean): Promise<void>;
 };
 
 const Ctx = createContext<AppState | null>(null);
@@ -68,9 +82,39 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToastOn(false), 1700);
   }, []);
 
+  // Account e sincronizzazione. Lo stato e le date di modifica stanno anche in ref, letti dal motore.
+  const [user, setUser] = useState<User | null>(null);
+  const [trackEvents, setTrackRaw] = useState(false);
+  const userRef = useRef<User | null>(null);
+  const stRef = useRef<Stasera>(st);
+  const clocks = useRef<Clocks>(emptyClocks());
+  const sync = useRef<Sync | null>(null);
+
   const setSt = useCallback((next: Stasera) => {
+    clocks.current = stamp(stRef.current, next, clocks.current, Date.now());
+    stRef.current = next;
     setStRaw(next);
     saveState(next, storage());
+    saveClocks(clocks.current, storage());
+    if (userRef.current) sync.current?.push();
+  }, []);
+
+  // Dati arrivati dall'account: si applicano senza contarli come modifiche locali.
+  const apply = useCallback((s: Synced) => {
+    clocks.current = s.ck;
+    stRef.current = s.st;
+    setStRaw(s.st);
+    saveState(s.st, storage());
+    saveClocks(s.ck, storage());
+  }, []);
+
+  const setTrackEvents = useCallback(async (on: boolean) => {
+    const u = userRef.current;
+    if (!u) return;
+    const c = await getClient();
+    const { error } = await c.from("profiles").update({ track_events: on }).eq("id", u.id);
+    if (error) throw new Error("Non siamo riusciti a salvare la scelta. Riprova.");
+    if (userRef.current?.id === u.id) setTrackRaw(on);
   }, []);
 
   const setView = useCallback((v: View) => {
@@ -81,12 +125,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const before = loadState(storage());
     let s = before;
-    // Import del link #profilo= (righe 712-717 dell'app vecchia).
+    clocks.current = loadClocks(storage());
+    // Import del link #profilo= (righe 712-717 dell'app vecchia). Conta come modifica locale.
     try {
       const p = parseProfileHash(location.hash);
       if (p) {
         s = { ...s, ...p };
         saveState(s, storage());
+        clocks.current = stamp(before, s, clocks.current, Date.now());
+        saveClocks(clocks.current, storage());
         setTimeout(() => toast("Profilo importato: bentornato! 🍿"), 300);
         history.replaceState(null, "", location.pathname);
       }
@@ -94,6 +141,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setTimeout(() => toast("Il link del profilo non è valido"), 300);
       history.replaceState(null, "", location.pathname);
     }
+    stRef.current = s;
     setStRaw(s);
 
     // I caricatori dei dati tengono uno stato a livello di modulo (come le variabili globali dell'app
@@ -113,6 +161,100 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     })();
     return () => { alive = false; };
   }, [toast]);
+
+  // Account: il client si carica solo con una sessione salvata o un accesso in arrivo nell'indirizzo,
+  // oppure quando la persona chiede di entrare (onClientReady). Senza account nessuna richiesta a supabase.co.
+  useEffect(() => {
+    let alive = true;
+    let started = false;
+    let unsub: (() => void) | null = null;
+    let lastPull = 0;
+    const urlAuth = authInUrl(location.search);
+
+    const pull = () => {
+      if (!userRef.current || !sync.current) return;
+      lastPull = Date.now();
+      void sync.current.pull();
+    };
+
+    const signedIn = (c: SupabaseClient, u: User) => {
+      userRef.current = u;
+      setUser(u);
+      setTrackRaw(true);
+      void c.from("profiles").select("track_events").eq("id", u.id).maybeSingle().then(
+        ({ data }) => {
+          const v = (data as { track_events?: unknown } | null)?.track_events;
+          if (alive && userRef.current?.id === u.id && typeof v === "boolean") setTrackRaw(v);
+        },
+        () => { /* resta il valore predefinito */ },
+      );
+      pull();
+    };
+    // All'uscita (o con una sessione non più valida) lo stato locale resta com'è.
+    const signedOut = () => {
+      userRef.current = null;
+      setUser(null);
+      setTrackRaw(false);
+    };
+
+    const start = async (c: SupabaseClient) => {
+      if (started) return;
+      started = true;
+      // Prima la sessione: getSession aspetta che supabase-js scambi da solo il ?code= di Google (PKCE).
+      // Solo dopo completeFromUrl verifica il token_hash del link e pulisce l'indirizzo.
+      await c.auth.getSession();
+      if (urlAuth) {
+        try {
+          await completeFromUrl();
+        } catch (e) {
+          if (alive) toast((e as Error).message);
+        }
+      }
+      if (!alive) return;
+      sync.current = createSync({
+        client: getClient,
+        local: () => ({ st: stRef.current, ck: clocks.current }),
+        apply,
+        now: Date.now,
+        onDenied: signedOut,
+      });
+      const { data } = c.auth.onAuthStateChange((_ev, session) => {
+        // Le chiamate a Supabase si fanno fuori dalla callback.
+        setTimeout(() => {
+          if (!alive) return;
+          const su = session?.user;
+          if (!su) {
+            if (userRef.current) signedOut();
+          } else if (userRef.current?.id !== su.id) {
+            signedIn(c, { id: su.id, email: su.email ?? "" });
+          }
+        }, 0);
+      });
+      unsub = () => data.subscription.unsubscribe();
+    };
+
+    const stopReady = onClientReady((c) => { void start(c); });
+    if (hasStoredSession(storage()) || urlAuth) {
+      void getClient().then(start).catch(() => { /* client non disponibile: si resta in locale */ });
+    }
+
+    const onVis = () => {
+      if (document.visibilityState === "visible") {
+        if (Date.now() - lastPull >= PULL_EVERY_MS) pull();
+      } else if (userRef.current) {
+        void sync.current?.flush();
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      alive = false;
+      stopReady();
+      unsub?.();
+      sync.current?.stop();
+      sync.current = null;
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [apply, toast]);
 
   // Come loadCityShows() dell'app vecchia, chiamata all'avvio e a ogni cambio di città:
   // gli orari si azzerano e si ricaricano (dopo il palinsesto, che dà la versione dei dati).
@@ -138,8 +280,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [palReady, setView]);
 
   const value = useMemo<AppState>(
-    () => ({ st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem }),
-    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem],
+    () => ({
+      st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem,
+      user, trackEvents, setTrackEvents,
+    }),
+    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

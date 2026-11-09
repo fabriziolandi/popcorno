@@ -33,14 +33,25 @@ export function accountVisible(storage: Storage | null, search: string): boolean
 }
 
 let client: SupabaseClient | null = null;
+const readyCbs = new Set<(c: SupabaseClient) => void>();
+
+// Avvisa quando il client nasce per un gesto della persona (per esempio "Mandami il link"),
+// così l'app può ascoltare l'accesso senza creare il client da sé. Ritorna la funzione per smettere.
+export function onClientReady(cb: (c: SupabaseClient) => void): () => void {
+  readyCbs.add(cb);
+  return () => { readyCbs.delete(cb); };
+}
 
 export async function getClient(): Promise<SupabaseClient> {
   if (client) return client;
   const { createClient } = await import("@supabase/supabase-js");
   // Un'altra chiamata può aver finito prima mentre aspettavamo l'import.
-  client ??= createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-  });
+  if (!client) {
+    client = createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    });
+    for (const cb of readyCbs) cb(client);
+  }
   return client;
 }
 
