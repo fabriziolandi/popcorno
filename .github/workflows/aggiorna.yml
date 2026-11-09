@@ -94,7 +94,7 @@ jobs:
           git config user.email "popcorno-bot@users.noreply.github.com"
           git add data/tv.json data/meta.json
           git diff --cached --quiet || git commit -m "Guida TV $(TZ=Europe/Rome date '+%d/%m %H:%M')"
-          git pull --rebase origin main && git push
+          git pull --rebase --autostash origin main && git push
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
