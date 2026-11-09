@@ -14,6 +14,7 @@ function fakeClient(row: unknown = null) {
   let fail: Resp | null = null;
   let uid: string | null = "u1";
   let onSelect: (() => void) | null = null;
+  let onUpsert: (() => void) | null = null;
   const c = {
     auth: { getSession: vi.fn(async () => ({ data: { session: uid ? { user: { id: uid } } : null }, error: null })) },
     from: vi.fn((table: string) => {
@@ -31,6 +32,7 @@ function fakeClient(row: unknown = null) {
         }),
         upsert: async (arg: { data: unknown }) => {
           calls.push({ op: "upsert", arg });
+          onUpsert?.();
           if (fail) return { data: null, ...fail };
           db.row = { data: structuredClone(arg.data) };
           return { data: null, error: null, status: 201 };
@@ -45,17 +47,26 @@ function fakeClient(row: unknown = null) {
     setFail(r: Resp | null) { fail = r; },
     setUid(u: string | null) { uid = u; },
     onSelect(f: (() => void) | null) { onSelect = f; },
+    onUpsert(f: (() => void) | null) { onUpsert = f; },
   };
 }
 
 const st = (over: Partial<Stasera> = {}): Stasera => ({ ...structuredClone(DEFAULT_STATE), ...over });
 
-function harness(f: ReturnType<typeof fakeClient>, init: Synced) {
+function harness(f: ReturnType<typeof fakeClient>, init: Synced, extra: { adopt?: boolean } = {}) {
   let cur = init;
   const apply = vi.fn((s: Synced) => { cur = s; });
   const onDenied = vi.fn();
-  const sync = createSync({ client: async () => f.c, local: () => cur, apply, now: () => 1000, onDenied });
-  return { sync, apply, onDenied, set(s: Synced) { cur = s; }, get: () => cur };
+  const onOwner = vi.fn();
+  const sync = createSync({ client: async () => f.c, local: () => cur, apply, now: () => 1000, onDenied, onOwner, ...extra });
+  return { sync, apply, onDenied, onOwner, set(s: Synced) { cur = s; }, get: () => cur };
+}
+
+// Il motore si lega all'account con un primo pull riuscito (account vuoto: carica e poi tace).
+async function bound(f: ReturnType<typeof fakeClient>, h: ReturnType<typeof harness>) {
+  await h.sync.pull();
+  await vi.advanceTimersByTimeAsync(1500);
+  f.calls.length = 0;
 }
 
 afterEach(() => {
@@ -117,6 +128,7 @@ describe("createSync", () => {
     vi.useFakeTimers();
     const f = fakeClient(null);
     const h = harness(f, { st: st(), ck: emptyClocks() });
+    await bound(f, h);
     for (const c of ["Roma", "Milano", "Torino"]) {
       h.set({ st: st({ citta: c }), ck: emptyClocks() });
       h.sync.push();
@@ -131,7 +143,9 @@ describe("createSync", () => {
   it("flush manda subito la modifica in attesa", async () => {
     vi.useFakeTimers();
     const f = fakeClient(null);
-    const h = harness(f, { st: st({ citta: "Bari" }), ck: emptyClocks() });
+    const h = harness(f, { st: st(), ck: emptyClocks() });
+    await bound(f, h);
+    h.set({ st: st({ citta: "Bari" }), ck: emptyClocks() });
     h.sync.push();
     await h.sync.flush();
     expect(f.calls).toHaveLength(1);
@@ -142,7 +156,9 @@ describe("createSync", () => {
   it("offline: push fallisce, riparte all'evento online", async () => {
     vi.useFakeTimers();
     const f = fakeClient(null);
-    const h = harness(f, { st: st({ citta: "Roma" }), ck: emptyClocks() });
+    const h = harness(f, { st: st(), ck: emptyClocks() });
+    await bound(f, h);
+    h.set({ st: st({ citta: "Roma" }), ck: emptyClocks() });
     f.setFail({ error: { message: "TypeError: Failed to fetch" }, status: 0 });
     h.sync.push();
     await vi.advanceTimersByTimeAsync(1500);
@@ -194,7 +210,9 @@ describe("createSync", () => {
   it("403 (permessi, 42501) non chiude la sessione: push fallito, si riprova alla modifica dopo, senza ciclo", async () => {
     vi.useFakeTimers();
     const f = fakeClient(null);
-    const h = harness(f, { st: st({ citta: "Roma" }), ck: emptyClocks() });
+    const h = harness(f, { st: st(), ck: emptyClocks() });
+    await bound(f, h);
+    h.set({ st: st({ citta: "Roma" }), ck: emptyClocks() });
     f.setFail({ error: { code: "42501", message: "permission denied" }, status: 403 });
     h.sync.push();
     await vi.advanceTimersByTimeAsync(1500);
@@ -213,6 +231,7 @@ describe("createSync", () => {
     vi.useFakeTimers();
     const f = fakeClient(null);
     const h = harness(f, { st: st(), ck: emptyClocks() });
+    await bound(f, h);
     f.setFail({ error: { message: "JWT expired" }, status: 401 });
     h.sync.push();
     await vi.advanceTimersByTimeAsync(1500);
@@ -246,6 +265,101 @@ describe("createSync", () => {
     await vi.advanceTimersByTimeAsync(1500);
     expect(f.calls.map((x) => x.op)).toEqual(["select", "upsert", "select", "upsert"]);
     expect((f.calls[3]!.arg as { user_id: string }).user_id).toBe("u2");
+  });
+
+  it("pull d'ingresso fallito (500): una modifica locale non scrive sull'account prima di un pull riuscito, poi scrive l'unione", async () => {
+    vi.useFakeTimers();
+    const remoteSt = st({ liked: ["B"], citta: "Milano" });
+    const f = fakeClient({ data: { v: 1, st: remoteSt, ck: stamp(st(), remoteSt, emptyClocks(), 500) } });
+    const h = harness(f, { st: st(), ck: emptyClocks() });
+    f.setFail({ error: { message: "Internal Server Error" }, status: 500 });
+    await h.sync.pull();
+    expect(f.calls.map((x) => x.op)).toEqual(["select"]);
+    f.setFail(null);
+    const locSt = st({ liked: ["A"] });
+    h.set({ st: locSt, ck: stamp(st(), locSt, emptyClocks(), 600) });
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(1500);
+    // invece di scrivere i soli dati locali, il motore rilegge l'account
+    expect(f.calls.map((x) => x.op)).toEqual(["select", "select"]);
+    await vi.advanceTimersByTimeAsync(1500);
+    const up = f.calls.filter((x) => x.op === "upsert");
+    expect(up).toHaveLength(1);
+    const sent = (up[0]!.arg as { data: Synced }).data.st;
+    expect(sent.liked).toEqual(["A", "B"]);
+    expect(sent.citta).toBe("Milano");
+  });
+
+  it("flush senza un pull riuscito rilegge l'account invece di scrivere", async () => {
+    vi.useFakeTimers();
+    const f = fakeClient({ data: { v: 1, st: st({ liked: ["B"] }), ck: stamp(st(), st({ liked: ["B"] }), emptyClocks(), 500) } });
+    const h = harness(f, { st: st({ liked: ["A"] }), ck: stamp(st(), st({ liked: ["A"] }), emptyClocks(), 600) });
+    h.sync.push();
+    await h.sync.flush();
+    expect(f.calls.map((x) => x.op)).toEqual(["select"]);
+    expect(h.get().st.liked).toEqual(["A", "B"]);
+  });
+
+  it("un motore fermato non chiama onDenied per il 401 di una richiesta già partita", async () => {
+    vi.useFakeTimers();
+    const f = fakeClient(null);
+    const h = harness(f, { st: st(), ck: emptyClocks() });
+    await bound(f, h);
+    h.set({ st: st({ citta: "Roma" }), ck: emptyClocks() });
+    // la richiesta parte, il motore si ferma (nuovo accesso), poi arriva il 401
+    f.onUpsert(() => { h.sync.stop(); f.setFail({ error: { code: "PGRST301", message: "JWT expired" }, status: 401 }); });
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(f.calls.map((x) => x.op)).toEqual(["upsert"]);
+    expect(h.onDenied).not.toHaveBeenCalled();
+  });
+
+  it("adopt: un account con dati sostituisce lo stato locale e le date, senza unire né scrivere", async () => {
+    vi.useFakeTimers();
+    const remoteSt = st({ liked: ["B"], citta: "Milano" });
+    const remoteCk = stamp(st(), remoteSt, emptyClocks(), 500);
+    const f = fakeClient({ data: { v: 1, st: remoteSt, ck: remoteCk } });
+    const locSt = st({ liked: ["A"], citta: "Roma" });
+    const h = harness(f, { st: locSt, ck: stamp(st(), locSt, emptyClocks(), 900) }, { adopt: true });
+    await h.sync.pull();
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(h.get().st.liked).toEqual(["B"]);
+    expect(h.get().st.citta).toBe("Milano");
+    expect(h.get().ck).toEqual(remoteCk);
+    expect(f.calls.map((x) => x.op)).toEqual(["select"]);
+    expect(h.onOwner).toHaveBeenCalledWith("u1");
+    // dopo il primo pull si torna a unire
+    const s2 = st({ liked: ["B", "C"], citta: "Milano" });
+    h.set({ st: s2, ck: stamp(h.get().st, s2, h.get().ck, 1200) });
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(1500);
+    expect((f.db.row!.data as Synced).st.liked).toEqual(["B", "C"]);
+  });
+
+  it("adopt: un account vuoto ({}) riparte dai valori predefiniti con date vuote e li scrive", async () => {
+    vi.useFakeTimers();
+    const f = fakeClient({ data: {} });
+    const locSt = st({ liked: ["A"], citta: "Roma" });
+    const h = harness(f, { st: locSt, ck: stamp(st(), locSt, emptyClocks(), 900) }, { adopt: true });
+    await h.sync.pull();
+    expect(h.get()).toEqual({ st: st(), ck: emptyClocks() });
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(f.db.row!.data).toEqual({ v: 1, st: st(), ck: emptyClocks() });
+  });
+
+  it("adopt con pull fallito: la modifica successiva rilegge e adotta, senza unire", async () => {
+    vi.useFakeTimers();
+    const remoteSt = st({ liked: ["B"] });
+    const f = fakeClient({ data: { v: 1, st: remoteSt, ck: stamp(st(), remoteSt, emptyClocks(), 500) } });
+    const h = harness(f, { st: st({ liked: ["A"] }), ck: stamp(st(), st({ liked: ["A"] }), emptyClocks(), 900) }, { adopt: true });
+    f.setFail({ error: { message: "boom" }, status: 500 });
+    await h.sync.pull();
+    expect(h.onOwner).not.toHaveBeenCalled();
+    f.setFail(null);
+    h.sync.push();
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(h.get().st.liked).toEqual(["B"]);
+    expect(f.calls.some((x) => x.op === "upsert" && JSON.stringify(x.arg).includes('"A"'))).toBe(false);
   });
 
   it("stop annulla la modifica in attesa e ferma il motore", async () => {

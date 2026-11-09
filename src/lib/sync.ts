@@ -2,7 +2,7 @@
 // Si usa solo con una sessione: senza account il motore non si crea nemmeno.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEFAULT_STATE } from "./state";
-import { merge, normClocks, type Synced } from "./sync-merge";
+import { emptyClocks, merge, normClocks, type Synced } from "./sync-merge";
 import type { Stasera } from "./types";
 
 export type Client = Pick<SupabaseClient, "auth" | "from">;
@@ -14,6 +14,11 @@ export type SyncOpts = {
   now: () => number;
   // La sessione non vale più (401, JWT scaduto o non valido): l'app resta in locale.
   onDenied?: () => void;
+  // Il primo pull riuscito sostituisce lo stato locale con quello dell'account invece di unirli
+  // (dispositivo usato prima da un altro account). Dopo si torna a unire.
+  adopt?: boolean;
+  // Il motore si è legato a questo account (primo pull riuscito).
+  onOwner?: (uid: string) => void;
 };
 
 // stop: il motore smette per sempre (uscita dal provider), senza mandare ciò che è in attesa.
@@ -51,9 +56,10 @@ export function createSync(opts: SyncOpts): Sync {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let waiting: "pull" | "push" | null = null;
   let dead = false;
-  // L'account a cui appartengono i dati locali uniti (legato dal primo pull o push riuscito):
-  // un push con un altro account in sessione non parte finché un pull non lega il nuovo.
+  // L'account a cui appartengono i dati locali uniti: lo lega solo un pull riuscito.
+  // Prima di allora un push non scrive (rilegge l'account); con un altro account in sessione non parte.
   let owner: string | null = null;
+  let adopt = !!opts.adopt;
 
   const userId = async (c: Client): Promise<string | null> => {
     const { data } = await c.auth.getSession();
@@ -76,6 +82,8 @@ export function createSync(opts: SyncOpts): Sync {
 
   // Ritorna true se si può andare avanti.
   const handle = (r: Res, what: "pull" | "push"): boolean => {
+    // Un motore fermato (uscita o nuovo accesso) non tocca più la sessione, nemmeno per un 401 in ritardo.
+    if (dead) return false;
     if (!r.error) return true;
     if (denied(r)) {
       dead = true;
@@ -92,8 +100,11 @@ export function createSync(opts: SyncOpts): Sync {
     try {
       const c = await opts.client();
       const uid = await userId(c);
-      if (!uid || dead || (owner && uid !== owner)) return;
-      owner = uid;
+      if (!uid || dead) return;
+      // Senza un pull riuscito i dati locali non sono ancora uniti all'account: si rilegge,
+      // e il pull scrive l'unione.
+      if (!owner) return pull();
+      if (uid !== owner) return;
       const { st, ck } = opts.local();
       const r = (await c.from("preferences").upsert({
         user_id: uid,
@@ -130,9 +141,18 @@ export function createSync(opts: SyncOpts): Sync {
       owner = uid;
       const remote = remoteOf(r.data?.data);
       const loc = opts.local();
-      const merged = remote ? merge(loc, remote, opts.now()) : loc;
-      if (!eq(merged, loc)) opts.apply(merged);
-      if (!remote || !eq(merged, remote)) push();
+      if (adopt) {
+        // Si prendono i dati dell'account così come sono; un account vuoto riparte dai valori predefiniti.
+        adopt = false;
+        const next = remote ?? { st: structuredClone(DEFAULT_STATE), ck: emptyClocks() };
+        if (!eq(next, loc)) opts.apply(next);
+        if (!remote) push();
+      } else {
+        const merged = remote ? merge(loc, remote, opts.now()) : loc;
+        if (!eq(merged, loc)) opts.apply(merged);
+        if (!remote || !eq(merged, remote)) push();
+      }
+      opts.onOwner?.(uid);
     } catch {
       retryOnline("pull");
     }
