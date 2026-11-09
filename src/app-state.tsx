@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { authInUrl, completeFromUrl, getClient, hasStoredSession, onClientReady } from "./lib/account";
+import { LAST_ACCOUNT_KEY, authInUrl, completeFromUrl, getClient, hasStoredSession, onClientReady } from "./lib/account";
 import { createTracker, eventRow, type EventKind, type SendResult } from "./lib/events";
 import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
 import { parseProfileHash } from "./lib/profile-link";
@@ -57,6 +57,8 @@ export type AppState = {
   setTrackEvents(on: boolean): Promise<void>;
   // Registra un segnale di gusto: non fa nulla senza account o con "Ricorda le mie scelte" spento.
   track(kind: EventKind, it: Item, ctx?: Record<string, unknown>): void;
+  // Svuota la coda dei segnali non ancora spediti (storico cancellato o "Ricorda" spento).
+  clearEvents(): void;
 };
 
 const Ctx = createContext<AppState | null>(null);
@@ -120,6 +122,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const track = useCallback((kind: EventKind, it: Item, ctx?: Record<string, unknown>) => {
     tracker.current!.track(eventRow(kind, it, stRef.current, ctx));
   }, []);
+  const clearEvents = useCallback(() => { tracker.current!.clear(); }, []);
   // Si svuota la coda all'ingresso (quando "Ricorda" diventa vero) e quando torna la rete.
   useEffect(() => { if (user && trackEvents) void tracker.current!.flush(); }, [user, trackEvents]);
   useEffect(() => {
@@ -152,6 +155,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const c = await getClient();
     const { error } = await c.from("profiles").update({ track_events: on }).eq("id", u.id);
     if (error) throw new Error("Non siamo riusciti a salvare la scelta. Riprova.");
+    // Spento: anche i segnali ancora in coda non partono più.
+    if (!on) tracker.current!.clear();
     if (userRef.current?.id === u.id) setTrackRaw(on);
   }, []);
 
@@ -224,13 +229,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     };
 
     // Ogni accesso ha un motore nuovo: quello di prima (anche spento da un 401) non si riusa.
-    const newSync = (c: SupabaseClient) => {
+    const newSync = (c: SupabaseClient, adopt: boolean) => {
       sync.current?.stop();
       sync.current = createSync({
         client: getClient,
         local: () => ({ st: stRef.current, ck: clocks.current }),
         apply,
         now: Date.now,
+        adopt,
+        // Dopo il primo pull riuscito le preferenze locali sono di questo account.
+        onOwner: (uid) => { try { storage()?.setItem(LAST_ACCOUNT_KEY, uid); } catch { /* storage vietato */ } },
         // Sessione rifiutata: si esce anche da supabase-js, così interfaccia e sessione coincidono.
         onDenied: () => {
           signedOut();
@@ -256,7 +264,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         },
         () => { /* resta spento */ },
       );
-      newSync(c);
+      // Dispositivo usato prima da un altro account: si prendono i dati del nuovo, senza unire quelli locali.
+      // Stesso account, o dispositivo mai usato con un account: si uniscono.
+      let last: string | null = null;
+      try { last = storage()?.getItem(LAST_ACCOUNT_KEY) ?? null; } catch { /* storage vietato */ }
+      newSync(c, !!last && last !== u.id);
       pull();
     };
 
@@ -339,9 +351,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AppState>(
     () => ({
       st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem,
-      user, trackEvents, setTrackEvents, track,
+      user, trackEvents, setTrackEvents, track, clearEvents,
     }),
-    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track],
+    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track, clearEvents],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

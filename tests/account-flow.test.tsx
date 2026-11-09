@@ -7,7 +7,7 @@ vi.mock("@supabase/supabase-js", () => ({ createClient }));
 
 import { AppStateProvider, useApp, type AppState } from "../src/app-state";
 import { Shell } from "../src/components/Shell";
-import { SESSION_KEY, getClient, setClientForTests } from "../src/lib/account";
+import { LAST_ACCOUNT_KEY, SESSION_KEY, getClient, setClientForTests, signOut } from "../src/lib/account";
 import { DEFAULT_STATE } from "../src/lib/state";
 import { emptyClocks, stamp } from "../src/lib/sync-merge";
 import type { Stasera } from "../src/lib/types";
@@ -36,6 +36,7 @@ function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean;
   const cbs: ((ev: string, s: Session) => void)[] = [];
   const log: string[] = [];
   const sent: unknown[] = [];
+  const upserts: { user_id: string; data: { st: Stasera; ck: unknown } }[] = [];
   const db: { prefs: unknown; track: boolean } = { prefs: opts.prefs ?? null, track: opts.track ?? true };
   let fail: Resp | null = null;
   const c = {
@@ -101,8 +102,9 @@ function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean;
             },
           }),
         }),
-        upsert: async (row: { data: unknown }) => {
+        upsert: async (row: { user_id: string; data: unknown }) => {
           log.push("preferences.upsert");
+          upserts.push(structuredClone(row) as (typeof upserts)[number]);
           if (fail) return { data: null, ...fail };
           db.prefs = structuredClone(row.data);
           return { error: null, status: 201 };
@@ -111,7 +113,7 @@ function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean;
     }),
   };
   return {
-    c, log, db, sent,
+    c, log, db, sent, upserts,
     emit(ev: string, s: Session) { session = s; for (const cb of cbs) cb(ev, s); },
     setFail(r: Resp | null) { fail = r; },
   };
@@ -397,6 +399,123 @@ describe("storico dei segnali con account", () => {
     act(() => app.track("like", it1));
     await settle();
     expect(f.sent).toEqual([]);
+    expect(JSON.parse(localStorage.getItem("popcorno-eventi") || "[]")).toEqual([]);
+  });
+});
+
+describe("dispositivo condiviso tra due account", () => {
+  const A = { user: { id: "u1", email: "a@b.it" } };
+  const B = { user: { id: "u2", email: "b@b.it" } };
+  const locA = st({ liked: ["Dune"], citta: "Roma" });
+
+  // A entra con un account vuoto (i suoi dati locali vanno sul suo account), poi esce con "Esci".
+  async function aEntraEdEsce(f: ReturnType<typeof fakeClient>) {
+    localStorage.setItem(SESSION_KEY, "{}");
+    localStorage.setItem("stasera", JSON.stringify(locA));
+    localStorage.setItem("stasera-clock", JSON.stringify(stamp(st(), locA, emptyClocks(), 400)));
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    await vi.waitFor(() => expect(f.upserts.some((u) => u.user_id === "u1")).toBe(true), { timeout: 3000 });
+    expect(localStorage.getItem(LAST_ACCOUNT_KEY)).toBe("u1");
+    await act(() => signOut());
+    await settle();
+    expect(app.user).toBeNull();
+    expect(localStorage.getItem(LAST_ACCOUNT_KEY)).toBe("u1");
+  }
+
+  it("A esce, entra B: l'account di B non riceve i dati di A e lo stato locale diventa quello di B", async () => {
+    const f = fakeClient({ session: A });
+    await aEntraEdEsce(f);
+    const remoteB = st({ liked: ["Up"], citta: "Milano" });
+    const ckB = stamp(st(), remoteB, emptyClocks(), 300);
+    f.db.prefs = { v: 1, st: remoteB, ck: ckB };
+    act(() => f.emit("SIGNED_IN", B));
+    await settle();
+    expect(app.user?.id).toBe("u2");
+    expect(app.st.liked).toEqual(["Up"]);
+    expect(app.st.citta).toBe("Milano");
+    expect(JSON.parse(localStorage.getItem("stasera-clock")!)).toEqual(ckB);
+    // anche una modifica dopo non porta i dati di A
+    act(() => app.setSt({ ...app.st, team: "Inter" }));
+    await vi.waitFor(() => expect(f.upserts.some((u) => u.user_id === "u2")).toBe(true), { timeout: 3000 });
+    for (const u of f.upserts.filter((x) => x.user_id === "u2")) {
+      expect(u.data.st.liked).toEqual(["Up"]);
+      expect(u.data.st.citta).toBe("Milano");
+    }
+    expect(localStorage.getItem(LAST_ACCOUNT_KEY)).toBe("u2");
+  });
+
+  it("A esce, entra B con account vuoto: si riparte dai valori predefiniti e si scrivono su B", async () => {
+    const f = fakeClient({ session: A });
+    await aEntraEdEsce(f);
+    f.db.prefs = {};
+    act(() => f.emit("SIGNED_IN", B));
+    await settle();
+    expect(app.user?.id).toBe("u2");
+    expect(app.st).toEqual(st());
+    expect(JSON.parse(localStorage.getItem("stasera-clock")!)).toEqual(emptyClocks());
+    await vi.waitFor(() => expect(f.upserts.some((u) => u.user_id === "u2")).toBe(true), { timeout: 3000 });
+    const toB = f.upserts.filter((x) => x.user_id === "u2");
+    expect(toB.map((u) => u.data)).toEqual([{ v: 1, st: st(), ck: emptyClocks() }]);
+  });
+
+  it("A esce e rientra: si unisce come sempre", async () => {
+    const f = fakeClient({ session: A });
+    await aEntraEdEsce(f);
+    const remoteA = { ...structuredClone(f.db.prefs as { v: 1; st: Stasera; ck: ReturnType<typeof emptyClocks> }) };
+    const s2 = st({ ...remoteA.st, liked: ["Dune", "Up"] });
+    f.db.prefs = { v: 1, st: s2, ck: stamp(remoteA.st, s2, remoteA.ck, 900) };
+    act(() => app.setSt({ ...app.st, team: "Inter" }));
+    act(() => f.emit("SIGNED_IN", A));
+    await settle();
+    expect(app.user?.id).toBe("u1");
+    expect(app.st.liked).toEqual(["Dune", "Up"]);
+    expect(app.st.team).toBe("Inter");
+    expect(app.st.citta).toBe("Roma");
+  });
+
+  it("dispositivo mai usato con un account: si unisce e si ricorda l'account", async () => {
+    localStorage.setItem(SESSION_KEY, "{}");
+    localStorage.setItem("stasera", JSON.stringify(locA));
+    localStorage.setItem("stasera-clock", JSON.stringify(stamp(st(), locA, emptyClocks(), 400)));
+    const remoteB = st({ liked: ["Up"] });
+    const f = fakeClient({ session: B, prefs: { v: 1, st: remoteB, ck: stamp(st(), remoteB, emptyClocks(), 500) } });
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    expect(app.st.liked).toEqual(["Dune", "Up"]);
+    expect(app.st.citta).toBe("Roma");
+    expect(localStorage.getItem(LAST_ACCOUNT_KEY)).toBe("u2");
+  });
+});
+
+describe("coda dei segnali svuotata", () => {
+  const A = { user: { id: "u1", email: "a@b.it" } };
+  const it1 = { t: "Up", ty: "film", s: "disney", m: [], w: [], g: "Animazione" };
+
+  async function conCoda() {
+    localStorage.setItem(SESSION_KEY, "{}");
+    const f = fakeClient({ session: A, eventsResult: () => ({ error: { message: "Failed to fetch" } }) });
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    act(() => app.track("like", it1));
+    await settle();
+    expect(JSON.parse(localStorage.getItem("popcorno-eventi")!)).toHaveLength(1);
+    return f;
+  }
+
+  it("clearEvents svuota la coda locale", async () => {
+    await conCoda();
+    act(() => app.clearEvents());
+    expect(JSON.parse(localStorage.getItem("popcorno-eventi") || "[]")).toEqual([]);
+  });
+
+  it("spegnere \"Ricorda le mie scelte\" svuota la coda locale", async () => {
+    await conCoda();
+    await act(() => app.setTrackEvents(false));
     expect(JSON.parse(localStorage.getItem("popcorno-eventi") || "[]")).toEqual([]);
   });
 });

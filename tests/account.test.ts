@@ -5,7 +5,7 @@ const createClient = vi.fn((..._a: unknown[]) => ({}));
 vi.mock("@supabase/supabase-js", () => ({ createClient }));
 
 import {
-  SESSION_KEY, accountVisible, authInUrl, completeFromUrl, deleteAccount, hasStoredSession,
+  LAST_ACCOUNT_KEY, SESSION_KEY, accountVisible, authInUrl, completeFromUrl, deleteAccount, hasStoredSession,
   sendLink, setClientForTests, signInWithGoogle, signOut, verifyCode,
 } from "../src/lib/account";
 
@@ -14,7 +14,8 @@ const fake = () => ({
     signInWithOtp: vi.fn(async () => ({ error: null })),
     verifyOtp: vi.fn(async () => ({ error: null })),
     signInWithOAuth: vi.fn(async () => ({ error: null })),
-    signOut: vi.fn(async () => ({ error: null })),
+    signOut: vi.fn(async () => ({ error: null }) as { error: { message: string } | null }),
+    getSession: vi.fn(async () => ({ data: { session: { user: { id: "u1" } } }, error: null })),
   },
   rpc: vi.fn(async () => ({ error: null })),
 });
@@ -120,6 +121,37 @@ describe("funzioni di accesso", () => {
     expect(c.rpc).toHaveBeenCalledWith("delete_account");
     expect(c.auth.signOut).toHaveBeenCalledWith({ scope: "local" });
     expect(c.rpc.mock.invocationCallOrder[0]).toBeLessThan(c.auth.signOut.mock.invocationCallOrder[0]);
+  });
+  it("signOut ricorda quale account c'era su questo dispositivo", async () => {
+    const c = fake();
+    setClientForTests(c);
+    await signOut();
+    expect(localStorage.getItem(LAST_ACCOUNT_KEY)).toBe("u1");
+  });
+  it("deleteAccount riuscito dimentica l'account del dispositivo", async () => {
+    localStorage.setItem(LAST_ACCOUNT_KEY, "u1");
+    const c = fake();
+    setClientForTests(c);
+    await deleteAccount();
+    expect(localStorage.getItem(LAST_ACCOUNT_KEY)).toBeNull();
+  });
+  it("deleteAccount fallito non tocca l'account ricordato", async () => {
+    localStorage.setItem(LAST_ACCOUNT_KEY, "u1");
+    const c = fake();
+    c.rpc.mockResolvedValue({ error: { message: "boom" } } as never);
+    setClientForTests(c);
+    await expect(deleteAccount()).rejects.toThrow(Error);
+    expect(localStorage.getItem(LAST_ACCOUNT_KEY)).toBe("u1");
+    expect(c.auth.signOut).not.toHaveBeenCalled();
+  });
+  it("deleteAccount: un'uscita fallita (senza rete) dopo l'eliminazione non è un errore", async () => {
+    const c = fake();
+    c.auth.signOut.mockResolvedValueOnce({ error: { message: "Failed to fetch" } });
+    setClientForTests(c);
+    await expect(deleteAccount()).resolves.toBeUndefined();
+    c.auth.signOut.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    await expect(deleteAccount()).resolves.toBeUndefined();
+    expect(c.auth.signOut).toHaveBeenCalledTimes(2);
   });
   it("un errore di Supabase diventa un Error leggibile", async () => {
     const c = fake();

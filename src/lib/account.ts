@@ -9,6 +9,9 @@ export const SUPABASE_KEY = "sb_publishable_vtC7tcEYhp_0wXj0yqbDNA_wLWP4YyC";
 export const ACCOUNT_PUBLIC = false;
 export const SESSION_KEY = "sb-gvdarnmxnigprebwjglq-auth-token";
 const FLAG_KEY = "popcorno-account";
+// L'ultimo account a cui appartengono le preferenze di questo dispositivo: se entra un account
+// diverso, si prendono i suoi dati invece di unirli a quelli locali (vedi app-state).
+export const LAST_ACCOUNT_KEY = "popcorno-ultimo-account";
 
 const safeGet = (s: Storage | null, k: string): string | null => {
   try { return s ? s.getItem(k) : null; } catch { return null; }
@@ -116,6 +119,11 @@ export async function signInWithGoogle(): Promise<void> {
 
 export async function signOut(): Promise<void> {
   const c = await getClient();
+  try {
+    const { data } = await c.auth.getSession();
+    const id = data.session?.user.id;
+    if (id) localStorage.setItem(LAST_ACCOUNT_KEY, id);
+  } catch { /* storage vietato o sessione illeggibile */ }
   const { error } = await c.auth.signOut({ scope: "local" });
   fail(error, "Non siamo riusciti a uscire. Riprova.");
 }
@@ -124,5 +132,8 @@ export async function deleteAccount(): Promise<void> {
   const c = await getClient();
   const { error } = await c.rpc("delete_account");
   fail(error, "Non siamo riusciti a eliminare l'account. Riprova.");
-  await signOut();
+  // L'account non c'è più: le preferenze locali non appartengono più a nessuno.
+  try { localStorage.removeItem(LAST_ACCOUNT_KEY); } catch { /* storage vietato */ }
+  // Un'uscita fallita (per esempio senza rete) non è un errore: l'account è già eliminato.
+  try { await c.auth.signOut({ scope: "local" }); } catch { /* già eliminato */ }
 }
