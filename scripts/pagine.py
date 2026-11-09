@@ -4,7 +4,8 @@
 Uso: python3 scripts/pagine.py [cartella_sito]   (nel workflow: public)
 Legge data/tv.json, data/meta.json, data/cinema/*.json della cartella del sito e i nomi
 dei canali da src/lib/sources.ts; scrive stasera-in-tv/, film-stasera-in-tv/, sport-stasera-in-tv/,
-serie-tv-stasera/, cinema/ e cinema/<citta>/ e rigenera sitemap.xml.
+serie-tv-stasera/, cinema/ e cinema/<citta>/ (una pagina per ogni citta' di scripts/citta.json,
+anche senza orari) e rigenera sitemap.xml.
 Le pagine si rifanno a ogni esecuzione del workflow: stesso indirizzo, contenuto del giorno.
 """
 import html, json, os, re, sys, datetime
@@ -199,21 +200,55 @@ def pagine_tv():
     return urls
 
 
+def citta_conosciute():
+    """slug -> nome: le citta' di scripts/citta.json piu' quelle con orari oggi.
+    Le citta' conosciute hanno sempre la loro pagina, cosi' un indirizzo gia' indicizzato non diventa 404
+    nei giorni in cui la fonte non ha orari. Una citta' nuova va aggiunta a scripts/citta.json."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "citta.json"), encoding="utf-8") as f:
+            note = json.load(f)
+    except Exception:
+        note = {}
+    indice = carica("data/cinema/index.json", {}).get("citta", {})
+    tutte = dict(note)
+    for slug, info in indice.items():
+        tutte[slug] = info.get("n") or tutte.get(slug) or slug
+    nuove = sorted(set(indice) - set(note))
+    if nuove:
+        print("citta' con orari non presenti in scripts/citta.json:", ", ".join(nuove), file=sys.stderr)
+    return tutte
+
+
+def pagina_cinema_vuota(slug, nome):
+    h1 = f"Cinema a {nome}: film e orari di oggi"
+    title = f"Cinema {nome}: film in sala e orari, {etichetta} | Popcorno"
+    desc = (f"Film in sala e orari dei cinema a {nome}. Oggi ({etichetta}) gli orari non sono disponibili: "
+            f"torna domani o scegli cosa guardare stasera in TV e in streaming.")[:300]
+    corpo = (f'<p class="lead">Oggi non abbiamo gli orari dei cinema di {esc(nome)}: la nostra fonte non li ha pubblicati. '
+             f'Di solito tornano nei prossimi giorni.</p>'
+             f'<a class="cta" href="/stasera-in-tv/">📺 Guarda cosa c\'è stasera in TV</a>'
+             '<p class="lead" style="margin-top:20px"><a href="/cinema/">← Tutte le città</a></p>')
+    ld = {"@context": "https://schema.org", "@graph": [
+        {"@type": "WebPage", "name": h1, "url": f"{BASE}/cinema/{slug}/", "inLanguage": "it", "dateModified": oggi},
+        briciole(("Popcorno", "/"), ("Cinema", "/cinema/"), (nome, f"/cinema/{slug}/"))]}
+    return pagina(f"cinema/{slug}", title, desc, h1, corpo, "cinema", ld)
+
+
 def pagine_cinema():
     urls = []
-    indice = carica("data/cinema/index.json", {}).get("citta", {})
     citta_ok = []
-    for slug, info in sorted(indice.items(), key=lambda kv: kv[1].get("n", kv[0])):
-        d = carica(f"data/cinema/{slug}.json", None)
-        if not d or not d.get("sale"):
-            continue
-        nome = d.get("citta") or info.get("n") or slug
+    vuote = []
+    for slug, nome_noto in sorted(citta_conosciute().items(), key=lambda kv: kv[1]):
+        d = carica(f"data/cinema/{slug}.json", None) or {}
+        nome = d.get("citta") or nome_noto
         # film -> [(cinema, orari)]
         film = {}
-        for s in d["sale"]:
+        for s in d.get("sale") or []:
             for f in s.get("f", []):
                 film.setdefault(f["t"], []).append((s, f.get("o", [])))
         if not film:
+            vuote.append((slug, nome))
+            urls.append(pagina_cinema_vuota(slug, nome))
             continue
         citta_ok.append((slug, nome, len(d["sale"]), len(film)))
         ord_film = sorted(film.items(), key=lambda kv: (-len(kv[1]), kv[0]))
@@ -249,7 +284,9 @@ def pagine_cinema():
             briciole(("Popcorno", "/"), ("Cinema", "/cinema/"), (nome, f"/cinema/{slug}/"))]}
         urls.append(pagina(f"cinema/{slug}", title, desc, h1, corpo, "cinema", ld))
 
-    lista = "".join(f'<a href="/cinema/{s}/">{esc(n)} <span>· {nf} film</span></a>' for s, n, ns, nf in citta_ok)
+    voci = [(n, f'<a href="/cinema/{s}/">{esc(n)} <span>· {nf} film</span></a>') for s, n, ns, nf in citta_ok]
+    voci += [(n, f'<a href="/cinema/{s}/">{esc(n)} <span>· orari non disponibili oggi</span></a>') for s, n in vuote]
+    lista = "".join(v for _, v in sorted(voci))
     corpo = (f'<p class="lead">Film in sala e orari di oggi, {esc(etichetta)}, in {len(citta_ok)} città italiane. '
              f'Scegli la tua città.</p><a class="cta" href="/">🍿 Scegli cosa vedere stasera</a>'
              f'<div class="citta">{lista}</div>')
