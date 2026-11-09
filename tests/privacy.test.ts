@@ -24,11 +24,11 @@ describe("pagina privacy", () => {
       "Modifiche",
     ]);
   });
-  it("linka le informative di Supabase, Google e Twilio", () => {
+  it("linka le informative di Supabase, Google e Resend", () => {
     const hrefs = [...ours.querySelectorAll("a")].map((a) => a.getAttribute("href"));
     expect(hrefs).toContain("https://supabase.com/privacy");
     expect(hrefs).toContain("https://policies.google.com/privacy");
-    expect(hrefs).toContain("https://www.twilio.com/legal/privacy");
+    expect(hrefs).toContain("https://resend.com/legal/privacy-policy");
   });
   it("cita la base giuridica dell'account", () => {
     expect(testo).toContain("art. 6.1.b GDPR");
