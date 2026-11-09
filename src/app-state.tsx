@@ -16,6 +16,9 @@ export type View = "scegli" | "onda" | "prof";
 export type User = { id: string; email: string };
 
 // Un rientro nell'app rilegge l'account al massimo ogni 5 minuti.
+// Di chi è la coda dei segnali in localStorage.
+const QUEUE_OWNER_KEY = "popcorno-eventi-utente";
+
 const PULL_EVERY_MS = 5 * 60_000;
 
 // La proposta della vista Scegli (list, idx, luckyMode dell'app vecchia). `shown`: #res visibile
@@ -102,12 +105,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       storage: typeof window === "undefined" ? null : storage(),
       enabled: () => !!userRef.current && trackRef.current,
       now: Date.now,
+      onOff: () => setTrackRaw(false),
       send: async (rows): Promise<SendResult> => {
         const c = await getClient();
         const { error } = await c.from("events").insert(rows);
         if (!error) return "ok";
         // 42501: permesso negato (consenso tolto): si smette. Il resto (rete, 5xx) si riprova al prossimo segnale.
-        return error.code === "42501" ? "off" : "retry";
+        if (error.code === "42501") return "off";
+        // Errori permanenti sui dati (classi 22 e 23): riprovare non servirebbe, il lotto si scarta.
+        return /^2[23]/.test(error.code ?? "") ? "drop" : "retry";
       },
     });
   }
@@ -212,6 +218,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // All'uscita (o con una sessione non più valida) lo stato locale resta com'è.
     const signedOut = () => {
       userRef.current = null;
+      tracker.current?.clear();
       setUser(null);
       setTrackRaw(false);
     };
@@ -233,6 +240,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     };
 
     const signedIn = (c: SupabaseClient, u: User) => {
+      // La coda dei segnali appartiene a chi l'ha prodotta: con un altro utente (anche dopo un ricaricamento) si butta.
+      let owner: string | null = null;
+      try { owner = storage()?.getItem(QUEUE_OWNER_KEY) ?? null; } catch { /* storage vietato */ }
+      if (userRef.current?.id !== u.id && owner !== u.id) tracker.current?.clear();
+      try { storage()?.setItem(QUEUE_OWNER_KEY, u.id); } catch { /* storage vietato */ }
       userRef.current = u;
       setUser(u);
       // "Ricorda le mie scelte" vale solo dopo averlo letto come vero; una lettura fallita lo lascia spento.

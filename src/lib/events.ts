@@ -20,7 +20,9 @@ export type EventRow = {
   ctx: Record<string, unknown>;
 };
 
-export type SendResult = "ok" | "off" | "retry";
+// ok: spediti; off: permesso negato (si smette); retry: si riprova al prossimo segnale;
+// drop: errore permanente sui dati (classi 22/23 di Postgres), il lotto si scarta.
+export type SendResult = "ok" | "off" | "retry" | "drop";
 
 export const QUEUE_KEY = "popcorno-eventi";
 export const OPENED_KEY = "popcorno-aperti";
@@ -44,7 +46,7 @@ export function eventRow(kind: EventKind, it: Item, st: Stasera, ctx: Record<str
   return {
     kind,
     title_ref: titleRef(it),
-    title: it.t,
+    title: it.t.slice(0, 300),
     item_type: it.ty,
     genre: it.g,
     source: it.ty === "cinema" ? "cinema" : mySrc(it, st)[0] ?? "",
@@ -57,9 +59,11 @@ export type TrackerOpts = {
   enabled: () => boolean;
   send: (rows: EventRow[]) => Promise<SendResult>;
   now: () => number;
+  // Chiamata quando il server nega il permesso ("off").
+  onOff?: () => void;
 };
 
-export function createTracker(o: TrackerOpts): { track(row: EventRow): void; flush(): Promise<void> } {
+export function createTracker(o: TrackerOpts): { track(row: EventRow): void; flush(): Promise<void>; clear(): void } {
   // Se lo storage manca o lancia, la coda vive solo in memoria.
   let mem: unknown[] = [];
   let memOpened: Record<string, number> = {};
@@ -77,6 +81,8 @@ export function createTracker(o: TrackerOpts): { track(row: EventRow): void; flu
   };
   const saveQueue = (q: EventRow[]) => { mem = q; write(QUEUE_KEY, q); };
 
+  // Cresce a ogni clear(): un invio partito prima non tocca la coda di dopo.
+  let gen = 0;
   let busy = false;
   let again = false;
   const flush = async (): Promise<void> => {
@@ -88,9 +94,11 @@ export function createTracker(o: TrackerOpts): { track(row: EventRow): void; flu
         again = false;
         const batch = queue();
         if (!batch.length || !o.enabled()) break;
+        const g = gen;
         let r: SendResult;
         try { r = await o.send(batch); } catch { r = "retry"; }
-        if (r === "off") { saveQueue([]); break; }
+        if (g !== gen) break;
+        if (r === "off") { saveQueue([]); o.onOff?.(); break; }
         if (r === "retry") break;
         // Spediti: si tolgono dalla coda (nel frattempo ne possono essere arrivati altri in fondo).
         saveQueue(queue().slice(batch.length));
@@ -116,5 +124,13 @@ export function createTracker(o: TrackerOpts): { track(row: EventRow): void; flu
     void flush();
   };
 
-  return { track, flush };
+  // Cambio di account: niente di ciò che è in coda deve partire con un'altra sessione.
+  const clear = (): void => {
+    gen++;
+    memOpened = {};
+    saveQueue([]);
+    try { o.storage?.removeItem(QUEUE_KEY); o.storage?.removeItem(OPENED_KEY); } catch { /* storage vietato */ }
+  };
+
+  return { track, flush, clear };
 }

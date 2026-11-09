@@ -91,6 +91,45 @@ describe("storico dei segnali", () => {
     expect(s.queue()).toEqual([]);
   });
 
+  it("drop scarta il lotto inviato e tiene i successivi, senza riprovare", async () => {
+    const s = setup({ result: "drop" });
+    s.tr.track(row("like", item({ t: "A" })));
+    await tick();
+    expect(s.queue()).toEqual([]);
+    expect(s.send).toHaveBeenCalledTimes(1);
+  });
+
+  it("clear svuota coda e aperture; un invio in corso non tocca la coda nuova", async () => {
+    const s = setup({ result: "retry" });
+    s.tr.track(row("open"));
+    await tick();
+    s.tr.clear();
+    expect(s.queue()).toEqual([]);
+    expect(s.storage.getItem(OPENED_KEY)).toBeNull();
+    let release!: () => void;
+    s.send.mockImplementationOnce(() => new Promise<SendResult>((r) => { release = () => r("ok"); }));
+    s.setResult("retry");
+    s.tr.track(row("like", item({ t: "X" })));
+    s.tr.clear();
+    s.tr.track(row("like", item({ t: "Y" })));
+    release();
+    await tick();
+    expect(s.queue().map((r) => r.title)).toEqual(["Y"]);
+  });
+
+  it("off chiama onOff", async () => {
+    const onOff = vi.fn();
+    const storage = memStorage();
+    const tr = createTracker({ storage, enabled: () => true, send: async () => "off", now: () => 1, onOff });
+    tr.track(row());
+    await tick();
+    expect(onOff).toHaveBeenCalledTimes(1);
+  });
+
+  it("title si accorcia a 300 caratteri", () => {
+    expect(eventRow("like", item({ t: "x".repeat(500) }), st()).title).toHaveLength(300);
+  });
+
   it("titleRef senza tmdb usa tipo:nome", () => {
     expect(titleRef(item({ tmdb: "movie/12" }))).toBe("movie/12");
     expect(titleRef(item())).toBe("film:Up");

@@ -364,7 +364,9 @@ describe("L'ho visto e storico", () => {
   it("il tasto non c'è per lo sport", async () => {
     await mount({ tipo: "sport", team: "Nessuna" });
     await click("#go");
-    if ($("#res .title")) expect($("#a-seen")).toBeNull();
+    expect(text("#res .title")).not.toBe("");
+    expect(text("#res .kind")).toMatch(/Sport/i);
+    expect($("#a-seen")).toBeNull();
   });
 
   it("con account, 👍 registra like", async () => {

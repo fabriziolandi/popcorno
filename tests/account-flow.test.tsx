@@ -31,10 +31,11 @@ type Session = { user: { id: string; email: string } } | null;
 type Resp = { error: { code?: string; message?: string } | null; status: number };
 
 // Client finto: sessione, ascoltatori dell'accesso, preferences e profiles in memoria.
-function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean; profilesRead?: () => Promise<unknown> } = {}) {
+function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean; profilesRead?: () => Promise<unknown>; eventsResult?: () => { error: { code?: string; message?: string } | null } } = {}) {
   let session: Session = opts.session ?? null;
   const cbs: ((ev: string, s: Session) => void)[] = [];
   const log: string[] = [];
+  const sent: unknown[] = [];
   const db: { prefs: unknown; track: boolean } = { prefs: opts.prefs ?? null, track: opts.track ?? true };
   let fail: Resp | null = null;
   const c = {
@@ -61,6 +62,15 @@ function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean;
       }),
     },
     from: vi.fn((table: string) => {
+      if (table === "events") {
+        return {
+          insert: async (rows: unknown[]) => {
+            const r = opts.eventsResult?.() ?? { error: null };
+            if (!r.error) sent.push(...rows);
+            return r;
+          },
+        };
+      }
       if (table === "profiles") {
         return {
           select: () => ({
@@ -101,7 +111,7 @@ function fakeClient(opts: { session?: Session; prefs?: unknown; track?: boolean;
     }),
   };
   return {
-    c, log, db,
+    c, log, db, sent,
     emit(ev: string, s: Session) { session = s; for (const cb of cbs) cb(ev, s); },
     setFail(r: Resp | null) { fail = r; },
   };
@@ -339,5 +349,54 @@ describe("con account", () => {
     await settle();
     expect(app.user).toEqual({ id: "u9", email: "x@y.it" });
     expect(f.log).toContain("preferences.select");
+  });
+});
+
+describe("storico dei segnali con account", () => {
+  const A = { user: { id: "u1", email: "a@b.it" } };
+  const B = { user: { id: "u2", email: "b@b.it" } };
+  const it1 = { t: "Up", ty: "film", s: "disney", m: [], w: [], g: "Animazione" };
+
+  it("eventi in coda di A non partono con la sessione di B", async () => {
+    localStorage.setItem(SESSION_KEY, "{}");
+    let net: { error: { message: string } } | null = { error: { message: "Failed to fetch" } };
+    const f = fakeClient({ session: A, eventsResult: () => net ?? { error: null } });
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    act(() => app.track("like", it1));
+    await settle();
+    expect(f.sent).toEqual([]);
+    expect(JSON.parse(localStorage.getItem("popcorno-eventi")!)).toHaveLength(1);
+    act(() => f.emit("SIGNED_OUT", null));
+    await settle();
+    net = null;
+    act(() => f.emit("SIGNED_IN", B));
+    await settle();
+    expect(app.user?.id).toBe("u2");
+    expect(app.trackEvents).toBe(true);
+    await act(async () => { window.dispatchEvent(new Event("online")); });
+    await settle();
+    expect(f.sent).toEqual([]);
+    act(() => app.track("dislike", { ...it1, t: "Altro" }));
+    await settle();
+    expect((f.sent as { kind: string }[]).map((r) => r.kind)).toEqual(["dislike"]);
+  });
+
+  it("dopo off (42501) trackEvents si spegne e i gesti successivi non mandano niente", async () => {
+    localStorage.setItem(SESSION_KEY, "{}");
+    let res: { error: { code: string } | null } = { error: { code: "42501" } };
+    const f = fakeClient({ session: A, eventsResult: () => res });
+    setClientForTests(f.c);
+    mount();
+    await settle();
+    act(() => app.track("like", it1));
+    await settle();
+    expect(app.trackEvents).toBe(false);
+    res = { error: null };
+    act(() => app.track("like", it1));
+    await settle();
+    expect(f.sent).toEqual([]);
+    expect(JSON.parse(localStorage.getItem("popcorno-eventi") || "[]")).toEqual([]);
   });
 });
