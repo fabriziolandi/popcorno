@@ -1,5 +1,6 @@
 import { useApp } from "../app-state";
 import { Header } from "./Header";
+import { AccessSheet } from "./prof/AccessSheet";
 import { Nav } from "./Nav";
 import { MieiDati } from "./prof/MieiDati";
 import { Profile } from "./prof/Profile";
@@ -21,6 +22,7 @@ export function Shell() {
         <section id="v-dati" className={hide("dati")}><MieiDati key={user?.id ?? "-"} /></section>
       </div>
       <Nav />
+      <AccessSheet />
       <Toast />
     </>
   );

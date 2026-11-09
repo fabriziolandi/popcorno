@@ -49,6 +49,10 @@ describe("pagina privacy", () => {
   it("le preferenze sul dispositivo non partono solo senza account", () => {
     expect(testo).toContain("Senza account, non vengono inviati a noi né a nessun altro.");
   });
+  it("dice che con Google salviamo anche nome e foto, e da dove arriva la foto", () => {
+    expect(testo).toContain("L'indirizzo email con cui accedi. Se accedi con Google, anche il nome e la foto del tuo profilo Google, che usiamo solo per mostrarti chi sei nell'app.");
+    expect(testo).toContain("conferma chi sei e ci comunica il tuo indirizzo email, il tuo nome e la foto del profilo. La foto viene mostrata caricandola dai server di Google. Informativa di Google.");
+  });
   it("ha il canonical", () => {
     expect(head.links.find((l: any) => l.rel === "canonical").href).toBe("https://popcorno.it/privacy/");
   });

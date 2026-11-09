@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { useApp } from "../app-state";
 import { nowHM } from "../lib/data";
+import { Avatar } from "./prof/Avatar";
+import { useAccountVisible } from "./prof/useLogin";
 
 // Orologio da televisore: vuoto sul server, l'ora del dispositivo si calcola solo nel browser.
 function Clock() {
@@ -21,6 +24,28 @@ function Clock() {
   );
 }
 
+// Tasto dell'account accanto all'orologio: senza account apre il riquadro di accesso, con l'account il Profilo.
+function AccountButton() {
+  const { user, openLogin, setView } = useApp();
+  const visible = useAccountVisible();
+  if (!visible) return null;
+  if (user) {
+    return (
+      <button type="button" className="acc-btn" id="acc-btn" aria-label="Il tuo account" onClick={() => setView("prof")}>
+        <Avatar user={user} size={36} />
+      </button>
+    );
+  }
+  return (
+    <button type="button" className="acc-btn" id="acc-btn" aria-label="Accedi" onClick={(e) => openLogin({ from: e.currentTarget })}>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="8.5" r="3.75" />
+        <path d="M4.75 19.25c1.2-3.3 4-5 7.25-5s6.05 1.7 7.25 5" />
+      </svg>
+    </button>
+  );
+}
+
 export function Header() {
   return (
     <header>
@@ -35,7 +60,11 @@ export function Header() {
         </svg>
         Popcorno
       </div>
-      <Clock />
+      {/* Il tasto viene prima nel codice (così il CSS può accorciare l'orologio) ma si vede a destra. */}
+      <div className="hd-r">
+        <AccountButton />
+        <Clock />
+      </div>
     </header>
   );
 }

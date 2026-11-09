@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const createClient = vi.fn((..._a: unknown[]) => ({}));
 vi.mock("@supabase/supabase-js", () => ({ createClient }));
 
-import { AppStateProvider, useApp, type AppState } from "../src/app-state";
+import { AppStateProvider, useApp, userFrom, type AppState } from "../src/app-state";
 import { Shell } from "../src/components/Shell";
 import { LAST_ACCOUNT_KEY, SESSION_KEY, getClient, setClientForTests, signOut } from "../src/lib/account";
 import { DEFAULT_STATE } from "../src/lib/state";
@@ -27,7 +27,7 @@ const mount = (shell = false) =>
 
 const st = (over: Partial<Stasera> = {}): Stasera => ({ ...structuredClone(DEFAULT_STATE), ...over });
 
-type Session = { user: { id: string; email: string } } | null;
+type Session = { user: { id: string; email: string; user_metadata?: Record<string, unknown> } } | null;
 type Resp = { error: { code?: string; message?: string } | null; status: number };
 
 // Client finto: sessione, ascoltatori dell'accesso, preferences e profiles in memoria.
@@ -351,6 +351,36 @@ describe("con account", () => {
     await settle();
     expect(app.user).toEqual({ id: "u9", email: "x@y.it" });
     expect(f.log).toContain("preferences.select");
+  });
+
+  it("con Google l'utente ha anche nome e foto da user_metadata", async () => {
+    const f = fakeClient();
+    createClient.mockReturnValueOnce(f.c as never);
+    mount();
+    await settle();
+    await getClient();
+    await settle();
+    act(() => f.emit("SIGNED_IN", { user: { id: "u9", email: "x@y.it", user_metadata: { full_name: "Anna Rossi", avatar_url: "https://lh3.googleusercontent.com/a/x" } } }));
+    await settle();
+    expect(app.user).toEqual({ id: "u9", email: "x@y.it", name: "Anna Rossi", avatar: "https://lh3.googleusercontent.com/a/x" });
+  });
+});
+
+describe("userFrom (nome e foto dell'account)", () => {
+  it("legge full_name e avatar_url", () => {
+    expect(userFrom({ id: "u", email: "a@b.it", user_metadata: { full_name: "Anna", avatar_url: "https://x.it/a.jpg", name: "Altro", picture: "https://x.it/b.jpg" } }))
+      .toEqual({ id: "u", email: "a@b.it", name: "Anna", avatar: "https://x.it/a.jpg" });
+  });
+  it("in mancanza usa name e picture", () => {
+    expect(userFrom({ id: "u", email: "a@b.it", user_metadata: { name: "Bea", picture: "https://x.it/b.jpg" } }))
+      .toEqual({ id: "u", email: "a@b.it", name: "Bea", avatar: "https://x.it/b.jpg" });
+  });
+  it("scarta la foto non https e i valori che non sono stringhe", () => {
+    expect(userFrom({ id: "u", email: "a@b.it", user_metadata: { full_name: 42, avatar_url: "http://x.it/a.jpg" } })).toEqual({ id: "u", email: "a@b.it" });
+    expect(userFrom({ id: "u", email: "a@b.it", user_metadata: { avatar_url: "javascript:alert(1)" } })).toEqual({ id: "u", email: "a@b.it" });
+  });
+  it("senza metadati né email", () => {
+    expect(userFrom({ id: "u" })).toEqual({ id: "u", email: "" });
   });
 });
 

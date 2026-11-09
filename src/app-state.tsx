@@ -13,7 +13,23 @@ import type { Item, Stasera } from "./lib/types";
 
 export type View = "scegli" | "onda" | "prof" | "dati";
 
-export type User = { id: string; email: string };
+export type User = { id: string; email: string; name?: string; avatar?: string };
+
+// Riquadro "Accedi o registrati": `email` lo apre già sul campo email, `from` è il controllo
+// a cui torna il focus alla chiusura.
+export type LoginOpts = { email?: boolean; from?: HTMLElement | null };
+
+// Nome e foto arrivano da Google (user_metadata). Solo stringhe; la foto solo da un indirizzo https.
+export function userFrom(su: { id: string; email?: string | null; user_metadata?: Record<string, unknown> | null }): User {
+  const m = su.user_metadata ?? {};
+  const str = (...v: unknown[]) => v.find((x): x is string => typeof x === "string" && x.trim() !== "");
+  const u: User = { id: su.id, email: su.email ?? "" };
+  const name = str(m.full_name, m.name);
+  const avatar = str(m.avatar_url, m.picture);
+  if (name) u.name = name.trim();
+  if (avatar?.startsWith("https://")) u.avatar = avatar;
+  return u;
+}
 
 // Un rientro nell'app rilegge l'account al massimo ogni 5 minuti.
 // Di chi è la coda dei segnali in localStorage.
@@ -59,9 +75,15 @@ export type AppState = {
   track(kind: EventKind, it: Item, ctx?: Record<string, unknown>): void;
   // Svuota la coda dei segnali non ancora spediti (storico cancellato o "Ricorda" spento).
   clearEvents(): void;
+  // Riquadro di accesso: si apre solo con un tocco della persona.
+  loginOpen: boolean;
+  loginOpts: LoginOpts;
+  openLogin(opts?: LoginOpts): void;
+  closeLogin(): void;
 };
 
 const Ctx = createContext<AppState | null>(null);
+const NO_OPTS: LoginOpts = {};
 
 const storage = (): Storage | null => {
   try { return window.localStorage; } catch { return null; }
@@ -82,6 +104,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [toastOn, setToastOn] = useState(false);
   const [shows, setShows] = useState<CityShows | null>(null);
   const [res, setRes] = useState<Res | null>(null);
+  const [login, setLogin] = useState<LoginOpts | null>(null);
+  const openLogin = useCallback((opts: LoginOpts = {}) => setLogin(opts), []);
+  const closeLogin = useCallback(() => setLogin(null), []);
 
   // Come toast() dell'app vecchia: il timer non si annulla se arriva un altro messaggio.
   const toast = useCallback((m: string) => {
@@ -294,7 +319,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           if (!su) {
             if (userRef.current) signedOut();
           } else if (userRef.current?.id !== su.id) {
-            signedIn(c, { id: su.id, email: su.email ?? "" });
+            signedIn(c, userFrom(su));
           }
         }, 0);
       });
@@ -352,8 +377,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     () => ({
       st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem,
       user, trackEvents, setTrackEvents, track, clearEvents,
+      loginOpen: login !== null, loginOpts: login ?? NO_OPTS, openLogin, closeLogin,
     }),
-    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track, clearEvents],
+    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track, clearEvents, login, openLogin, closeLogin],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
