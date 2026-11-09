@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import { createAnalytics, POSTHOG_OPTIONS, prefEvents } from "../src/lib/analytics";
+import { createAnalytics, internalMark, INTERNAL_KEY, POSTHOG_OPTIONS, prefEvents } from "../src/lib/analytics";
 import { DEFAULT_STATE } from "../src/lib/state";
 import type { Stasera } from "../src/lib/types";
 
@@ -26,7 +26,8 @@ describe("analytics", () => {
     a.start();
     await flush();
     expect(ph.init).toHaveBeenCalledWith("phc_test", POSTHOG_OPTIONS);
-    expect(POSTHOG_OPTIONS.api_host).toBe("https://eu.i.posthog.com");
+    expect(POSTHOG_OPTIONS.api_host).toBe("/relay");
+    expect(POSTHOG_OPTIONS.ui_host).toBe("https://eu.posthog.com");
     expect(POSTHOG_OPTIONS.autocapture).toBe(true);
     expect(POSTHOG_OPTIONS.capture_exceptions).toBe(true);
     expect(POSTHOG_OPTIONS.session_recording?.maskAllInputs).toBe(true);
@@ -85,6 +86,43 @@ describe("analytics", () => {
     a.start();
     await flush();
     expect(() => a.track("dopo")).not.toThrow();
+  });
+});
+
+describe("internalMark: le visite del proprietario", () => {
+  const mem = () => {
+    const m = new Map<string, string>();
+    return { m, s: { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k) } as unknown as Storage };
+  };
+  const sito = (search = "") => ({ search, hostname: "popcorno.it" });
+
+  it("visitatore normale: niente da segnare", () => {
+    expect(internalMark(sito(), mem().s)).toBeNull();
+  });
+
+  it("?interno=1 segna il browser e lo ricorda alle visite dopo; ?interno=0 lo toglie", () => {
+    const { m, s } = mem();
+    expect(internalMark(sito("?interno=1"), s)).toBe(true);
+    expect(m.get(INTERNAL_KEY)).toBe("1");
+    expect(internalMark(sito(), s)).toBe(true);
+    expect(internalMark(sito("?interno=0"), s)).toBe(false);
+    expect(m.has(INTERNAL_KEY)).toBe(false);
+    expect(internalMark(sito(), s)).toBeNull();
+  });
+
+  it("in locale è sempre interno", () => {
+    expect(internalMark({ search: "", hostname: "localhost" }, null)).toBe(true);
+  });
+
+  it("dopo il caricamento PostHog riceve il segno nel profilo", async () => {
+    window.history.replaceState(null, "", "/?interno=1");
+    const ph = { ...fakePosthog(), setPersonProperties: vi.fn() };
+    const { s } = mem();
+    const a = createAnalytics({ key: "phc_test", load: async () => ph, schedule: now, storage: () => s });
+    a.start();
+    await flush();
+    expect(ph.setPersonProperties).toHaveBeenCalledWith({ $internal_or_test_user: true });
+    window.history.replaceState(null, "", "/");
   });
 });
 

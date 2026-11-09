@@ -31,6 +31,7 @@ self.addEventListener("fetch", e => {
     return;
   }
   if (u.origin !== location.origin) return;
+  if (u.pathname.startsWith("/relay/")) return;    // statistiche (PostHog): mai in cache
   if (u.pathname.includes("/data/")) {              // dati: prima la rete, se manca la copia salvata
     e.respondWith(fetch(e.request).then(n => { const c = n.clone(); caches.open(DATI).then(x => x.put(e.request, c)); return n; }).catch(() => caches.match(e.request)));
     return;

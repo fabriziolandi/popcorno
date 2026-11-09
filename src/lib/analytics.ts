@@ -2,6 +2,7 @@
 // PostHog si carica a parte (import dinamico) quando il browser è libero, dopo che l'app è già
 // visibile: non pesa sul primo avvio. Gli eventi registrati prima finiscono in coda e partono dopo.
 // Senza chiave (sviluppo, test) non si carica nulla.
+import { RELAY_PATH } from "./posthog-proxy";
 import type { Stasera } from "./types";
 
 // Chiave pubblica del progetto PostHog ("Project API key", phc_…): è fatta per stare nel codice del sito.
@@ -9,7 +10,8 @@ import type { Stasera } from "./types";
 export const POSTHOG_KEY = "phc_CReLZeBgErTqtLkiMuMgfxiXi7WfYCrwqQjTrfVw28wJ";
 
 export const POSTHOG_OPTIONS = {
-  api_host: "https://eu.i.posthog.com",
+  // Passa dal nostro dominio (Worker → PostHog EU): i blocchi pubblicità non lo fermano.
+  api_host: RELAY_PATH,
   ui_host: "https://eu.posthog.com",
   defaults: "2026-08-30",
   // Ogni visitatore ha il suo profilo anonimo (ID salvato nel browser): si riconosce chi torna.
@@ -27,6 +29,7 @@ export type PostHogLike = {
   capture(name: string, props?: Props): unknown;
   opt_out_capturing?(): unknown;
   opt_in_capturing?(): unknown;
+  setPersonProperties?(set: Props): unknown;
 };
 type Props = Record<string, unknown>;
 
@@ -41,6 +44,25 @@ type Opts = {
 
 // Chiave in localStorage: se c'è, PostHog non si carica affatto.
 export const OPT_OUT_KEY = "popcorno-no-statistiche";
+
+// Visite del proprietario: popcorno.it/?interno=1 segna questo browser (resta salvato), ?interno=0 lo toglie.
+// In PostHog finiscono nel gruppo "Internal / Test users", escluso dalle statistiche. In locale sempre.
+export const INTERNAL_KEY = "popcorno-interno";
+
+// true: segnare come interno; false: togliere il segno (?interno=0); null: niente da fare.
+export function internalMark(loc: { search: string; hostname: string }, store: Storage | null): boolean | null {
+  const v = new URLSearchParams(loc.search).get("interno");
+  try {
+    if (v === "1") store?.setItem(INTERNAL_KEY, "1");
+    else if (v === "0") store?.removeItem(INTERNAL_KEY);
+  } catch {
+    // senza memoria del browser vale solo per questa visita
+  }
+  if (loc.hostname === "localhost" || loc.hostname === "127.0.0.1") return true;
+  if (v === "1") return true;
+  if (v === "0") return false;
+  try { return store?.getItem(INTERNAL_KEY) === "1" ? true : null; } catch { return null; }
+}
 
 const localStore = (): Storage | null => {
   try { return window.localStorage; } catch { return null; }
@@ -79,6 +101,10 @@ export function createAnalytics({ key, load, schedule = whenIdle, storage = loca
         .then((p) => {
           p.init(key, POSTHOG_OPTIONS);
           ph = p;
+          const mark = internalMark(window.location, storage());
+          if (mark !== null) {
+            try { p.setPersonProperties?.({ $internal_or_test_user: mark }); } catch { /* ignorato */ }
+          }
           const q = queue;
           queue = [];
           for (const [n, pr] of q) track(n, pr);
