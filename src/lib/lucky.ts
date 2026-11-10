@@ -19,10 +19,10 @@ export function lucky(
   const likedG=new Set(items.filter(x=>st.liked.includes(x.t)).map(x=>x.g));
   const scored: Scored[]=[];
   for(const it of items){
-    if(it.ty==="cinema"||!available(it,st)||st.disliked.includes(it.t)||st.seen.includes(it.t)||opts.skip.has(it.t)) continue;
+    if(it.ty==="cinema"||!available(it,st)||st.disliked.includes(it.t)||(st.seen.includes(it.t)&&!serieOf(st,it))||opts.skip.has(it.t)) continue;
     if(it.time){ if(!live) continue; const [hh,mm]=it.time.split(":").map(Number); const late=hh<5; if(!late && it.time<now && (d.getTime()-new Date(d.getFullYear(),d.getMonth(),d.getDate(),hh,mm).getTime())>15*60000) continue; }
-    // come l'app vecchia: v o pop assenti rendono il confronto falso
     if(!areaOk(it,st)) continue;
+    // come l'app vecchia: v o pop assenti rendono il confronto falso
     if(it.cat && ((it.v as number)<6.8 || (it.pop as number)<10)) continue;
     if(it.w.length===1 && it.w[0]==="famiglia" && !kidsOk) continue;
     let sc=0; const why: string[]=[];

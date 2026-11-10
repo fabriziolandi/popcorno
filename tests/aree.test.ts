@@ -43,7 +43,7 @@ describe("areaOf", () => {
   });
   it("etichette esatte, nell'ordine", () => {
     expect(AREE.map((a) => [a.k, a.n])).toEqual([
-      ["italia", "🇮🇹 Italia"], ["europa", "🇪🇺 Europa"], ["inglese", "🇺🇸 USA e Regno Unito"],
+      ["italia", "🍝 Italia"], ["europa", "🏰 Europa"], ["inglese", "🗽 USA e Regno Unito"],
       ["latina", "🌎 America Latina"], ["asia", "🌏 Asia"], ["mondo", "🌍 Resto del mondo"],
     ]);
   });
@@ -147,5 +147,16 @@ describe("titoli già visti", () => {
     const first = lucky(allItems(pal, extra), st, opts)!;
     const second = lucky(allItems(pal, extra), { ...st, seen: [first.it.t] }, opts)!;
     expect(second.it.t).not.toBe(first.it.t);
+  });
+  it("lucky: una serie seguita resta proponibile anche se è in seen", async () => {
+    const { st, pal, extra } = await ours({});
+    const opts = { now: NOW, palDate: pal.data, skip: new Set<string>(), random: () => 0 };
+    const serie = allItems(pal, extra).filter((x) => x.ty === "serie");
+    const first = lucky(serie, st, opts)!;
+    expect(first).toBeTruthy();
+    const it = first.it;
+    expect(lucky([it], { ...st, seen: [it.t] }, opts)).toBeNull();
+    const seguita = { ...st, seen: [it.t], serie: [{ t: it.t, tmdb: it.tmdb || "", s: 1, e: 2 }] };
+    expect(lucky([it], seguita, opts)?.it.t).toBe(it.t);
   });
 });

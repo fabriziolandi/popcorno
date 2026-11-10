@@ -131,7 +131,7 @@ export function Ask({ hidden, onGo, onLucky }: { hidden: boolean; onGo(): void; 
         <datalist id="citta-list">{names.map((c) => <option key={c} value={c} />)}</datalist>
       </div>
       <div className="q"><h3>Che genere? <span>se non scegli, vanno bene tutti</span></h3><Seg k="gen" st={st} onPick={onPick} /></div>
-      <div className="q"><h3>Da dove? <span>se non scegli, va bene ovunque</span></h3><Aree st={st} onPick={(aree) => setSt({ ...st, aree })} /></div>
+      {st.tipo !== "sport" && st.tipo !== "show" && <div className="q"><h3>Da dove? <span>se non scegli, va bene ovunque</span></h3><Aree st={st} onPick={(aree) => setSt({ ...st, aree })} /></div>}
       <div className={st.tipo === "cinema" ? "toggle hide" : "toggle"}>
         <div><b>Solo cose gratis</b><p>TV in chiaro, RaiPlay, Pluto TV e le altre app gratuite</p></div>
         <button className={st.free ? "sw on" : "sw"} id="sw-free" role="switch" aria-label="Solo cose gratis" aria-checked={st.free}

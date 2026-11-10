@@ -287,8 +287,8 @@ describe("domande", () => {
     expect(row.querySelector("h3")!.innerHTML).toBe("Da dove? <span>se non scegli, va bene ovunque</span>");
     const pills = () => [...row.querySelectorAll("button")].map((b) => [b.textContent, b.className, b.getAttribute("aria-pressed")]);
     expect(pills()).toEqual([
-      ["🌐 Ovunque", "chip on", "true"], ["🇮🇹 Italia", "chip", "false"], ["🇪🇺 Europa", "chip", "false"],
-      ["🇺🇸 USA e Regno Unito", "chip", "false"], ["🌎 America Latina", "chip", "false"], ["🌏 Asia", "chip", "false"],
+      ["🌐 Ovunque", "chip on", "true"], ["🍝 Italia", "chip", "false"], ["🏰 Europa", "chip", "false"],
+      ["🗽 USA e Regno Unito", "chip", "false"], ["🌎 America Latina", "chip", "false"], ["🌏 Asia", "chip", "false"],
       ["🌍 Resto del mondo", "chip", "false"],
     ]);
     const saved = () => JSON.parse(localStorage.getItem("stasera")!).aree;
@@ -309,6 +309,21 @@ describe("domande", () => {
     await click('[data-k="aree"] [data-v="ovunque"]');
     expect(saved()).toEqual([]);
     expect(pills().filter((p) => p[1] === "chip on").map((p) => p[0])).toEqual(["🌐 Ovunque"]);
+  });
+
+  it("Da dove? si vede per tutto/film/serie/cinema, sparisce per sport e show senza toccare le aree", async () => {
+    await mount({ aree: ["asia"] });
+    for (const tipo of ["tutto", "film", "serie", "cinema"]) {
+      await click(`[data-k="tipo"] [data-v="${tipo}"]`);
+      expect($('[data-k="aree"]'), tipo).not.toBeNull();
+    }
+    for (const tipo of ["sport", "show"]) {
+      await click(`[data-k="tipo"] [data-v="${tipo}"]`);
+      expect($('[data-k="aree"]'), tipo).toBeNull();
+      expect(JSON.parse(localStorage.getItem("stasera")!).aree).toEqual(["asia"]);
+    }
+    await click('[data-k="tipo"] [data-v="film"]');
+    expect($('[data-k="aree"] [data-v="asia"]')!.className).toBe("chip on");
   });
 
   it("con un'area scelta, Accendi propone solo titoli di quell'area (o senza lingua)", async () => {

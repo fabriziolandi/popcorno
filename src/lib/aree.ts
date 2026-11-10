@@ -6,9 +6,9 @@ import type { Item, Stasera } from "./types";
 export type Area = { k: string; n: string; da: string; lingue: string[] };
 
 export const AREE: Area[] = [
-  { k: "italia", n: "🇮🇹 Italia", da: "dall'Italia", lingue: ["it"] },
-  { k: "europa", n: "🇪🇺 Europa", da: "dall'Europa", lingue: "fr de nl sv da no nb nn fi is pl cs sk sl hr sr bs hu ro bg el et lv lt ga cy ca eu gl uk ru be mk sq mt lb".split(" ") },
-  { k: "inglese", n: "🇺🇸 USA e Regno Unito", da: "dagli USA o dal Regno Unito", lingue: ["en"] },
+  { k: "italia", n: "🍝 Italia", da: "dall'Italia", lingue: ["it"] },
+  { k: "europa", n: "🏰 Europa", da: "dall'Europa", lingue: "fr de nl sv da no nb nn fi is pl cs sk sl hr sr bs hu ro bg el et lv lt ga cy ca eu gl uk ru be mk sq mt lb".split(" ") },
+  { k: "inglese", n: "🗽 USA e Regno Unito", da: "dagli USA o dal Regno Unito", lingue: ["en"] },
   { k: "latina", n: "🌎 America Latina", da: "dall'America Latina", lingue: ["es", "pt"] },
   { k: "asia", n: "🌏 Asia", da: "dall'Asia", lingue: "ja ko zh cn hi te ta ml kn bn mr pa gu ur th vi id ms tl km lo my ne si".split(" ") },
   { k: "mondo", n: "🌍 Resto del mondo", da: "dal resto del mondo", lingue: [] },
