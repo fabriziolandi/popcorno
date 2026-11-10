@@ -47,3 +47,23 @@ describe("service worker", () => {
     expect(readFileSync("public/sw.js", "utf8")).toContain('u.pathname.startsWith("/relay/")) return;');
   });
 });
+
+describe("solo le richieste delle statistiche", () => {
+  const ok = vi.fn(async () => new Response("ok"));
+  it("eventi, registrazioni, opzioni e script passano", async () => {
+    for (const p of ["/relay/e/?v=1", "/relay/i/v0/e/", "/relay/i/v1/logs", "/relay/s/", "/relay/flags/?v=2", "/relay/decide/", "/relay/static/1.2.3/recorder.js", "/relay/array/phc_x/config.js"]) {
+      ok.mockClear();
+      const r = await proxyPosthog(new Request("https://popcorno.it" + p), ok);
+      expect(r.status, p).toBe(200);
+      expect(ok).toHaveBeenCalledTimes(1);
+    }
+  });
+  it("tutto il resto: 404 senza chiamare PostHog", async () => {
+    for (const p of ["/relay/", "/relay/api/projects/", "/relay/api/surveys/", "/relay/login", "/relay/static", "/relay/estatico/", "/relay/../api/x", "/relay/%2e%2e/api/x"]) {
+      ok.mockClear();
+      const r = await proxyPosthog(new Request("https://popcorno.it" + p), ok);
+      expect(r.status, p).toBe(404);
+      expect(ok).not.toHaveBeenCalled();
+    }
+  });
+});

@@ -52,6 +52,8 @@ export const Route = createFileRoute("/")({
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://image.tmdb.org" },
       { rel: "canonical", href: "https://popcorno.it/" },
+      // Il titolo "Cosa guardiamo stasera?" (il contenuto principale) usa Bricolage: si scarica subito.
+      { rel: "preload", href: "/fonts/bricolage.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "preload", href: "/fonts/figtree-400.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: appCss },
     ],

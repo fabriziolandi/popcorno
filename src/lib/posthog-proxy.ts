@@ -5,6 +5,15 @@ export const RELAY_PATH = "/relay";
 const API_HOST = "eu.i.posthog.com";
 const ASSET_HOST = "eu-assets.i.posthog.com";
 
+// Solo gli indirizzi che servono alle statistiche: eventi (/e/, /i/), registrazioni (/s/), opzioni
+// (/flags/, /decide/, /array/…/config) e gli script di PostHog (/static/). Tutto il resto (ad es. le
+// API /api/… dei sondaggi o dell'amministrazione) riceve 404 senza arrivare a PostHog.
+const ALLOWED = ["/e/", "/i/", "/s/", "/batch/", "/flags/", "/decide/", "/static/", "/array/"];
+export function relayAllowed(url: URL): boolean {
+  const rest = url.pathname.slice(RELAY_PATH.length);
+  return ALLOWED.some((p) => rest.startsWith(p));
+}
+
 // /relay/static/... (script del registratore, ecc.) va al server dei file, il resto all'API.
 export function posthogTarget(url: URL): URL {
   const rest = url.pathname.slice(RELAY_PATH.length) || "/";
@@ -13,6 +22,7 @@ export function posthogTarget(url: URL): URL {
 }
 
 export async function proxyPosthog(req: Request, f: typeof fetch = fetch): Promise<Response> {
+  if (!relayAllowed(new URL(req.url))) return new Response(null, { status: 404 });
   const headers = new Headers(req.headers);
   // I cookie di popcorno.it non servono a PostHog.
   headers.delete("cookie");

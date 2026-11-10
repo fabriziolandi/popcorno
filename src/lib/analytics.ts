@@ -22,6 +22,9 @@ export const POSTHOG_OPTIONS = {
   capture_exceptions: true,
   // Registrazione delle sessioni: i campi di testo (ricerca, ecc.) sono sempre oscurati.
   session_recording: { maskAllInputs: true },
+  // Sondaggi ed esperimenti non si usano: niente script e richieste in più all'apertura.
+  disable_surveys: true,
+  disable_web_experiments: true,
 } as const;
 
 export type PostHogLike = {

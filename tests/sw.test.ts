@@ -20,7 +20,7 @@ describe("cachesToDelete", () => {
     expect(
       cachesToDelete(
         ["popcorno-shell-v3", "popcorno-dati", "popcorno-img", "altro"],
-        ["popcorno-shell-v6", "popcorno-dati-v2", "popcorno-img"],
+        ["popcorno-shell-v6", "popcorno-dati-v3", "popcorno-img"],
       ),
     ).toEqual(["popcorno-shell-v3", "popcorno-dati"]);
   });
@@ -62,6 +62,8 @@ describe("public/sw.js", () => {
       addAll: async (urls: string[]) => { for (const u of urls) m.set(chiave(u), await rete(u)); },
       match: async (r: any) => m.get(chiave(r))?.clone(),
       put: async (r: any, res: Response) => { m.set(chiave(r), res); },
+      keys: async () => [...m.keys()],
+      delete: async (r: any) => m.delete(chiave(r)),
     });
     const caches = {
       open: async (n: string) => { if (!store.has(n)) store.set(n, new Map()); return cacheObj(store.get(n)!); },
@@ -141,17 +143,70 @@ describe("public/sw.js", () => {
     expect(sw.log.claim).toBe(1);
   });
 
-  it("fetch: i dati vanno prima in rete (cache popcorno-dati-v2) e, offline, dalla cache", async () => {
+  it("fetch: i dati vanno prima in rete (cache popcorno-dati-v3) e, offline, dalla cache", async () => {
     let online = true;
     const sw = carica(() => { if (!online) throw new Error("offline"); return ok("nuovo"); });
     const url = "https://popcorno.it/data/oggi.json?v=1";
     const [r1] = await sw.run("fetch", { request: sw.richiesta(url) });
     expect(await r1.text()).toBe("nuovo");
     await new Promise((r) => setTimeout(r, 0));
-    expect(sw.store.get("popcorno-dati-v2")!.has(url)).toBe(true);
+    expect([...sw.store.get("popcorno-dati-v3")!.keys()]).toEqual(["https://popcorno.it/data/oggi.json"]);
     online = false;
-    const [r2] = await sw.run("fetch", { request: sw.richiesta(url) });
+    const [r2] = await sw.run("fetch", { request: sw.richiesta("https://popcorno.it/data/oggi.json?v=2") });
     expect(await r2.text()).toBe("nuovo");
+  });
+
+  it("fetch: dati con ?t= diversi tengono una sola copia per file", async () => {
+    const sw = carica(() => ok("d"));
+    for (const t of [1, 2, 3]) await sw.run("fetch", { request: sw.richiesta("https://popcorno.it/data/oggi.json?t=" + t) });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(sw.store.get("popcorno-dati-v3")!.size).toBe(1);
+  });
+
+  it("fetch: una risposta di errore non sostituisce i dati buoni e, se c'è, si usa la copia buona", async () => {
+    let stato = 200;
+    const sw = carica(() => new Response(stato === 200 ? "buono" : "errore", { status: stato }));
+    const url = "https://popcorno.it/data/oggi.json?t=1";
+    await sw.run("fetch", { request: sw.richiesta(url) });
+    await new Promise((r) => setTimeout(r, 0));
+    stato = 500;
+    const [r] = await sw.run("fetch", { request: sw.richiesta(url) });
+    expect(await r.text()).toBe("buono");
+    await new Promise((x) => setTimeout(x, 0));
+    expect(await sw.store.get("popcorno-dati-v3")!.get("https://popcorno.it/data/oggi.json")!.clone().text()).toBe("buono");
+  });
+
+  it("fetch: errore senza copia salvata: arriva l'errore, e non si salva", async () => {
+    const sw = carica(() => new Response("no", { status: 404 }));
+    const [r] = await sw.run("fetch", { request: sw.richiesta("https://popcorno.it/data/cinema/x.json") });
+    expect(r.status).toBe(404);
+    await new Promise((x) => setTimeout(x, 0));
+    expect(sw.store.get("popcorno-dati-v3")?.size ?? 0).toBe(0);
+  });
+
+  it("fetch: pagine e file con errore non entrano nella shell", async () => {
+    const sw = carica(() => new Response("guasto", { status: 503 }));
+    await sw.run("fetch", { request: sw.richiesta("https://popcorno.it/privacy/", { mode: "navigate" }) });
+    await sw.run("fetch", { request: sw.richiesta("https://popcorno.it/assets/x.js") });
+    await new Promise((x) => setTimeout(x, 0));
+    expect(sw.store.get("popcorno-shell-v6")?.size ?? 0).toBe(0);
+  });
+
+  it("fetch: le locandine salvate sono al massimo 200, le più vecchie escono", async () => {
+    const sw = carica(() => ok("img"));
+    for (let i = 0; i < 205; i++) await sw.run("fetch", { request: sw.richiesta(`https://image.tmdb.org/t/p/w342/${i}.jpg`) });
+    await new Promise((r) => setTimeout(r, 0));
+    const img = sw.store.get("popcorno-img")!;
+    expect(img.size).toBe(200);
+    expect(img.has("https://image.tmdb.org/t/p/w342/0.jpg")).toBe(false);
+    expect(img.has("https://image.tmdb.org/t/p/w342/204.jpg")).toBe(true);
+  });
+
+  it("fetch: una locandina con errore non si salva", async () => {
+    const sw = carica(() => new Response("", { status: 404 }));
+    await sw.run("fetch", { request: sw.richiesta("https://image.tmdb.org/t/p/w342/x.jpg") });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(sw.store.get("popcorno-img")!.size).toBe(0);
   });
 
   it("fetch: le locandine TMDB sono prima dalla cache (popcorno-img)", async () => {
