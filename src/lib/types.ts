@@ -7,6 +7,8 @@ export type Stasera = {
   umore: string[];
   tipo: string;
   gen: string[];
+  // aree geografiche scelte in "Da dove?" ([] = ovunque)
+  aree: string[];
   free: boolean;
   subs: string[];
   team: string;

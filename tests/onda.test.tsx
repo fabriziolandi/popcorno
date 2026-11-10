@@ -135,6 +135,20 @@ describe("apertura di un titolo", () => {
     expect(text("#res .title")).toBe(title);
     expect(text("#res")).toContain("l'hai cercato tu");
   });
+  it("un titolo già visto resta nella Guida e, aperto, è il primo; non torna tra le alternative", async () => {
+    await mount({ seen: ["Dune - Parte due"] });
+    await type("dune");
+    const row = document.querySelector("#guide button.row")!;
+    expect(text("b", row)).toBe("Dune - Parte due");
+    await click(row);
+    expect(text("#res .title")).toBe("Dune - Parte due");
+    expect(text("#res")).toContain("l'hai cercato tu");
+    const alts = [...document.querySelectorAll("#res .mini")].map((b) => b.getAttribute("data-t"));
+    expect(alts.length).toBeGreaterThan(0);
+    expect(alts).not.toContain("Dune - Parte due");
+    await click($("#other")!);
+    expect(text("#res .title")).not.toBe("Dune - Parte due");
+  });
   it("film in sala: imposta anche tipo cinema", async () => {
     await mount({ citta: "forli" });
     await click(chip("cinema"));

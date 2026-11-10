@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "../../app-state";
 import { deleteAccount, getClient } from "../../lib/account";
 import { dayLabel, eventShort, eventText, eventTime, exportName, KIND_FILTERS, type StoredEvent } from "../../lib/miei-dati";
+import { AREA, areeScelte } from "../../lib/aree";
 import { SRC } from "../../lib/sources";
 
 const PAGE = 100;
@@ -132,6 +133,7 @@ export function MieiDati() {
     ...(st.citta ? ["📍 " + st.citta] : []),
     ...(st.team && st.team !== "Nessuna" ? ["⚽ " + st.team] : []),
     ...st.gen,
+    ...areeScelte(st).map((k) => AREA[k]?.n ?? k),
   ];
   const counts: [number, string][] = [
     [st.watch.length, "Da vedere"], [st.serie.length, "Serie seguite"], [st.liked.length, "Mi piace"],

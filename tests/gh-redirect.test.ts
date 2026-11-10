@@ -23,11 +23,17 @@ describe("pagina del vecchio indirizzo GitHub Pages", () => {
       tempo: "130", chi: "famiglia", umore: ["relax"], tipo: "film", gen: ["Commedia"], free: true,
       subs: ["netflix", "dazn"], team: "Juventus", citta: "Forlì", likes: { Commedia: 2 },
       liked: ["Friends"], disliked: ["Lost"], seen: ["Dune"], watch: [{ t: "Perfect Days", y: 2023 }], serie: [{ t: "Friends", s: 2, e: 5 }],
+      aree: ["asia", "italia"],
     };
     const dest = run(JSON.stringify(st));
     expect(dest.startsWith("https://popcorno.it/#profilo=")).toBe(true);
     const back = parseProfileHash(dest.slice(dest.indexOf("#")))!;
     for (const k of SYNC_KEYS) expect(back[k]).toEqual(st[k as keyof typeof st]);
+  });
+
+  it("la pagina usa le stesse chiavi del link profilo dell'app, nello stesso ordine", () => {
+    const keys = JSON.parse(script.match(/var SYNC_KEYS = (\[[^\]]*\]);/)![1]);
+    expect(keys).toEqual([...SYNC_KEYS]);
   });
 
   it("senza preferenze, o con preferenze rotte o illeggibili, porta alla home", () => {

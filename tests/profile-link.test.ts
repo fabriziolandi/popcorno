@@ -14,14 +14,23 @@ describe("link profilo vs app vecchia", () => {
   const w = loadLegacy(undefined, st);
   const legacyLink: string = w.syncLink();
 
+  // L'app vecchia non ha "Da dove?" (aree, in fondo alle chiavi): il suo link non la porta,
+  // e il nostro è il suo con in più aree.
+  const payload = (link: string) => JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(link.slice(link.indexOf("=") + 1)), (c) => c.charCodeAt(0))));
   it("syncLink dell'app vecchia è letto da parseProfileHash", () => {
     const hash = legacyLink.slice(legacyLink.indexOf("#"));
     const p = parseProfileHash(hash)!;
-    for (const k of SYNC_KEYS) expect(p[k]).toEqual(st[k]);
+    for (const k of SYNC_KEYS) if (k !== "aree") expect(p[k]).toEqual(st[k]);
     expect(p.citta).toBe("Forlì");
+    expect("aree" in p).toBe(false); // l'import lascia le aree del dispositivo
   });
-  it("profileLink produce la stessa stringa di syncLink", () => {
-    expect(profileLink(st, "https://popcorno.it/")).toBe(legacyLink);
+  it("profileLink produce la stringa di syncLink, con in più le aree in fondo", () => {
+    const ours = profileLink(st, "https://popcorno.it/");
+    expect(ours.startsWith("https://popcorno.it/#profilo=")).toBe(true);
+    const mine = payload(ours), old = payload(legacyLink);
+    expect(Object.keys(mine)).toEqual([...Object.keys(old), "aree"]);
+    expect(mine).toEqual({ ...old, aree: [] });
+    expect(profileLink({ ...st, aree: undefined } as unknown as Stasera, "https://popcorno.it/")).toBe(legacyLink);
   });
 });
 
@@ -33,6 +42,17 @@ describe("profilo molto grande", () => {
     const p = parseProfileHash(link.slice(link.indexOf("#")))!;
     expect(p.seen).toEqual(big.seen);
     expect(p.citta).toBe("Forlì");
+  });
+});
+
+describe("link profilo: aree", () => {
+  it("aree è l'ultima chiave sincronizzata e fa il giro completo", () => {
+    expect(SYNC_KEYS[SYNC_KEYS.length - 1]).toBe("aree");
+    const conAree: Stasera = { ...st, aree: ["asia", "europa"] };
+    const link = profileLink(conAree, "https://popcorno.it/");
+    const p = parseProfileHash(link.slice(link.indexOf("#")))!;
+    for (const k of SYNC_KEYS) expect(p[k]).toEqual(conAree[k]);
+    expect(p.aree).toEqual(["asia", "europa"]);
   });
 });
 

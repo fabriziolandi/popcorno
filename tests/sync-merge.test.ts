@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_STATE } from "../src/lib/state";
-import { emptyClocks, gcClocks, loadClocks, merge, normClocks, stamp, type Clocks, type Synced } from "../src/lib/sync-merge";
+import { emptyClocks, gcClocks, loadClocks, merge, normClocks, SCALAR_KEYS, stamp, type Clocks, type Synced } from "../src/lib/sync-merge";
 import type { Stasera } from "../src/lib/types";
 
 const st = (o: Partial<Stasera> = {}): Stasera => ({ ...structuredClone(DEFAULT_STATE), ...o });
@@ -42,6 +42,13 @@ describe("merge", () => {
     const r = merge(sy({ citta: "Roma" }, { f: { citta: 10 } }), sy({ citta: "Milano" }, { f: { citta: 20 } }), 30);
     expect(r.st.citta).toBe("Milano");
     expect(r.ck.f.citta).toBe(20);
+  });
+  it("aree: è un campo singolo e vince il più recente", () => {
+    expect(SCALAR_KEYS).toContain("aree");
+    const r = merge(sy({ aree: ["asia"] }, { f: { aree: 10 } }), sy({ aree: ["italia", "europa"] }, { f: { aree: 20 } }), 30);
+    expect(r.st.aree).toEqual(["italia", "europa"]);
+    expect(merge(sy({ aree: ["asia"] }, { f: { aree: 20 } }), sy({ aree: [] }, { f: { aree: 10 } }), 30).st.aree).toEqual(["asia"]);
+    expect(stamp(st(), st({ aree: ["asia"] }), emptyClocks(), 7).f.aree).toBe(7);
   });
   it("a parità vince il locale", () => {
     const r = merge(sy({ citta: "Roma" }, { f: { citta: 10 } }), sy({ citta: "Milano" }, { f: { citta: 10 } }), 30);

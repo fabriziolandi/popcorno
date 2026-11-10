@@ -35,6 +35,10 @@ const PROFILES: Record<string, Partial<Stasera>> = {
 const NOW = new Date(2026, 10, 7, 21, 0); // data del palinsesto di prova, alle 21:00
 const plain = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
 const view = (xs: Scored[]) => xs.map((x) => ({ t: x.it.t, sc: x.sc, why: x.why }));
+// Novità rispetto all'app vecchia: i titoli già visti non si propongono più (tranne le serie seguite).
+// Le proposte dell'app vecchia si confrontano quindi senza quei titoli.
+const unseen = (xs: Scored[], st: Stasera) =>
+  xs.filter((x) => !st.seen.includes(x.it.t) || (x.it.ty === "serie" && st.serie.some((s) => (s.tmdb && x.it.tmdb ? s.tmdb === x.it.tmdb : s.t === x.it.t))));
 
 async function ours(prof: Partial<Stasera>, pal0: LegacyPalinsesto = fixturePalinsesto()) {
   vi.stubGlobal("fetch", fixtureFetch({ ...defaultFiles(), "oggi.json": pal0 }));
@@ -60,9 +64,11 @@ describe.each(Object.entries(PROFILES))("parità con l'app vecchia: %s", (name, 
     const legacy = plain(w.candidates());
     const legacyNoTime = plain(w.candidates(true));
     const { st, pal, extra, shows } = await ours(prof);
-    expect(view(candidates(pal, st, { shows, extra }))).toEqual(view(legacy));
-    expect(view(candidates(pal, st, { shows, extra, noTime: true }))).toEqual(view(legacyNoTime));
+    expect(view(candidates(pal, st, { shows, extra }))).toEqual(view(unseen(legacy, st)));
+    expect(view(candidates(pal, st, { shows, extra, noTime: true }))).toEqual(view(unseen(legacyNoTime, st)));
     expect(legacyNoTime.length).toBeGreaterThan(0);
+    // col profilo che ha un titolo visto, l'esclusione toglie davvero qualcosa
+    if (st.seen.length) expect(unseen(legacyNoTime, st).length).toBeLessThan(legacyNoTime.length);
   });
 
   it("score: stesso punteggio per ogni titolo del palinsesto", async () => {
@@ -77,7 +83,7 @@ describe.each(Object.entries(PROFILES))("parità con l'app vecchia: %s", (name, 
     w.pickNow();
     const legacy = plain(w.eval("list"));
     const { st, pal, extra, shows } = await ours(prof);
-    expect(view(pickNow(pal, st, shows, extra))).toEqual(view(legacy));
+    expect(view(pickNow(pal, st, shows, extra))).toEqual(view(unseen(legacy, st)));
   });
 
   it.each([0, 0.3, 0.75, 0.999])("lucky con Math.random = %s: stessa scelta", async (x) => {

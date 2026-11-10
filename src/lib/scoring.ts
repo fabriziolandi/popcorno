@@ -1,4 +1,5 @@
 // ---------- MOTORE DI SCELTA (righe 373–415 dell'app vecchia) ----------
+import { AREA, areaOf, areaOk, areeScelte } from "./aree";
 import { filmShows, type CityShows, type Palinsesto, allItems } from "./data";
 import { CHIW, GEN, genHit, genOk, isEssai, MOODW, wantEssai } from "./genres";
 import { allSrc, available, isFree } from "./sources";
@@ -30,6 +31,9 @@ export function score(it: Item, st: Stasera): { sc: number; why: string[] } {
   if(wantEssai(st) && isEssai(it) && it.v){ const ve=(it.v*(it.vc||0)+7*300)/((it.vc||0)+300); sc+=(ve-7)*6; }
   if(wantEssai(st) && isEssai(it)){ if(allSrc(it).includes("mubi")) why.unshift("è nella selezione di <b>MUBI</b>"); else if(it.vc) why.unshift("è amato dalla critica (<b>"+it.vc+" voti</b>)"); }
   if(it.nuovo){ sc+=1; why.push("è appena uscito"); }
+  // "Da dove?": il motivo dell'area si aggiunge solo se c'è posto (se ne mostrano 3).
+  const ar=areaOf(it);
+  if(ar && why.length<3 && it.ty!=="sport" && it.ty!=="show" && areeScelte(st).includes(ar)) why.push("viene <b>"+AREA[ar].da+"</b>");
   return {sc,why};
 }
 
@@ -52,6 +56,9 @@ export function candidates(
     if(it.ty!=="sport" && !genOk(it,st)) return false;
     if(it.ty==="sport" && st.gen.length && !st.umore.includes("sport") && st.tipo!=="sport") return false;
     if(it.w.length===1 && it.w[0]==="famiglia" && st.chi!=="famiglia") return false;
+    if(!areaOk(it,st)) return false;
+    // i titoli già visti non si propongono più, tranne le serie che si stanno seguendo
+    if(st.seen.includes(it.t) && !serieOf(st,it)) return false;
     return true;
   }).map(it=>({it,...score(it,st)})).sort((a,b)=>b.sc-a.sc);
 }

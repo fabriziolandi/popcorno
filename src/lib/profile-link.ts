@@ -1,6 +1,6 @@
 import type { Stasera } from "./types";
 
-export const SYNC_KEYS = ["subs", "team", "citta", "likes", "liked", "disliked", "seen", "watch", "serie", "gen", "chi", "tempo", "umore"] as const;
+export const SYNC_KEYS = ["subs", "team", "citta", "likes", "liked", "disliked", "seen", "watch", "serie", "gen", "chi", "tempo", "umore", "aree"] as const;
 
 // UTF-8 -> base64 e ritorno, equivalenti a btoa(unescape(encodeURIComponent(..))) dell'app vecchia
 // (un carattere alla volta: con lo spread un profilo molto grande darebbe RangeError)

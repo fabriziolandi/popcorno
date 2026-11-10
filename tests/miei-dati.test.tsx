@@ -188,6 +188,16 @@ describe("cronologia: icone, giorni e filtri", () => {
       expect(stats).toEqual(["1Da vedere", "0Serie seguite", "2Mi piace", "0Non mi piace", "0Visti"]);
     } finally { app.st = prev; }
   });
+  it("le aree scelte sono un chip ciascuna; Ovunque (aree vuoto) non ne aggiunge", async () => {
+    const prev = app.st;
+    app.st = { ...prev, aree: ["asia", "italia"] } as typeof prev;
+    try {
+      const r = render(<MieiDati />);
+      await act(async () => {});
+      const chips = [...r.container.querySelectorAll(".pref-chips span")].map((c) => c.textContent);
+      expect(chips).toEqual(["Netflix", "📍 Roma", "🌏 Asia", "🇮🇹 Italia"]);
+    } finally { app.st = prev; }
+  });
   it("con squadra 'Nessuna' e senza città non ci sono quei chip", async () => {
     const r = render(<MieiDati />);
     await act(async () => {});

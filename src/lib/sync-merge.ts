@@ -11,7 +11,7 @@ export type Clocks = {
 export type Synced = { st: Stasera; ck: Clocks };
 
 export const SCALAR_KEYS: readonly (keyof Stasera)[] = [
-  "tempo", "chi", "umore", "tipo", "gen", "free", "subs", "team", "citta", "likes",
+  "tempo", "chi", "umore", "tipo", "gen", "free", "subs", "team", "citta", "likes", "aree",
 ];
 export const LIST_KEYS: readonly (keyof Stasera)[] = ["watch", "serie", "liked", "disliked", "seen"];
 

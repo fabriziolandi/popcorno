@@ -1,7 +1,7 @@
 import type { Item, SerieRef, Stasera, TitleRef } from "./types";
 
 export const DEFAULT_STATE: Stasera = {
-  tempo: "130", chi: "coppia", umore: ["relax"], tipo: "tutto", gen: [], free: false,
+  tempo: "130", chi: "coppia", umore: ["relax"], tipo: "tutto", gen: [], aree: [], free: false,
   subs: ["netflix", "prime", "disney", "dazn"], team: "Nessuna", citta: "",
   likes: {}, liked: [], disliked: [], seen: [], watch: [], serie: [],
 };
@@ -18,6 +18,7 @@ export function loadState(storage: Storage | null): Stasera {
     return fresh();
   }
   if (!Array.isArray(st.gen)) st.gen = [];
+  if (!Array.isArray(st.aree)) st.aree = [];
   if (!Array.isArray(st.watch)) st.watch = [];
   if (!Array.isArray(st.serie)) st.serie = [];
   if (st.tipo === "essai") {

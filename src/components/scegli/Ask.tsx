@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useApp } from "../../app-state";
 import { catalogCount, isoDay, loadCinemaIndex, type Palinsesto } from "../../lib/data";
+import { AREE, areeScelte } from "../../lib/aree";
 import { CITTA, Q } from "../../lib/genres";
 import type { Stasera } from "../../lib/types";
 import { Why } from "../Why";
@@ -52,6 +53,20 @@ function Seg({ k, st, onPick }: { k: string; st: Stasera; onPick(k: string, v: s
           </button>
         );
       })}
+    </div>
+  );
+}
+
+// "Da dove?": pillole a scelta multipla come "Che genere?"; "Ovunque" è accesa quando non c'è nessuna area.
+function Aree({ st, onPick }: { st: Stasera; onPick(aree: string[]): void }) {
+  const cur = areeScelte(st);
+  const pill = (v: string, label: string, on: boolean, next: string[]) => (
+    <button key={v} className={on ? "chip on" : "chip"} data-v={v} aria-pressed={on} onClick={() => onPick(next)}>{label}</button>
+  );
+  return (
+    <div className="seg" data-k="aree">
+      {pill("ovunque", "🌐 Ovunque", !cur.length, [])}
+      {AREE.map((a) => pill(a.k, a.n, cur.includes(a.k), cur.includes(a.k) ? cur.filter((x) => x !== a.k) : [...cur, a.k]))}
     </div>
   );
 }
@@ -116,6 +131,7 @@ export function Ask({ hidden, onGo, onLucky }: { hidden: boolean; onGo(): void; 
         <datalist id="citta-list">{names.map((c) => <option key={c} value={c} />)}</datalist>
       </div>
       <div className="q"><h3>Che genere? <span>se non scegli, vanno bene tutti</span></h3><Seg k="gen" st={st} onPick={onPick} /></div>
+      <div className="q"><h3>Da dove? <span>se non scegli, va bene ovunque</span></h3><Aree st={st} onPick={(aree) => setSt({ ...st, aree })} /></div>
       <div className={st.tipo === "cinema" ? "toggle hide" : "toggle"}>
         <div><b>Solo cose gratis</b><p>TV in chiaro, RaiPlay, Pluto TV e le altre app gratuite</p></div>
         <button className={st.free ? "sw on" : "sw"} id="sw-free" role="switch" aria-label="Solo cose gratis" aria-checked={st.free}

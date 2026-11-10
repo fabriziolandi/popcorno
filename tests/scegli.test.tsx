@@ -280,6 +280,46 @@ describe("Da vedere, serie, riprendi", () => {
 });
 
 describe("domande", () => {
+  it("Da dove?: subito dopo Che genere?, Ovunque acceso all'inizio, le aree si accendono e spengono e si salvano", async () => {
+    await mount();
+    const row = $('[data-k="aree"]')!.closest(".q")!;
+    expect(row.previousElementSibling!.querySelector("h3")!.textContent).toBe("Che genere? se non scegli, vanno bene tutti");
+    expect(row.querySelector("h3")!.innerHTML).toBe("Da dove? <span>se non scegli, va bene ovunque</span>");
+    const pills = () => [...row.querySelectorAll("button")].map((b) => [b.textContent, b.className, b.getAttribute("aria-pressed")]);
+    expect(pills()).toEqual([
+      ["🌐 Ovunque", "chip on", "true"], ["🇮🇹 Italia", "chip", "false"], ["🇪🇺 Europa", "chip", "false"],
+      ["🇺🇸 USA e Regno Unito", "chip", "false"], ["🌎 America Latina", "chip", "false"], ["🌏 Asia", "chip", "false"],
+      ["🌍 Resto del mondo", "chip", "false"],
+    ]);
+    const saved = () => JSON.parse(localStorage.getItem("stasera")!).aree;
+    await click('[data-k="aree"] [data-v="asia"]');
+    expect(pills()[0][1]).toBe("chip");
+    expect(pills()[5][1]).toBe("chip on");
+    expect(saved()).toEqual(["asia"]);
+    await click('[data-k="aree"] [data-v="italia"]');
+    expect(saved()).toEqual(["asia", "italia"]);
+    await click('[data-k="aree"] [data-v="italia"]');
+    await click('[data-k="aree"] [data-v="asia"]');
+    expect(pills()[0][1]).toBe("chip on");
+    expect(pills()[5][1]).toBe("chip");
+    expect(saved()).toEqual([]);
+    await click('[data-k="aree"] [data-v="europa"]');
+    await click('[data-k="aree"] [data-v="mondo"]');
+    expect(saved()).toEqual(["europa", "mondo"]);
+    await click('[data-k="aree"] [data-v="ovunque"]');
+    expect(saved()).toEqual([]);
+    expect(pills().filter((p) => p[1] === "chip on").map((p) => p[0])).toEqual(["🌐 Ovunque"]);
+  });
+
+  it("con un'area scelta, Accendi propone solo titoli di quell'area (o senza lingua)", async () => {
+    const { list } = await expected({ aree: ["italia"] });
+    await mount({ aree: ["italia"] });
+    expect($('[data-k="aree"] [data-v="italia"]')!.className).toBe("chip on");
+    await click("#go");
+    expect(text("#res .title")).toBe(list[0].it.t);
+    expect(["it", undefined, ""]).toContain(list[0].it.l);
+  });
+
   it("le scelte si salvano; umore non resta mai vuoto, genere sì; il cinema mostra la città", async () => {
     await mount();
     await click('[data-k="umore"] [data-v="relax"]');
