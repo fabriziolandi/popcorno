@@ -69,3 +69,46 @@ describe("parseProfileHash", () => {
     expect(parseProfileHash("#profilo=" + b)).toEqual({ citta: "Roma" });
   });
 });
+
+describe("parseProfileHash: controllo del formato", () => {
+  const h = (o: unknown) => "#profilo=" + btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  it("non un oggetto, o nessun campo valido: lancia", () => {
+    expect(() => parseProfileHash(h([1, 2]))).toThrow();
+    expect(() => parseProfileHash(h("ciao"))).toThrow();
+    expect(() => parseProfileHash(h(null))).toThrow();
+    expect(() => parseProfileHash(h({ free: true }))).toThrow();
+    expect(() => parseProfileHash(h({ citta: 42, subs: "netflix" }))).toThrow();
+  });
+  it("scarta i campi di forma sbagliata e tiene gli altri", () => {
+    const p = parseProfileHash(h({ citta: "Roma", team: { x: 1 }, subs: ["netflix", 3, null, "mubi"], seen: "Dune", likes: [1] }))!;
+    expect(p).toEqual({ citta: "Roma", subs: ["netflix", "mubi"] });
+  });
+  it("testi troppo lunghi e liste enormi non entrano", () => {
+    const p = parseProfileHash(h({ citta: "x".repeat(301), team: "Roma", liked: ["a".repeat(301), "ok"], seen: Array(20001).fill("t") }))!;
+    expect(p).toEqual({ team: "Roma", liked: ["ok"] });
+  });
+  it("gradimenti: solo numeri finiti, niente __proto__", () => {
+    const raw = '{"likes":{"Horror":-1,"Commedia":"3","__proto__":5,"Dramma":2}}';
+    const p = parseProfileHash("#profilo=" + btoa(raw))!;
+    expect(p.likes).toEqual({ Horror: -1, Dramma: 2 });
+    expect(Object.getPrototypeOf(p.likes)).toBe(Object.prototype);
+  });
+  it("da vedere e serie: serve il titolo, dei campi in più solo testi brevi e numeri", () => {
+    const p = parseProfileHash(h({
+      watch: [{ t: "Dune", tmdb: "movie/1", y: 2021, o: { a: 1 }, l: [1] }, { t: 5 }, "Dune", { tmdb: "movie/2" }],
+      serie: [{ t: "Dark", tmdb: "tv/1", s: 2, e: 5, x: "y".repeat(301) }, { t: "Friends", s: 2, e: 5 }],
+    }))!;
+    expect(p.watch).toEqual([{ t: "Dune", tmdb: "movie/1", y: 2021 }]);
+    expect(p.serie).toEqual([{ t: "Dark", tmdb: "tv/1", s: 2, e: 5 }, { t: "Friends", s: 2, e: 5 }]);
+  });
+});
+
+describe("isUntouched", () => {
+  it("vero con i valori iniziali, falso appena cambia una preferenza sincronizzata", async () => {
+    const { isUntouched } = await import("../src/lib/profile-link");
+    expect(isUntouched(structuredClone(DEFAULT_STATE), DEFAULT_STATE)).toBe(true);
+    expect(isUntouched({ ...DEFAULT_STATE, free: true }, DEFAULT_STATE)).toBe(true);
+    expect(isUntouched({ ...DEFAULT_STATE, citta: "Roma" }, DEFAULT_STATE)).toBe(false);
+    expect(isUntouched({ ...DEFAULT_STATE, seen: ["Dune"] }, DEFAULT_STATE)).toBe(false);
+  });
+});

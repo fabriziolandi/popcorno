@@ -102,6 +102,40 @@ describe("nel browser", () => {
     expect(t.className).toBe("toast");
   });
 
+  it("con preferenze già salvate chiede prima di sostituirle: Annulla non cambia niente", () => {
+    localStorage.setItem("stasera", JSON.stringify({ ...DEFAULT_STATE, citta: "Roma", team: "Roma" }));
+    const link = profileLink({ ...DEFAULT_STATE, citta: "Forlì", team: "Inter" }, "http://localhost/");
+    history.replaceState(null, "", "/" + link.slice(link.indexOf("#")));
+    render(app());
+    expect(location.hash).toBe("");
+    expect(screen.getByRole("alertdialog").textContent).toContain("Vuoi sostituire il tuo profilo?");
+    expect(JSON.parse(localStorage.getItem("stasera")!)).toMatchObject({ citta: "Roma", team: "Roma" });
+    expect(document.activeElement!.id).toBe("po-no");
+    fireEvent.click(document.getElementById("po-no")!);
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(JSON.parse(localStorage.getItem("stasera")!)).toMatchObject({ citta: "Roma", team: "Roma" });
+  });
+
+  it("con preferenze già salvate: Sostituisci importa e mostra il toast", () => {
+    localStorage.setItem("stasera", JSON.stringify({ ...DEFAULT_STATE, citta: "Roma" }));
+    const link = profileLink({ ...DEFAULT_STATE, citta: "Forlì", team: "Inter" }, "http://localhost/");
+    history.replaceState(null, "", "/" + link.slice(link.indexOf("#")));
+    render(app());
+    fireEvent.click(document.getElementById("po-si")!);
+    expect(screen.queryByRole("alertdialog")).toBeNull();
+    expect(JSON.parse(localStorage.getItem("stasera")!)).toMatchObject({ citta: "Forlì", team: "Inter" });
+    expect(document.getElementById("toast")!.textContent).toBe("Profilo importato: bentornato! 🍿");
+  });
+
+  it("con un account sul dispositivo chiede anche se le preferenze sono quelle iniziali", () => {
+    localStorage.setItem("sb-gvdarnmxnigprebwjglq-auth-token", "{}");
+    const link = profileLink({ ...DEFAULT_STATE, citta: "Forlì" }, "http://localhost/");
+    history.replaceState(null, "", "/" + link.slice(link.indexOf("#")));
+    render(app());
+    expect(screen.getByRole("alertdialog")).toBeTruthy();
+    expect(localStorage.getItem("stasera")).toBeNull();
+  });
+
   it("link profilo rotto: toast di errore, hash tolto, stato invariato", () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "setInterval"] });
     history.replaceState(null, "", "/#profilo=%%%rotto");

@@ -14,8 +14,9 @@ on:
     branches: [main]
   workflow_dispatch: {}
 
+# Di base il token del workflow puo' solo leggere il repository.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: aggiorna-${{ github.ref }}
@@ -25,8 +26,15 @@ jobs:
   aggiorna:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # Scrittura solo per salvare la guida TV. Il token non resta su disco (persist-credentials: false)
+    # e lo riceve solo il passaggio "Salva la guida TV": l'installazione dei pacchetti (npm ci),
+    # i test e la build non possono scrivere nel repository.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -101,12 +109,15 @@ jobs:
 
       - name: Salva la guida TV (solo i file piccoli)
         if: github.event_name != 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "popcorno-bot"
           git config user.email "popcorno-bot@users.noreply.github.com"
           git add public/data/tv.json public/data/meta.json
           git diff --cached --quiet || git commit -m "Guida TV $(TZ=Europe/Rome date '+%d/%m %H:%M')"
-          git pull --rebase --autostash origin main && git push
+          repo="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git pull --rebase --autostash "$repo" main && git push "$repo" HEAD:main
 
       # Dopo il salvataggio della guida: rigenera public/sitemap.xml, che e' nel repository.
       - name: Pagine per Google (TV di stasera e cinema per citta')

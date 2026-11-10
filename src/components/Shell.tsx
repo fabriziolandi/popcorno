@@ -1,6 +1,7 @@
 import { useApp } from "../app-state";
 import { Header } from "./Header";
 import { AccessSheet } from "./prof/AccessSheet";
+import { ProfileOffer } from "./prof/ProfileOffer";
 import { Nav } from "./Nav";
 import { MieiDati } from "./prof/MieiDati";
 import { Profile } from "./prof/Profile";
@@ -24,6 +25,7 @@ export function Shell() {
       </div>
       <Nav />
       <AccessSheet />
+      <ProfileOffer />
       <Toast />
     </>
   );

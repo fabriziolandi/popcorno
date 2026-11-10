@@ -5,7 +5,7 @@ import { LAST_ACCOUNT_KEY, authInUrl, completeFromUrl, getClient, hasStoredSessi
 import { analytics, prefEvents, track as trackUsage } from "./lib/analytics";
 import { createTracker, eventRow, type EventKind, type SendResult } from "./lib/events";
 import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
-import { parseProfileHash } from "./lib/profile-link";
+import { isUntouched, parseProfileHash } from "./lib/profile-link";
 import { candidates, type Scored } from "./lib/scoring";
 import { isFree } from "./lib/sources";
 import { DEFAULT_STATE, loadState, saveState } from "./lib/state";
@@ -86,6 +86,10 @@ export type AppState = {
   flushSync(): Promise<void>;
   // Toglie l'account da questo dispositivo senza chiamate di rete (dopo "Elimina l'account").
   forgetSession(): void;
+  // Link #profilo= aperto su un dispositivo che ha già le sue preferenze: si applica solo se la persona conferma.
+  profileOffer: Partial<Stasera> | null;
+  acceptProfile(): void;
+  rejectProfile(): void;
 };
 
 const Ctx = createContext<AppState | null>(null);
@@ -113,6 +117,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [login, setLogin] = useState<LoginOpts | null>(null);
   const openLogin = useCallback((opts: LoginOpts = {}) => setLogin(opts), []);
   const closeLogin = useCallback(() => setLogin(null), []);
+  const [profileOffer, setOffer] = useState<Partial<Stasera> | null>(null);
 
   // Come toast() dell'app vecchia: il timer non si annulla se arriva un altro messaggio.
   const toast = useCallback((m: string) => {
@@ -173,6 +178,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     if (userRef.current) sync.current?.push();
   }, []);
 
+  const acceptProfile = useCallback(() => {
+    if (!profileOffer) return;
+    setOffer(null);
+    setSt({ ...stRef.current, ...profileOffer });
+    toast("Profilo importato: bentornato! 🍿");
+  }, [profileOffer, setSt, toast]);
+  const rejectProfile = useCallback(() => setOffer(null), []);
+
   // Dati arrivati dall'account: si applicano senza contarli come modifiche locali.
   const apply = useCallback((s: Synced) => {
     clocks.current = s.ck;
@@ -227,7 +240,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     // Import del link #profilo= (righe 712-717 dell'app vecchia). Conta come modifica locale.
     try {
       const p = parseProfileHash(location.hash);
-      if (p) {
+      // Preferenze già presenti (o un account su questo dispositivo): prima si chiede.
+      if (p && (!isUntouched(before, DEFAULT_STATE) || hasStoredSession(storage()))) {
+        setOffer(p);
+        history.replaceState(null, "", location.pathname);
+      } else if (p) {
         s = { ...s, ...p };
         saveState(s, storage());
         clocks.current = stamp(before, s, clocks.current, Date.now());
@@ -415,8 +432,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, setShows, res, setRes, openItem,
       user, trackEvents, setTrackEvents, track, clearEvents,
       loginOpen: login !== null, loginOpts: login ?? NO_OPTS, openLogin, closeLogin, flushSync, forgetSession,
+      profileOffer, acceptProfile, rejectProfile,
     }),
-    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track, clearEvents, login, openLogin, closeLogin, flushSync, forgetSession],
+    [st, setSt, pal, palReady, catalog, addCatalog, toast, view, setView, toastMsg, toastOn, shows, res, setRes, openItem, user, trackEvents, setTrackEvents, track, clearEvents, login, openLogin, closeLogin, flushSync, forgetSession, profileOffer, acceptProfile, rejectProfile],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
