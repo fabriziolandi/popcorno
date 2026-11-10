@@ -71,10 +71,15 @@ const localStore = (): Storage | null => {
   try { return window.localStorage; } catch { return null; }
 };
 
+// PostHog si scarica solo a pagina caricata e mostrata (evento load, poi 1,5 secondi e un momento
+// libero): così non rallenta la prima comparsa della home sui telefoni. Gli eventi nel frattempo
+// restano in coda.
 const whenIdle = (f: () => void) => {
   const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
-  if (w.requestIdleCallback) w.requestIdleCallback(f, { timeout: 4000 });
-  else setTimeout(f, 2000);
+  const idle = () => (w.requestIdleCallback ? w.requestIdleCallback(f, { timeout: 4000 }) : f());
+  const go = () => setTimeout(idle, 1500);
+  if (document.readyState === "complete") go();
+  else w.addEventListener("load", go, { once: true });
 };
 
 export function createAnalytics({ key, load, schedule = whenIdle, storage = localStore }: Opts) {

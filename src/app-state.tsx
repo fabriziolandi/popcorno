@@ -271,6 +271,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setPal(p);
       // Come l'app vecchia, che sceglie i cataloghi prima di importare il link profilo:
       // si usano gli abbonamenti salvati prima dell'import.
+      // I cataloghi (centinaia di KB) servono solo dopo un tocco: si scaricano a pagina caricata,
+      // per non rallentare la prima comparsa della home.
+      if (document.readyState !== "complete") await new Promise((r) => addEventListener("load", r, { once: true }));
+      if (!alive) return;
       const cat = await loadCatalogs(before);
       if (alive) setCatalog(cat);
     })();
