@@ -185,7 +185,7 @@
 "coppia"
 ],
 "v": 7.6,
-"vc": 2614,
+"vc": 2615,
 "l": "en",
 "gs": [
 80,
@@ -250,7 +250,7 @@
 "coppia"
 ],
 "v": 7.2,
-"vc": 5059,
+"vc": 5060,
 "l": "en",
 "gs": [
 27,
@@ -2032,7 +2032,7 @@
 "coppia"
 ],
 "v": 6.4,
-"vc": 6239,
+"vc": 6240,
 "l": "en",
 "gs": [
 80,
@@ -2442,7 +2442,7 @@
 "coppia"
 ],
 "v": 7.6,
-"vc": 2614,
+"vc": 2615,
 "l": "en",
 "gs": [
 80,
@@ -2772,32 +2772,6 @@
 "teams": [
 "Sintesi",
 "Inter-Udinese 26/27"
-]
-},
-{
-"t": "Igor Gorgonzola Novara - Prosecco Doc A.Carraro Imoco Conegliano",
-"ty": "sport",
-"s": "dazn",
-"time": "20:30",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su DAZN.",
-"teams": [
-"Igor Gorgonzola Novara",
-"Prosecco Doc A.Carraro Imoco Conegliano"
 ]
 }
 ]
