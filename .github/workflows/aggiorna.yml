@@ -6,10 +6,9 @@ name: Aggiorna dati Popcorno
 # cosi' se una lettura fallisce resta la guida precedente.
 
 on:
-  schedule:
-    - cron: "40 6 * * *"    # 07:40 ora italiana (inverno): anche orari dei cinema
-    - cron: "10 14 * * *"   # 15:10: guida definitiva della sera
-    - cron: "20 17 * * *"   # 18:20: riserva
+  # Niente "schedule": gli orari di GitHub partono in ritardo o vengono saltati.
+  # Il workflow lo avvia il timer del Worker su Cloudflare (triggers.crons in
+  # wrangler.jsonc, src/lib/avvio-aggiornamento.ts) con workflow_dispatch.
   push:
     branches: [main]
   workflow_dispatch: {}

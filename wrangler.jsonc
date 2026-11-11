@@ -3,5 +3,14 @@
   "name": "popcorno",
   "compatibility_date": "2026-11-08",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "src/server.ts"
+  "main": "src/server.ts",
+  // Orari in UTC (in inverno l'Italia e' UTC+1). Avviano il workflow "Aggiorna dati Popcorno"
+  // su GitHub (src/lib/avvio-aggiornamento.ts).
+  "triggers": {
+    "crons": [
+      "40 6 * * *",  // 07:40: guida e orari dei cinema
+      "10 14 * * *", // 15:10: guida definitiva della sera
+      "20 17 * * *"  // 18:20: riserva
+    ]
+  }
 }
