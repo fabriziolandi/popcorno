@@ -92,6 +92,12 @@ export function loadLegacy(pal: LegacyPalinsesto = EMPTY_PALINSESTO, stasera?: o
     if (i < 0) throw new Error("harness: riga dei generi non trovata in index.legacy.html: " + from);
     lines[i] = to;
   }
+  // Novità (src/lib/lucky.ts): 🍀 salta i titoli per bambini se non si guarda in famiglia e non
+  // piacciono i cartoni, e rispetta "Film, serie o altro?" e "Che genere?".
+  const KIDS_LINE = 'if(it.w.length===1 && it.w[0]==="famiglia" && !kidsOk) continue;';
+  const k = lines.findIndex((l) => l.trim() === KIDS_LINE);
+  if (k < 0) throw new Error("harness: riga di lucky non trovata in index.legacy.html");
+  lines[k] += ' if(it.kids && !kidsOk && st.chi!=="famiglia") continue; if(st.tipo!=="tutto" && st.tipo!=="cinema" && it.ty!==st.tipo) continue; if(it.ty!=="sport" && !genOk(it)) continue;';
   // Novità: abbonamenti TIMvision e Crunchyroll (src/lib/sources.ts).
   const SUBS_FROM = 'paramount:{n:"Paramount+"}, mubi:{n:"MUBI"}';
   const j = lines.findIndex((l) => l.includes(SUBS_FROM));

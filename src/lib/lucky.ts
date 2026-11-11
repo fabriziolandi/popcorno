@@ -1,5 +1,6 @@
 // ---------- MI SENTO FORTUNATO: una sola proposta dai gusti del profilo (righe 719–758 dell'app vecchia) ----------
 import { areaOk } from "./aree";
+import { genOk } from "./genres";
 import { isoDay, nowHM } from "./data";
 import { epTxt, type Scored } from "./scoring";
 import { available, isFree, mySrc, SRC } from "./sources";
@@ -25,6 +26,11 @@ export function lucky(
     // come l'app vecchia: v o pop assenti rendono il confronto falso
     if(it.cat && ((it.v as number)<6.8 || (it.pop as number)<10)) continue;
     if(it.w.length===1 && it.w[0]==="famiglia" && !kidsOk) continue;
+    // Novità rispetto all'app vecchia: niente titoli per bambini se non si guarda in famiglia e non
+    // piacciono i cartoni; si rispettano "Film, serie o altro?" e "Che genere?" della pagina.
+    if(it.kids && !kidsOk && st.chi!=="famiglia") continue;
+    if(st.tipo!=="tutto" && st.tipo!=="cinema" && it.ty!==st.tipo) continue;
+    if(it.ty!=="sport" && !genOk(it,st)) continue;
     let sc=0; const why: string[]=[];
     if(inWatch(st,it)){ sc+=5; why.push("è nella tua lista <b>Da vedere</b>"); }
     const sr=serieOf(st,it); if(sr){ sc+=4; why.unshift("la stai seguendo: tocca a <b>"+epTxt(sr)+"</b>"); }
