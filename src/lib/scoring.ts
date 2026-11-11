@@ -69,3 +69,19 @@ export function pickNow(pal: Palinsesto, st: Stasera, shows: CityShows | null, e
   if(!list.length){ list=candidates(pal,st,{noTime:true,shows,extra}); list.forEach(x=>x.why.unshift("è il più adatto, anche se dura <b>più del tempo che hai</b>")); }
   return list;
 }
+
+// Varietà: a parità di risposte non si propone a tutti lo stesso titolo. Si rimescolano solo i titoli
+// vicini al migliore (entro VARIA_PUNTI dal primo, e comunque i primi VARIA_MIN), con un rumore
+// casuale (Gumbel, scala VARIA) che favorisce chi ha il punteggio più alto; gli altri seguono in
+// ordine di punteggio. Restano sempre primi, nel loro ordine, la squadra del cuore, le serie che si
+// stanno seguendo e i titoli della lista "Da vedere".
+export const VARIA = 0.75, VARIA_PUNTI = 1.5, VARIA_MIN = 12;
+export function varia(list: Scored[], st: Stasera, random: () => number = Math.random): Scored[] {
+  const fisso=(x: Scored)=>!!(serieOf(st,x.it) || inWatch(st,x.it) || (x.it.teams && st.team!=="Nessuna" && x.it.teams.includes(st.team)));
+  const gumbel=()=>{ const u=Math.min(Math.max(random(),1e-12),1-1e-12); return -Math.log(-Math.log(u)); };
+  const altri=list.filter(x=>!fisso(x));
+  const top=altri.length?altri[0].sc:0;
+  const n=Math.max(VARIA_MIN, altri.filter(x=>x.sc>=top-VARIA_PUNTI).length);
+  const misti=altri.slice(0,n).map(x=>({x,k:x.sc+VARIA*gumbel()})).sort((a,b)=>b.k-a.k).map(y=>y.x);
+  return list.filter(fisso).concat(misti, altri.slice(n));
+}

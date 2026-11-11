@@ -44,6 +44,8 @@ const click = async (s: string) => { await act(async () => { fireEvent.click($(s
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(NOW);
+  // Math.random costante: la varietà (varia) aggiunge lo stesso rumore a tutti e l'ordine resta quello di pickNow.
+  vi.spyOn(Math, "random").mockReturnValue(0.5);
 });
 afterEach(() => {
   cleanup();

@@ -5,7 +5,7 @@ import { track as trackUsage } from "../../lib/analytics";
 import { useApp, type Res } from "../../app-state";
 import { allItems, loadCityShows, nrm, type CityShows } from "../../lib/data";
 import { lucky } from "../../lib/lucky";
-import { candidates, pickNow } from "../../lib/scoring";
+import { candidates, pickNow, varia } from "../../lib/scoring";
 import { mySrc, SRC } from "../../lib/sources";
 import { feedback, inWatch, serieOf, toggleSeen, toggleWatch } from "../../lib/state";
 import type { Item, Stasera } from "../../lib/types";
@@ -48,7 +48,7 @@ export function Scegli() {
   const doPick = async (shows: CityShows | null) => {
     const p = await cur.current.palReady();
     const { st, catalog } = cur.current;
-    const list = pickNow(p, st, shows, catalog);
+    const list = varia(pickNow(p, st, shows, catalog), st);
     showRes(false, () => ({ list, idx: 0, lucky: false }));
   };
 
@@ -87,7 +87,7 @@ export function Scegli() {
       if (cur.current.res?.lucky) { skip.current.add(it.t); void doLucky(); return; }
       const p = await cur.current.palReady();
       const { st, shows, catalog } = cur.current;
-      const list = candidates(p, st, { shows, extra: catalog });
+      const list = varia(candidates(p, st, { shows, extra: catalog }), st);
       showRes(true, () => ({ list, idx: 0 }));
     }, 450);
   };
