@@ -3,7 +3,7 @@
 Scrive public/data/catalogo/<chiave>.json in formato compatto:
 {"k":"netflix","agg":"AAAA-MM-GG","t":[[id,tipo,titolo,anno,voto,generi,popolarita,poster,numero_voti,lingua_originale], ...]; trame in public/data/trame/<id%100>.json}
 tipo: 0 film, 1 serie. Uso: TMDB_KEY=... python3 scripts/catalogo.py [cartella_uscita]"""
-import os, sys, json, time, urllib.request, urllib.parse
+import re, os, sys, json, time, urllib.request, urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
@@ -15,6 +15,10 @@ PROV = {"netflix": (8, "flatrate"), "prime": (119, "flatrate"), "disney": (337, 
         "apple": (350, "flatrate"), "paramount": (531, "flatrate"), "now": (39, "flatrate"),
         "raiplay": (222, "free|ads|flatrate"), "infinity": (359, "free|ads|flatrate"),
         "pluto": (300, "free|ads"), "rakuten": (35, "free|ads"), "mubi": (11, "flatrate")}
+# Servizi cercati per nome tra le piattaforme TMDB in Italia (codice non fisso): se TMDB non ne
+# ha uno, quel catalogo si salta e l'app va avanti senza.
+PROV_NOME = {"timvision": (r"^timvision$", "flatrate"), "crunchyroll": (r"^crunchyroll$", "flatrate"),
+             "infinityplus": (r"infinity\s*(\+|plus)", "flatrate")}
 
 def get(path, **q):
     q.update(api_key=K, language="it-IT")
@@ -46,6 +50,21 @@ def fetch(key, kind):
         for d in ex.map(lambda p: get(f"/discover/{kind}", page=p, **base), range(2, pages + 1)):
             res += d.get("results", [])
     return [row(kind, r) for r in res if (r.get("title") or r.get("name"))]
+
+def providers():
+    nomi = {}
+    for kind in ("movie", "tv"):
+        for r in get(f"/watch/providers/{kind}", watch_region="IT").get("results", []):
+            nomi[r["provider_name"]] = r["provider_id"]
+    return nomi
+
+nomi = providers()
+for n, i in sorted(nomi.items()):
+    if re.search(r"tim|crunchy|infinity|mediaset|discovery", n, re.I): print("TMDB IT:", i, n, file=sys.stderr)
+for key, (rx, mon) in PROV_NOME.items():
+    trovati = [i for n, i in nomi.items() if re.search(rx, n.strip(), re.I)]
+    if len(trovati) == 1 and trovati[0] not in {v[0] for v in PROV.values()}: PROV[key] = (trovati[0], mon)
+    else: print("catalogo", key, "saltato: piattaforme TMDB trovate", trovati, file=sys.stderr)
 
 tot, trame = 0, {}
 for key in PROV:
