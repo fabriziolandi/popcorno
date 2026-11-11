@@ -36,6 +36,11 @@ export function isEssai(it: Item): boolean {
   if(it.l!=="en") return ARTE.has(it.g) && it.v>=7.2 && it.vc>=50 && it.vc<=5000;   // cinema non anglofono d'autore
   return ARTE_EN.has(it.g) && it.v>=7.6 && it.vc>=200 && it.vc<=3000;              // indipendente in inglese
 }
-export const genHit = (k: string, it: Item): boolean => (k === "essai" ? isEssai(it) : GEN[k][1]!.test(it.g));
-export const genOk = (it: Item, st: Stasera): boolean => !st.gen.length || st.gen.some((k) => genHit(k, it));
+// Tutti i generi del titolo: quello principale e, per i titoli dei cataloghi, gli altri generi TMDB.
+const genNames = (it: Item): string => [it.g, ...(it.gs || []).map((x) => GT[x]?.[0] || "")].join(" ");
+export const genHit = (k: string, it: Item): boolean => (k === "essai" ? isEssai(it) : GEN[k][1]!.test(genNames(it)));
+// Animazione e cartoni: solo se chi sceglie un genere sceglie anche "Animazione".
+export const isAnimazione = (it: Item): boolean => (it.gs || []).includes(16) || /animazione|cartoni/i.test(it.g);
+export const genOk = (it: Item, st: Stasera): boolean =>
+  !st.gen.length || ((st.gen.includes("animazione") || !isAnimazione(it)) && st.gen.some((k) => genHit(k, it)));
 export const wantEssai = (st: Stasera): boolean => st.gen.includes("essai");

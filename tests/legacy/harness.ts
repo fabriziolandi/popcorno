@@ -78,6 +78,20 @@ export function loadLegacy(pal: LegacyPalinsesto = EMPTY_PALINSESTO, stasera?: o
   const at = lines.findIndex(isOggiLoader);
   if (at < 0) throw new Error("harness: script di data/oggi.js non trovato in index.legacy.html");
   lines[at] = `<script>window.PALINSESTO=${JSON.stringify(pal)}</scr` + `ipt>`;
+  // Novità rispetto all'app vecchia (src/lib/genres.ts): "Che genere?" guarda tutti i generi TMDB
+  // del titolo e l'animazione esce solo se si sceglie "Animazione". La si applica anche qui,
+  // così il confronto controlla tutto il resto.
+  const GEN_RULES: [string, string][] = [
+    ['const genHit = (k,it) => k==="essai" ? isEssai(it) : GEN[k][1].test(it.g);',
+      'const genHit = (k,it) => k==="essai" ? isEssai(it) : GEN[k][1].test([it.g,...(it.gs||[]).map(x=>(GT[x]&&GT[x][0])||"")].join(" "));'],
+    ["const genOk = it => !st.gen.length || st.gen.some(k=>genHit(k,it));",
+      'const genOk = it => !st.gen.length || ((st.gen.includes("animazione") || !((it.gs||[]).includes(16) || /animazione|cartoni/i.test(it.g))) && st.gen.some(k=>genHit(k,it)));'],
+  ];
+  for (const [from, to] of GEN_RULES) {
+    const i = lines.findIndex((l) => l.trim() === from);
+    if (i < 0) throw new Error("harness: riga dei generi non trovata in index.legacy.html: " + from);
+    lines[i] = to;
+  }
   const patched = lines.join("\n");
   const dom = new JSDOM(patched, {
     url: "https://popcorno.it/",
