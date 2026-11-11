@@ -514,7 +514,7 @@
 "coppia"
 ],
 "v": 7.7,
-"vc": 1924,
+"vc": 1925,
 "l": "en",
 "gs": [
 80,
@@ -1033,7 +1033,7 @@
 "ty": "film",
 "s": "cine34",
 "time": "21:00",
-"dur": 113,
+"dur": 114,
 "m": [
 "emozione"
 ],
@@ -1054,7 +1054,7 @@
 "t": "Lockdown all'italiana",
 "ty": "film",
 "s": "cine34",
-"time": "22:53",
+"time": "22:54",
 "dur": 110,
 "m": [
 "risate",
@@ -1934,7 +1934,7 @@
 "amici"
 ],
 "v": 7.0,
-"vc": 10453,
+"vc": 10454,
 "l": "en",
 "gs": [
 12,
@@ -2772,6 +2772,32 @@
 "teams": [
 "Sintesi",
 "Inter-Udinese 26/27"
+]
+},
+{
+"t": "Il Bisonte Firenze - Reale Mutua Fenera Chieri '76",
+"ty": "sport",
+"s": "dazn",
+"time": "20:30",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su DAZN.",
+"teams": [
+"Il Bisonte Firenze",
+"Reale Mutua Fenera Chieri '76"
 ]
 }
 ]
