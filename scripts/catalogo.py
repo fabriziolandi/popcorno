@@ -17,8 +17,8 @@ PROV = {"netflix": (8, "flatrate"), "prime": (119, "flatrate"), "disney": (337, 
         "pluto": (300, "free|ads"), "rakuten": (35, "free|ads"), "mubi": (11, "flatrate")}
 # Servizi cercati per nome tra le piattaforme TMDB in Italia (codice non fisso): se TMDB non ne
 # ha uno, quel catalogo si salta e l'app va avanti senza.
-PROV_NOME = {"timvision": (r"^timvision$", "flatrate"), "crunchyroll": (r"^crunchyroll$", "flatrate"),
-             "infinityplus": (r"infinity\s*(\+|plus)", "flatrate")}
+# (Infinity+ no: su TMDB ha pochi titoli, il suo catalogo e' sotto Mediaset Infinity.)
+PROV_NOME = {"timvision": (r"^timvision$", "flatrate"), "crunchyroll": (r"^crunchyroll$", "flatrate")}
 
 def get(path, **q):
     q.update(api_key=K, language="it-IT")

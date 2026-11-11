@@ -92,11 +92,11 @@ export function loadLegacy(pal: LegacyPalinsesto = EMPTY_PALINSESTO, stasera?: o
     if (i < 0) throw new Error("harness: riga dei generi non trovata in index.legacy.html: " + from);
     lines[i] = to;
   }
-  // Novità: abbonamenti TIMvision, Infinity+ e Crunchyroll (src/lib/sources.ts).
+  // Novità: abbonamenti TIMvision e Crunchyroll (src/lib/sources.ts).
   const SUBS_FROM = 'paramount:{n:"Paramount+"}, mubi:{n:"MUBI"}';
   const j = lines.findIndex((l) => l.includes(SUBS_FROM));
   if (j < 0) throw new Error("harness: elenco delle fonti non trovato in index.legacy.html");
-  lines[j] = lines[j].replace(SUBS_FROM, 'paramount:{n:"Paramount+"}, timvision:{n:"TIMvision"}, infinityplus:{n:"Infinity+"}, crunchyroll:{n:"Crunchyroll"}, mubi:{n:"MUBI"}');
+  lines[j] = lines[j].replace(SUBS_FROM, 'paramount:{n:"Paramount+"}, timvision:{n:"TIMvision"}, crunchyroll:{n:"Crunchyroll"}, mubi:{n:"MUBI"}');
   const patched = lines.join("\n");
   const dom = new JSDOM(patched, {
     url: "https://popcorno.it/",

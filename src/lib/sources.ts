@@ -21,7 +21,7 @@ export const SRC: Record<string, Source> = {
   skyrom:{n:"Sky Cinema Romance",lcn:307,via:"now"}, skydra:{n:"Sky Cinema Drama",lcn:308,via:"now"}, skycom:{n:"Sky Cinema Comedy",lcn:309,via:"now"},
   skycin24:{n:"Sky Cinema Uno +24",lcn:310,via:"now"}, cinema:{n:"Al cinema",sala:1},
   netflix:{n:"Netflix"}, prime:{n:"Prime Video"}, disney:{n:"Disney+"}, hbo:{n:"HBO Max"}, apple:{n:"Apple TV+"},
-  paramount:{n:"Paramount+"}, timvision:{n:"TIMvision"}, infinityplus:{n:"Infinity+"}, crunchyroll:{n:"Crunchyroll"}, mubi:{n:"MUBI"}, now:{n:"Sky / NOW"}, dazn:{n:"DAZN"}
+  paramount:{n:"Paramount+"}, timvision:{n:"TIMvision"}, crunchyroll:{n:"Crunchyroll"}, mubi:{n:"MUBI"}, now:{n:"Sky / NOW"}, dazn:{n:"DAZN"}
 };
 
 // I 3 titoli on demand di ripiego, quando il palinsesto non ne ha.
