@@ -76,3 +76,46 @@ describe("pagine dei cinema per ogni città conosciuta", () => {
     }
   });
 });
+
+// Pagine "Cosa vedere su ..." dai cataloghi TMDB (data/catalogo/<chiave>.json, data/trame/<id%100>.json).
+describe("pagine dello streaming", () => {
+  const d3 = mkdtempSync(join(tmpdir(), "pagine-streaming-"));
+  // [id, tipo 0 film/1 serie, titolo, anno, voto, generi, popolarità, poster, voti, lingua]
+  const film = Array.from({ length: 8 }, (_, i) => [100 + i, 0, `Film ${i}`, "2024", 7.5, [28], 500 - i, "/p.jpg", 1000, "en"]);
+  const sconosciuto = [200, 0, "Titolo Sconosciuto", "2026", 7, [18], 9999, "", 10, "es"];
+  const serie = Array.from({ length: 6 }, (_, i) => [300 + i, 1, `Serie ${i}`, "2020", 8, [80], 300 - i, "", 800, "en"]);
+  const cartone = [400, 1, "Cartone", "2010", 8, [10762, 16], 99999, "", 900, "en"];
+  afterAll(() => rmSync(d3, { recursive: true, force: true }));
+  cpSync("public/data/tv.json", join(d3, "data/tv.json"));
+  cpSync("public/data/meta.json", join(d3, "data/meta.json"));
+  const w = (p: string, v: unknown) => execFileSync(py, ["-c",
+    `import json,os,sys;p=sys.argv[1];os.makedirs(os.path.dirname(p),exist_ok=True);json.dump(json.loads(sys.argv[2]),open(p,'w',encoding='utf-8'))`,
+    join(d3, p), JSON.stringify(v)]);
+  w("data/catalogo/netflix.json", { k: "netflix", agg: "2026-11-12", t: [sconosciuto, cartone, ...film, ...serie] });
+  w("data/trame/0.json", { m100: "Una trama di prova." });
+  execFileSync(py, ["-X", "utf8", "scripts/pagine.py", d3], { stdio: "ignore" });
+  const leggi = (p: string) => readFileSync(join(d3, p, "index.html"), "utf8");
+
+  it("crea indice, pagina della piattaforma, film e serie, nella sitemap", () => {
+    const sm = readFileSync(join(d3, "sitemap.xml"), "utf8");
+    for (const p of ["streaming", "cosa-vedere-su-netflix", "film-da-vedere-su-netflix", "serie-tv-da-vedere-su-netflix"]) {
+      expect(existsSync(join(d3, p, "index.html")), p).toBe(true);
+      expect(sm).toContain(`<loc>https://popcorno.it/${p}/</loc>`);
+    }
+    expect(leggi("streaming")).toContain('href="/cosa-vedere-su-netflix/"');
+  });
+
+  it("mette prima i titoli noti, con trama, e in fondo quelli con pochi voti e per bambini", () => {
+    const html = leggi("cosa-vedere-su-netflix");
+    expect(html).toContain("<title>Cosa vedere su Netflix");
+    expect(html).toContain("Una trama di prova.");
+    expect(html.indexOf("Film 0")).toBeLessThan(html.indexOf("Titolo Sconosciuto"));
+    expect(html.indexOf("Serie 0")).toBeLessThan(html.indexOf("Cartone"));
+  });
+
+  it("senza catalogo la pagina resta, con l'avviso", () => {
+    const html = leggi("cosa-vedere-su-prime-video");
+    expect(html).toContain("Oggi non abbiamo il catalogo di Prime Video");
+    expect(existsSync(join(d3, "film-da-vedere-su-prime-video", "index.html"))).toBe(true);
+  });
+});

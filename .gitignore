@@ -10,6 +10,10 @@ public/film-stasera-in-tv/
 public/serie-tv-stasera/
 public/sport-stasera-in-tv/
 public/cinema/
+public/streaming/
+public/cosa-vedere-su-*/
+public/film-da-vedere-su-*/
+public/serie-tv-da-vedere-su-*/
 __pycache__/
 
 # Segreti: password del database e chiavi Supabase
