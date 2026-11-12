@@ -77,8 +77,8 @@
 "coppia",
 "amici"
 ],
-"v": 7.9,
-"vc": 38,
+"v": 8.0,
+"vc": 39,
 "l": "tr",
 "gs": [
 10751,
@@ -109,7 +109,7 @@
 "coppia"
 ],
 "v": 7.6,
-"vc": 2615,
+"vc": 2616,
 "l": "en",
 "gs": [
 80,
@@ -187,7 +187,7 @@
 "amici"
 ],
 "v": 7.6,
-"vc": 3393,
+"vc": 3394,
 "l": "en",
 "gs": [
 18,
@@ -266,7 +266,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12956,
+"vc": 12957,
 "l": "en",
 "gs": [
 35
@@ -297,7 +297,7 @@
 "amici"
 ],
 "v": 7.2,
-"vc": 11708,
+"vc": 11709,
 "l": "en",
 "gs": [
 28,
@@ -656,7 +656,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 9579,
+"vc": 9580,
 "l": "en",
 "gs": [
 35
@@ -1032,7 +1032,7 @@
 "coppia"
 ],
 "v": 8.0,
-"vc": 4409,
+"vc": 4410,
 "l": "en",
 "gs": [
 80,
@@ -1065,7 +1065,7 @@
 "famiglia"
 ],
 "v": 6.4,
-"vc": 745,
+"vc": 746,
 "l": "en",
 "gs": [
 16,
@@ -1318,7 +1318,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 11164,
+"vc": 11165,
 "l": "en",
 "gs": [
 16,
@@ -1458,6 +1458,28 @@
 "d": "Documentario in prima serata su Rai Storia."
 },
 {
+"t": "Cesare in Gallia. Cronache dal De Bello Gallico",
+"ty": "show",
+"s": "raistoria",
+"time": "21:15",
+"dur": 115,
+"m": [
+"relax"
+],
+"w": [
+"famiglia",
+"coppia",
+"solo"
+],
+"g": "Documentario",
+"e": "🌍",
+"c": [
+"#56ab2f",
+"#a8e063"
+],
+"d": "Documentario in prima serata su Rai Storia."
+},
+{
 "t": "Tuner - L’ accordatore",
 "ty": "film",
 "s": "skycin1",
@@ -1481,8 +1503,7 @@
 "l": "en",
 "gs": [
 80,
-10402,
-10749
+53
 ],
 "y": "2026",
 "p": "/zs3MvBkmM6ccC1Fpfc0faBbRwb9.jpg",
@@ -1511,7 +1532,7 @@
 "amici"
 ],
 "v": 6.9,
-"vc": 857,
+"vc": 858,
 "l": "en",
 "gs": [
 35,
@@ -1645,7 +1666,7 @@
 "amici"
 ],
 "v": 6.2,
-"vc": 3939,
+"vc": 3942,
 "l": "en",
 "gs": [
 878,
@@ -1679,7 +1700,7 @@
 "amici"
 ],
 "v": 7.4,
-"vc": 7366,
+"vc": 7367,
 "l": "en",
 "gs": [
 28,
@@ -1747,7 +1768,7 @@
 "amici"
 ],
 "v": 6.8,
-"vc": 7986,
+"vc": 7987,
 "l": "en",
 "gs": [
 12,
@@ -1780,7 +1801,7 @@
 "amici"
 ],
 "v": 7.1,
-"vc": 11161,
+"vc": 11162,
 "l": "en",
 "gs": [
 28,
@@ -2203,7 +2224,7 @@
 "amici"
 ],
 "v": 7.3,
-"vc": 865,
+"vc": 866,
 "l": "en",
 "gs": [
 18
@@ -2377,6 +2398,32 @@
 "d": "Documentario in prima serata su Sky Arte."
 },
 {
+"t": "UEFA Nations League · Italia - Francia |",
+"ty": "sport",
+"s": "rai1",
+"time": "20:30",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Rugby",
+"e": "🏉",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su Rai 1.",
+"teams": [
+"Italia",
+"Francia |"
+]
+},
+{
 "t": "UEFA · Inghilterra - Croazia",
 "ty": "sport",
 "s": "now",
@@ -2426,6 +2473,32 @@
 "teams": [
 "Tennis History Remix",
 "Ep. 9 - Tennis History Remix 2025 Atp Finals"
+]
+},
+{
+"t": "Musetti - Humbert 4^",
+"ty": "sport",
+"s": "now",
+"time": "20:30",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su Sky Sport.",
+"teams": [
+"Musetti",
+"Humbert 4^"
 ]
 },
 {
@@ -2526,32 +2599,6 @@
 "teams": [
 "Sapharia",
 "Destinazione Africa - Ep. 7 - Zebra Hartmann"
-]
-},
-{
-"t": "ChorusLife Volley Bergamo - Granda Volley Cuneo",
-"ty": "sport",
-"s": "dazn",
-"time": "20:50",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su DAZN.",
-"teams": [
-"ChorusLife Volley Bergamo",
-"Granda Volley Cuneo"
 ]
 }
 ]
