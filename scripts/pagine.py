@@ -150,7 +150,7 @@ def pagina(path, title, desc, h1, corpo, attiva, ld):
 <footer>
 <p><a href="/">Popcorno</a> ti aiuta a scegliere cosa guardare stasera: TV, streaming e cinema.</p>
 <p><a href="/stasera-in-tv/">Stasera in TV</a> · <a href="/film-stasera-in-tv/">Film stasera</a> · <a href="/serie-tv-stasera/">Serie TV stasera</a> · <a href="/sport-stasera-in-tv/">Sport stasera</a> · <a href="/cinema/">Cinema</a> · <a href="/streaming/">Streaming</a> · <a href="/privacy/">Privacy</a></p>
-<p>Cosa vedere su: {" · ".join(f'<a href="/cosa-vedere-su-{s}/">{esc(SRC.get(k, {}).get("n", k))}</a>' for k, s in STREAMING)}</p>
+<p>Cosa vedere su: {" · ".join(f'<a href="/cosa-vedere-su-{s}/">{esc(nome_streaming(k))}</a>' for k, s in STREAMING)}</p>
 <p>Guida TV da superguidatv.it, orari dei cinema da movieplayer.it. Locandine, trame e cataloghi da TMDB e JustWatch: questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.</p>
 </footer>
 </div>
