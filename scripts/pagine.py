@@ -5,7 +5,9 @@ Uso: python3 scripts/pagine.py [cartella_sito]   (nel workflow: public)
 Legge data/tv.json, data/meta.json, data/cinema/*.json della cartella del sito e i nomi
 dei canali da src/lib/sources.ts; scrive stasera-in-tv/, film-stasera-in-tv/, sport-stasera-in-tv/,
 serie-tv-stasera/, cinema/ e cinema/<citta>/ (una pagina per ogni citta' di scripts/citta.json,
-anche senza orari) e rigenera sitemap.xml.
+anche senza orari), streaming/ e per ogni piattaforma di STREAMING cosa-vedere-su-<p>/,
+film-da-vedere-su-<p>/, serie-tv-da-vedere-su-<p>/ (da data/catalogo/*.json e data/trame/*.json)
+e rigenera sitemap.xml.
 Le pagine si rifanno a ogni esecuzione del workflow: stesso indirizzo, contenuto del giorno.
 """
 import html, json, os, re, sys, datetime
@@ -41,6 +43,22 @@ for k, body in re.findall(r'(\w+):\{([^}]*)\}', blocco):
         SRC[k] = {"n": n.group(1), "lcn": int(l.group(1)) if l else 999, "now": 'via:"now"' in body}
 
 TIPI = {"film": "Film", "serie": "Serie TV", "show": "Programma", "sport": "Sport"}
+
+# Generi TMDB -> nome italiano, dalla stessa tabella dell'app (GT in src/lib/genres.ts)
+_gen = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src", "lib", "genres.ts"), encoding="utf-8").read()
+_gt = _gen[_gen.index("export const GT"):]
+_gt = _gt[:_gt.index("};")]
+GENERI = {int(i): n for i, n in re.findall(r'(\d+):\["([^"]+)"', _gt)}
+
+# Piattaforme streaming con una pagina "Cosa vedere su ...": chiave del catalogo
+# (scripts/catalogo.py, public/data/catalogo/<chiave>.json) -> parte dell'indirizzo.
+# Gli indirizzi non vanno cambiati: Google li ha gia' in elenco.
+STREAMING = [("netflix", "netflix"), ("prime", "prime-video"), ("disney", "disney-plus"), ("now", "now"),
+             ("hbo", "hbo-max"), ("apple", "apple-tv"), ("paramount", "paramount-plus"), ("raiplay", "raiplay"),
+             ("infinity", "mediaset-infinity"), ("timvision", "timvision"), ("crunchyroll", "crunchyroll"),
+             ("mubi", "mubi"), ("pluto", "pluto-tv"), ("rakuten", "rakuten-tv")]
+MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre",
+        "ottobre", "novembre", "dicembre"]
 
 CSS = """@font-face{font-family:"Bricolage Grotesque";font-weight:200 800;font-display:swap;src:url(/fonts/bricolage.woff2) format("woff2")}
 @font-face{font-family:Figtree;font-weight:400;font-display:swap;src:url(/fonts/figtree-400.woff2) format("woff2")}
@@ -93,7 +111,8 @@ def tabs(attiva):
     out = ['<nav class="tabs">']
     for slug, lab, *_ in TV_PAGINE:
         out.append(f'<a href="/{slug}/"{" class=on" if slug == attiva else ""}>{lab}</a>')
-    out.append(f'<a href="/cinema/"{" class=on" if attiva == "cinema" else ""}>🎟️ Cinema</a></nav>')
+    out.append(f'<a href="/cinema/"{" class=on" if attiva == "cinema" else ""}>🎟️ Cinema</a>')
+    out.append(f'<a href="/streaming/"{" class=on" if attiva == "streaming" else ""}>▶️ Streaming</a></nav>')
     return "".join(out)
 
 
@@ -130,8 +149,9 @@ def pagina(path, title, desc, h1, corpo, attiva, ld):
 {corpo}
 <footer>
 <p><a href="/">Popcorno</a> ti aiuta a scegliere cosa guardare stasera: TV, streaming e cinema.</p>
-<p><a href="/stasera-in-tv/">Stasera in TV</a> · <a href="/film-stasera-in-tv/">Film stasera</a> · <a href="/serie-tv-stasera/">Serie TV stasera</a> · <a href="/sport-stasera-in-tv/">Sport stasera</a> · <a href="/cinema/">Cinema</a> · <a href="/privacy/">Privacy</a></p>
-<p>Guida TV da superguidatv.it, orari dei cinema da movieplayer.it. Locandine e trame da TMDB: questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.</p>
+<p><a href="/stasera-in-tv/">Stasera in TV</a> · <a href="/film-stasera-in-tv/">Film stasera</a> · <a href="/serie-tv-stasera/">Serie TV stasera</a> · <a href="/sport-stasera-in-tv/">Sport stasera</a> · <a href="/cinema/">Cinema</a> · <a href="/streaming/">Streaming</a> · <a href="/privacy/">Privacy</a></p>
+<p>Cosa vedere su: {" · ".join(f'<a href="/cosa-vedere-su-{s}/">{esc(nome_streaming(k))}</a>' for k, s in STREAMING)}</p>
+<p>Guida TV da superguidatv.it, orari dei cinema da movieplayer.it. Locandine, trame e cataloghi da TMDB e JustWatch: questo prodotto usa le API di TMDB ma non è approvato né certificato da TMDB.</p>
 </footer>
 </div>
 </body>
@@ -301,6 +321,145 @@ def pagine_cinema():
     return urls
 
 
+NOMI_STREAMING = {"now": "NOW"}
+nome_streaming = lambda k: NOMI_STREAMING.get(k) or SRC.get(k, {}).get("n") or k
+_trame = {}
+
+
+def trama(r):
+    b = r[0] % 100
+    if b not in _trame:
+        _trame[b] = carica(f"data/trame/{b}.json", {})
+    return _trame[b].get(("m" if r[1] == 0 else "t") + str(r[0]), "")
+
+
+def scheda_cat(r):
+    """Una riga del catalogo: [id, tipo 0 film/1 serie, titolo, anno, voto, generi, popolarita', poster, voti, lingua]."""
+    extra = ["Film" if r[1] == 0 else "Serie TV"]
+    gen = [GENERI[g] for g in (r[5] or []) if g in GENERI][:2]
+    extra += gen
+    if r[3]:
+        extra.append(str(r[3]))
+    voto = f"<b>★ {r[4]:.1f}</b> " if r[4] and r[8] >= 20 else ""
+    img = (f'<img src="https://image.tmdb.org/t/p/w92{esc(r[7])}" alt="{esc(r[2])}" loading="lazy" width="60" height="90">'
+           if r[7] else f'<div class="ph">{"🎬" if r[1] == 0 else "📺"}</div>')
+    d = trama(r)
+    return (f'<div class="it">{img}<div><h3>{esc(r[2])}</h3>'
+            f'<div class="rg">{voto}{esc(" · ".join(extra))}</div>'
+            + (f'<p>{esc(d)}</p>' if d else "") + '</div></div>')
+
+
+def popolari(rows, n):
+    """I piu' popolari, prima quelli con un voto decente e abbastanza voti, poi gli altri.
+    La popolarita' TMDB e' mondiale: senza la soglia dei voti escono titoli quasi sconosciuti in Italia.
+    I programmi per bambini (genere TMDB 10762) vanno in fondo."""
+    buoni = [r for r in rows if r[8] >= 300 and r[4] >= 6.3 and 10762 not in (r[5] or [])]
+    resto = [r for r in rows if r not in buoni]
+    return (sorted(buoni, key=lambda r: -r[6]) + sorted(resto, key=lambda r: -r[6]))[:n]
+
+
+def votati(rows, n, esclusi=()):
+    ids = {(r[0], r[1]) for r in esclusi}
+    ok = [r for r in rows if r[8] >= 500 and (r[0], r[1]) not in ids]
+    return sorted(ok, key=lambda r: (-r[4], -r[8]))[:n]
+
+
+def ld_lista(nome, voci):
+    return {"@type": "ItemList", "name": nome, "numberOfItems": len(voci), "itemListElement": [
+        {"@type": "ListItem", "position": i + 1,
+         "item": {"@type": "Movie" if r[1] == 0 else "TVSeries", "name": r[2],
+                  **({"dateCreated": str(r[3])} if r[3] else {})}} for i, r in enumerate(voci)]}
+
+
+def pagine_streaming():
+    urls, indice = [], []
+    d0 = datetime.date.fromisoformat(oggi)
+    mese = f"{MESI[d0.month - 1]} {d0.year}"
+    for key, slug in STREAMING:
+        nome = nome_streaming(key)
+        cat = carica(f"data/catalogo/{key}.json", None)
+        rows = (cat or {}).get("t") or []
+        film = [r for r in rows if r[1] == 0]
+        serie = [r for r in rows if r[1] == 1]
+        hub = f"cosa-vedere-su-{slug}"
+        sotto = []   # (tipo, path, etichetta, righe)
+        if len(film) >= 5 or not rows:
+            sotto.append(("film", f"film-da-vedere-su-{slug}", "Film", film))
+        if len(serie) >= 5 or not rows:
+            sotto.append(("serie", f"serie-tv-da-vedere-su-{slug}", "Serie TV", serie))
+        indice.append((slug, nome, len(film), len(serie)))
+        cta = f'<a class="cta" href="/">🍿 Non sai cosa scegliere? Scegli per me</a>'
+        vuoto = (f'<p class="lead">Oggi non abbiamo il catalogo di {esc(nome)}: la nostra fonte non ha risposto. '
+                 f'Di solito torna al prossimo aggiornamento.</p>')
+
+        # Pagina principale della piattaforma
+        h1 = f"Cosa vedere su {nome}"
+        title = f"Cosa vedere su {nome}: film e serie TV più popolari, {mese} | Popcorno"
+        pf, ps = popolari(film, 12), popolari(serie, 12)
+        top = votati(rows, 10, pf + ps)
+        primi = ", ".join(r[2] for r in popolari(rows, 4))
+        desc = (f"Cosa guardare su {nome} in Italia ({mese}): {primi} e gli altri film e serie TV più popolari, "
+                f"con voti e trame. {len(film)} film e {len(serie)} serie nel catalogo." if rows else
+                f"Cosa guardare su {nome} in Italia: film e serie TV più popolari, con voti e trame.")[:300]
+        if rows:
+            corpo = (f'<p class="lead">I film e le serie TV più popolari su {esc(nome)} in Italia, {esc(mese)}: '
+                     f'{len(film)} film e {len(serie)} serie in catalogo. Aggiornato il {d0.day} {esc(MESI[d0.month - 1])}.</p>' + cta)
+            for tipo, path, lab, righe in sotto:
+                scelti = pf if tipo == "film" else ps
+                if not scelti:
+                    continue
+                corpo += (f'<h2>{lab} più popolari su {esc(nome)}</h2>' + "".join(scheda_cat(r) for r in scelti)
+                          + f'<p class="lead" style="margin-top:12px"><a href="/{path}/">Tutti i {lab.lower()} da vedere su {esc(nome)} →</a></p>')
+            if top:
+                corpo += f'<h2>I più votati su {esc(nome)}</h2>' + "".join(scheda_cat(r) for r in top)
+        else:
+            corpo = vuoto + cta
+        corpo += '<p class="lead" style="margin-top:20px"><a href="/streaming/">← Tutte le piattaforme</a></p>'
+        ld = {"@context": "https://schema.org", "@graph": [
+            {"@type": "WebPage", "name": h1, "url": f"{BASE}/{hub}/", "inLanguage": "it", "dateModified": oggi},
+            ld_lista(f"Film e serie più popolari su {nome}", popolari(rows, 24)),
+            briciole(("Popcorno", "/"), ("Streaming", "/streaming/"), (nome, f"/{hub}/"))]}
+        urls.append(pagina(hub, title, desc, h1, corpo, "streaming", ld))
+
+        # Solo film e solo serie
+        for tipo, path, lab, righe in sotto:
+            h1 = f"{lab} da vedere su {nome}"
+            pop = popolari(righe, 40)
+            best = votati(righe, 20, pop)
+            primi = ", ".join(r[2] for r in pop[:4])
+            title = f"{lab} da vedere su {nome}: i più popolari di {mese} | Popcorno"
+            desc = (f"I {lab.lower()} da vedere su {nome} in Italia ({mese}): {primi} e altri "
+                    f"{max(len(righe) - 4, 0)} titoli, con voti e trame." if righe else
+                    f"I {lab.lower()} da vedere su {nome} in Italia, con voti e trame.")[:300]
+            if righe:
+                corpo = (f'<p class="lead">I {len(pop)} {lab.lower()} più popolari su {esc(nome)} in Italia, {esc(mese)}, '
+                         f'su {len(righe)} in catalogo.</p>' + cta
+                         + f'<h2>I più popolari</h2>' + "".join(scheda_cat(r) for r in pop))
+                if best:
+                    corpo += f'<h2>I più votati</h2>' + "".join(scheda_cat(r) for r in best)
+            else:
+                corpo = vuoto + cta
+            corpo += (f'<p class="lead" style="margin-top:20px"><a href="/{hub}/">← Cosa vedere su {esc(nome)}</a></p>')
+            ld = {"@context": "https://schema.org", "@graph": [
+                {"@type": "WebPage", "name": h1, "url": f"{BASE}/{path}/", "inLanguage": "it", "dateModified": oggi},
+                ld_lista(h1, pop),
+                briciole(("Popcorno", "/"), ("Streaming", "/streaming/"), (nome, f"/{hub}/"), (lab, f"/{path}/"))]}
+            urls.append(pagina(path, title, desc, h1, corpo, "streaming", ld))
+
+    voci = "".join(f'<a href="/cosa-vedere-su-{s}/">{esc(n)} <span>· {nf} film, {ns} serie</span></a>'
+                   if nf + ns else f'<a href="/cosa-vedere-su-{s}/">{esc(n)}</a>' for s, n, nf, ns in indice)
+    corpo = (f'<p class="lead">Cosa guardare stasera sulle piattaforme streaming in Italia: i film e le serie TV '
+             f'più popolari di {esc(mese)}, piattaforma per piattaforma.</p>'
+             f'<a class="cta" href="/">🍿 Scegli tra le piattaforme che hai</a><div class="citta">{voci}</div>')
+    ld = {"@context": "https://schema.org", "@graph": [
+        {"@type": "CollectionPage", "name": "Cosa vedere in streaming", "url": f"{BASE}/streaming/", "inLanguage": "it"},
+        briciole(("Popcorno", "/"), ("Streaming", "/streaming/"))]}
+    urls.insert(0, pagina("streaming", f"Cosa vedere in streaming: Netflix, Prime Video, Disney+ e altri, {mese} | Popcorno",
+                          f"I film e le serie TV più popolari di {mese} su Netflix, Prime Video, Disney+, NOW, RaiPlay "
+                          f"e le altre piattaforme streaming in Italia.", "Cosa vedere in streaming", corpo, "streaming", ld))
+    return urls
+
+
 def sitemap(urls):
     tutte = [(f"{BASE}/", "daily"), (f"{BASE}/privacy/", "yearly")] + [(u, "daily") for u in urls]
     righe = "".join(f"  <url><loc>{u}</loc><lastmod>{oggi}</lastmod><changefreq>{c}</changefreq></url>\n"
@@ -311,6 +470,6 @@ def sitemap(urls):
 
 
 if __name__ == "__main__":
-    u = pagine_tv() + pagine_cinema()
+    u = pagine_tv() + pagine_cinema() + pagine_streaming()
     sitemap(u)
     print(f"{len(u)} pagine, {len(tv)} programmi", file=sys.stderr)
