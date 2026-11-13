@@ -780,6 +780,37 @@
 "d": "Dopo un fallito tentativo di sabotaggio anti-nazista, un combattente della resistenza norvegese lascia i suoi undici compagni morti e si ritrova a fuggire dalla Gestapo…"
 },
 {
+"t": "A Good Man",
+"ty": "film",
+"s": "cielo",
+"time": "23:55",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 4.8,
+"vc": 156,
+"l": "en",
+"gs": [
+28
+],
+"y": "2014",
+"p": "/yqfeDh3JY470htX3iApJCaxeX1k.jpg",
+"tmdb": "movie/286668",
+"d": "Un ex soldato tenta di condurre una vita ordinaria lavorando in un complesso residenziale. Quando però uno degli inquilini finirà preda di un gangster russo, l'uomo si…"
+},
+{
 "t": "Qualcosa di cui... sparlare",
 "ty": "film",
 "s": "la5",
@@ -982,7 +1013,7 @@
 "ty": "show",
 "s": "focus",
 "time": "21:20",
-"dur": 220,
+"dur": 219,
 "m": [
 "relax"
 ],
@@ -1031,26 +1062,36 @@
 "d": "Prima TV. Stagione 1 - Ep. 28. L’ex detective Hauke Jacobs: un uomo che ha deciso di rifarsi una vita e stabilirsi sul Mar Baltico per ragioni misteriose, finirà a vivere nel villaggio di Schwanitz…"
 },
 {
-"t": "Un felice Natale in stile Murdoch",
-"ty": "film",
+"t": "I misteri di Murdoch",
+"ty": "serie",
 "s": "giallo",
 "time": "23:00",
-"dur": 110,
+"dur": 50,
 "m": [
-"emozione"
+"tensione"
 ],
-"g": "Drammatico",
-"e": "🎬",
+"g": "Mistero",
+"e": "🔎",
 "c": [
-"#614385",
-"#516395"
+"#141e30",
+"#243b55"
 ],
 "w": [
 "solo",
 "coppia",
 "amici"
 ],
-"d": "Film in prima serata su Giallo."
+"v": 7.7,
+"vc": 309,
+"l": "en",
+"gs": [
+9648,
+18
+],
+"y": "2008",
+"p": "/zIKaVAbhhW8sGCeeqVoY2i4YGho.jpg",
+"tmdb": "tv/12786",
+"d": "Basata sui romanzi gialli di Maureen Jennings e nominata al Seoul Drama Festival nel 2008 come Best Drama Series, Best Actor e Best Art Director, la serie crime è…"
 },
 {
 "t": "FBI: Most Wanted",
@@ -1087,7 +1128,7 @@
 "t": "Captain Tsubasa",
 "ty": "serie",
 "s": "boing",
-"time": "21:25",
+"time": "21:15",
 "dur": 30,
 "m": [
 "risate",
@@ -1425,6 +1466,28 @@
 "s": "raistoria",
 "time": "20:35",
 "dur": 40,
+"m": [
+"relax"
+],
+"w": [
+"famiglia",
+"coppia",
+"solo"
+],
+"g": "Documentario",
+"e": "🌍",
+"c": [
+"#56ab2f",
+"#a8e063"
+],
+"d": "Documentario in prima serata su Rai Storia."
+},
+{
+"t": "Il declino di Hitler",
+"ty": "show",
+"s": "raistoria",
+"time": "21:15",
+"dur": 235,
 "m": [
 "relax"
 ],
