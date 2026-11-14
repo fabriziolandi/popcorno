@@ -65,8 +65,8 @@
 "coppia",
 "amici"
 ],
-"v": 6.1,
-"vc": 25,
+"v": 6.3,
+"vc": 26,
 "l": "en",
 "gs": [
 18,
@@ -309,6 +309,39 @@
 "d": "Una giovane coppia è costretta ad abbandonare la propria stazione missionaria cristiana nel deserto del Kalahari dopo essere stata minacciata di morte da una banda di…"
 },
 {
+"t": "Smokin' Aces",
+"ty": "film",
+"s": "venti",
+"time": "22:49",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.5,
+"vc": 1939,
+"l": "en",
+"gs": [
+28,
+35,
+80
+],
+"y": "2006",
+"p": "/kkXKLWncXgzbPazx06KCBVbcJhg.jpg",
+"tmdb": "movie/7516",
+"d": "Un agente dell'FBI è sulle tracce di un comico legato alla criminalità; questi ha deciso di allontanarsi da quel giro, ma prima di affidarsi al programma di protezione…"
+},
+{
 "t": "Hawaii Five-0",
 "ty": "serie",
 "s": "rai4",
@@ -457,7 +490,7 @@
 "amici"
 ],
 "v": 6.9,
-"vc": 2487,
+"vc": 2488,
 "l": "en",
 "gs": [
 28,
@@ -1186,7 +1219,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 11168,
+"vc": 11169,
 "l": "en",
 "gs": [
 16,
@@ -1378,7 +1411,7 @@
 "amici"
 ],
 "v": 6.9,
-"vc": 2954,
+"vc": 2956,
 "l": "en",
 "gs": [
 18,
@@ -1508,7 +1541,7 @@
 "amici"
 ],
 "v": 7.5,
-"vc": 21619,
+"vc": 21620,
 "l": "en",
 "gs": [
 28,
@@ -1540,7 +1573,7 @@
 "amici"
 ],
 "v": 7.3,
-"vc": 14836,
+"vc": 14837,
 "l": "en",
 "gs": [
 28,
