@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { LAST_ACCOUNT_KEY, authInUrl, completeFromUrl, getClient, hasStoredSession, onClientReady } from "./lib/account";
 // Statistiche d'uso anonime (PostHog): separate dall'account, non ricevono mai email, id o nome.
-import { analytics, prefEvents, track as trackUsage } from "./lib/analytics";
+import { analytics, prefEvents, track as trackUsage, viewPageview } from "./lib/analytics";
 import { createTracker, eventRow, type EventKind, type SendResult } from "./lib/events";
 import { loadCatalogs, loadCityShows, loadPalinsesto, type CityShows, type Palinsesto } from "./lib/data";
 import { isUntouched, parseProfileHash } from "./lib/profile-link";
@@ -225,6 +225,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   // Statistiche: PostHog si carica quando il browser è libero, dopo il primo disegno.
   useEffect(() => { analytics.start(); }, []);
+
+  // Una pagina vista per ogni cambio di sezione. La prima ("/") la registra PostHog da solo all'avvio.
+  const lastView = useRef<View>(view);
+  useEffect(() => {
+    if (lastView.current === view) return;
+    lastView.current = view;
+    trackUsage("$pageview", viewPageview(view, location.origin));
+  }, [view]);
 
   // Ogni proposta mostrata (anche "Cambia canale" e "Un'altra proposta", che cambiano idx o seq).
   useEffect(() => {

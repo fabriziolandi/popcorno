@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import { createAnalytics, internalMark, INTERNAL_KEY, POSTHOG_OPTIONS, prefEvents } from "../src/lib/analytics";
+import { createAnalytics, internalMark, INTERNAL_KEY, POSTHOG_OPTIONS, prefEvents, VIEW_PATH, viewPageview } from "../src/lib/analytics";
 import { DEFAULT_STATE } from "../src/lib/state";
 import type { Stasera } from "../src/lib/types";
 
@@ -156,5 +156,19 @@ describe("prefEvents: le preferenze cambiate diventano eventi", () => {
       { name: "non_mi_piace", props: { titolo: "Lost" } },
       { name: "serie_smessa", props: { titolo: "Lost" } },
     ]));
+  });
+});
+
+describe("pagine viste per sezione", () => {
+  it("ogni sezione ha il suo percorso, Scegli resta la home", () => {
+    expect(VIEW_PATH).toEqual({ scegli: "/", onda: "/guida-tv", prof: "/profilo", dati: "/profilo/dati" });
+  });
+
+  it("la pagina vista porta indirizzo e percorso della sezione", () => {
+    expect(viewPageview("onda", "https://popcorno.it")).toEqual({
+      $current_url: "https://popcorno.it/guida-tv",
+      $pathname: "/guida-tv",
+      sezione: "onda",
+    });
   });
 });
