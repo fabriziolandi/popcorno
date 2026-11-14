@@ -146,6 +146,16 @@ export const analytics = createAnalytics({
 });
 export const track = analytics.track;
 
+// L'app è una pagina sola ("/"): le sezioni cambiano senza cambiare indirizzo. Per vedere in PostHog
+// quali sezioni si aprono, ogni cambio di sezione manda una pagina vista con un percorso suo.
+// Sono percorsi solo per le statistiche: sul sito non esistono.
+export const VIEW_PATH = { scegli: "/", onda: "/guida-tv", prof: "/profilo", dati: "/profilo/dati" } as const;
+
+export function viewPageview(view: keyof typeof VIEW_PATH, origin: string): Props {
+  const path = VIEW_PATH[view];
+  return { $current_url: origin + path, $pathname: path, sezione: view };
+}
+
 type Ev = { name: string; props: Props };
 
 const added = (a: string[], b: string[]) => b.filter((x) => !a.includes(x));
