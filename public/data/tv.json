@@ -302,7 +302,7 @@
 "coppia"
 ],
 "v": 7.1,
-"vc": 5640,
+"vc": 5641,
 "l": "en",
 "gs": [
 53,
@@ -711,7 +711,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 19728,
+"vc": 19729,
 "l": "en",
 "gs": [
 28,
@@ -907,7 +907,7 @@
 "amici"
 ],
 "v": 7.8,
-"vc": 160,
+"vc": 161,
 "l": "en",
 "gs": [
 9648,
@@ -1181,7 +1181,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 11170,
+"vc": 11171,
 "l": "en",
 "gs": [
 16,
@@ -1214,7 +1214,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12966,
+"vc": 12967,
 "l": "en",
 "gs": [
 35
@@ -1392,7 +1392,7 @@
 "amici"
 ],
 "v": 7.3,
-"vc": 14841,
+"vc": 14842,
 "l": "en",
 "gs": [
 28,
@@ -1425,7 +1425,7 @@
 "amici"
 ],
 "v": 7.4,
-"vc": 12281,
+"vc": 12283,
 "l": "en",
 "gs": [
 28,
@@ -1459,7 +1459,7 @@
 "amici"
 ],
 "v": 6.2,
-"vc": 9539,
+"vc": 9540,
 "l": "en",
 "gs": [
 878,
@@ -1557,7 +1557,7 @@
 "amici"
 ],
 "v": 7.2,
-"vc": 15293,
+"vc": 15295,
 "l": "en",
 "gs": [
 28,
@@ -1642,31 +1642,20 @@
 "time": "21:00",
 "dur": 115,
 "m": [
-"emozione",
-"relax"
+"emozione"
 ],
-"g": "Romantico",
-"e": "💕",
+"g": "Drammatico",
+"e": "🎬",
 "c": [
-"#a8577e",
-"#f1a7a1"
+"#614385",
+"#516395"
 ],
 "w": [
 "solo",
 "coppia",
 "amici"
 ],
-"v": 6.1,
-"vc": 253,
-"l": "en",
-"gs": [
-10749,
-35
-],
-"y": "2023",
-"p": "/8e6ezs29cMorFEYZp0oTFL5Vupi.jpg",
-"tmdb": "movie/800301",
-"d": "La regista Zoe, alla disperata ricerca di idee per il suo prossimo film, decide di girare un documentario in Pakistan sul matrimonio combinato del suo vicino e amico…"
+"d": "Film in prima serata su Sky Cinema Romance."
 },
 {
 "t": "Il matrimonio del mio migliore amico",
