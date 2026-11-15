@@ -19,7 +19,7 @@
 "coppia"
 ],
 "v": 8.5,
-"vc": 3618,
+"vc": 3620,
 "l": "en",
 "gs": [
 80,
@@ -35,8 +35,8 @@
 "t": "La ruota della fortuna",
 "ty": "show",
 "s": "c5",
-"time": "20:39",
-"dur": 42,
+"time": "20:42",
+"dur": 39,
 "m": [
 "relax",
 "risate"
@@ -59,7 +59,7 @@
 "ty": "serie",
 "s": "c5",
 "time": "21:21",
-"dur": 108,
+"dur": 111,
 "m": [
 "emozione"
 ],
@@ -239,7 +239,7 @@
 "amici"
 ],
 "v": 6.7,
-"vc": 6317,
+"vc": 6318,
 "l": "en",
 "gs": [
 35,
@@ -680,7 +680,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 9590,
+"vc": 9592,
 "l": "en",
 "gs": [
 35
@@ -711,7 +711,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 19729,
+"vc": 19733,
 "l": "en",
 "gs": [
 28,
@@ -1214,7 +1214,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12967,
+"vc": 12969,
 "l": "en",
 "gs": [
 35
@@ -1524,7 +1524,7 @@
 "amici"
 ],
 "v": 7.3,
-"vc": 4716,
+"vc": 4718,
 "l": "en",
 "gs": [
 28,
@@ -1642,20 +1642,31 @@
 "time": "21:00",
 "dur": 115,
 "m": [
-"emozione"
+"emozione",
+"relax"
 ],
-"g": "Drammatico",
-"e": "🎬",
+"g": "Romantico",
+"e": "💕",
 "c": [
-"#614385",
-"#516395"
+"#a8577e",
+"#f1a7a1"
 ],
 "w": [
 "solo",
 "coppia",
 "amici"
 ],
-"d": "Film in prima serata su Sky Cinema Romance."
+"v": 6.1,
+"vc": 253,
+"l": "en",
+"gs": [
+10749,
+35
+],
+"y": "2023",
+"p": "/8e6ezs29cMorFEYZp0oTFL5Vupi.jpg",
+"tmdb": "movie/800301",
+"d": "La regista Zoe, alla disperata ricerca di idee per il suo prossimo film, decide di girare un documentario in Pakistan sul matrimonio combinato del suo vicino e amico…"
 },
 {
 "t": "Il matrimonio del mio migliore amico",
@@ -1806,7 +1817,7 @@
 "amici"
 ],
 "v": 6.9,
-"vc": 2959,
+"vc": 2960,
 "l": "en",
 "gs": [
 18,
@@ -2090,6 +2101,32 @@
 "#a8e063"
 ],
 "d": "Documentario in prima serata su Sky Arte."
+},
+{
+"t": "UEFA Nations League · Belgio - Italia |",
+"ty": "sport",
+"s": "rai1",
+"time": "20:30",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Rugby",
+"e": "🏉",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su Rai 1.",
+"teams": [
+"Belgio",
+"Italia |"
+]
 },
 {
 "t": "UEFA · Francia - Turchia",
