@@ -55,7 +55,7 @@ GENERI = {int(i): n for i, n in re.findall(r'(\d+):\["([^"]+)"', _gt)}
 # Gli indirizzi non vanno cambiati: Google li ha gia' in elenco.
 STREAMING = [("netflix", "netflix"), ("prime", "prime-video"), ("disney", "disney-plus"), ("now", "now"),
              ("hbo", "hbo-max"), ("apple", "apple-tv"), ("paramount", "paramount-plus"), ("raiplay", "raiplay"),
-             ("infinity", "mediaset-infinity"), ("timvision", "timvision"), ("crunchyroll", "crunchyroll"),
+             ("infinity", "mediaset-infinity"), ("timvision", "timvision"), ("crunchyroll", "crunchyroll"), ("discovery", "discovery-plus"),
              ("mubi", "mubi"), ("pluto", "pluto-tv"), ("rakuten", "rakuten-tv")]
 MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre",
         "ottobre", "novembre", "dicembre"]

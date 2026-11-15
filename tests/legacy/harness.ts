@@ -98,11 +98,11 @@ export function loadLegacy(pal: LegacyPalinsesto = EMPTY_PALINSESTO, stasera?: o
   const k = lines.findIndex((l) => l.trim() === KIDS_LINE);
   if (k < 0) throw new Error("harness: riga di lucky non trovata in index.legacy.html");
   lines[k] += ' if(it.kids && !kidsOk && st.chi!=="famiglia") continue; if(st.tipo!=="tutto" && st.tipo!=="cinema" && it.ty!==st.tipo) continue; if(it.ty!=="sport" && !genOk(it)) continue;';
-  // Novità: abbonamenti TIMvision e Crunchyroll (src/lib/sources.ts).
+  // Novità: abbonamenti TIMvision, Crunchyroll e discovery+ (src/lib/sources.ts).
   const SUBS_FROM = 'paramount:{n:"Paramount+"}, mubi:{n:"MUBI"}';
   const j = lines.findIndex((l) => l.includes(SUBS_FROM));
   if (j < 0) throw new Error("harness: elenco delle fonti non trovato in index.legacy.html");
-  lines[j] = lines[j].replace(SUBS_FROM, 'paramount:{n:"Paramount+"}, timvision:{n:"TIMvision"}, crunchyroll:{n:"Crunchyroll"}, mubi:{n:"MUBI"}');
+  lines[j] = lines[j].replace(SUBS_FROM, 'paramount:{n:"Paramount+"}, timvision:{n:"TIMvision"}, crunchyroll:{n:"Crunchyroll"}, discovery:{n:"discovery+"}, mubi:{n:"MUBI"}');
   const patched = lines.join("\n");
   const dom = new JSDOM(patched, {
     url: "https://popcorno.it/",
