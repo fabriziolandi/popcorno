@@ -49,7 +49,30 @@
 "y": "2026",
 "p": "/tJOZk6ONDPxeOs5HwxtfNI6uJba.jpg",
 "tmdb": "tv/339424",
-"d": "Serie in prima serata su Rai 1."
+"d": "Stagione 1 - Ep. 1."
+},
+{
+"t": "Innamorato perso",
+"ty": "show",
+"s": "rai2",
+"time": "21:20",
+"dur": 130,
+"m": [
+"relax",
+"risate"
+],
+"w": [
+"famiglia",
+"coppia",
+"solo"
+],
+"g": "Intrattenimento",
+"e": "🎤",
+"c": [
+"#c31432",
+"#240b36"
+],
+"d": "Intrattenimento in prima serata su Rai 2."
 },
 {
 "t": "Il campione",
@@ -121,8 +144,8 @@
 "t": "La ruota della fortuna",
 "ty": "show",
 "s": "c5",
-"time": "20:39",
-"dur": 41,
+"time": "20:43",
+"dur": 37,
 "m": [
 "relax",
 "risate"
@@ -145,7 +168,7 @@
 "ty": "show",
 "s": "c5",
 "time": "21:20",
-"dur": 256,
+"dur": 260,
 "m": [
 "relax",
 "risate"
@@ -1330,8 +1353,8 @@
 "t": "Simone",
 "ty": "serie",
 "s": "cartoonito",
-"time": "21:30",
-"dur": 10,
+"time": "21:20",
+"dur": 15,
 "m": [
 "risate",
 "emozione"
@@ -2447,6 +2470,9 @@
 "teams": [
 "Cobolli",
 "Medvedev"
+],
+"also": [
+"now"
 ]
 },
 {
@@ -2505,7 +2531,7 @@
 "t": "NBA · Phoenix Suns - Los Angeles Lakers",
 "ty": "sport",
 "s": "now",
-"time": "20:00",
+"time": "19:40",
 "dur": 110,
 "m": [
 "sport"
@@ -2596,5 +2622,31 @@
 "#360033"
 ],
 "d": "In diretta su Sky Sport."
+},
+{
+"t": "Albacete - Celta Vigo B",
+"ty": "sport",
+"s": "dazn",
+"time": "20:30",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su DAZN.",
+"teams": [
+"Albacete",
+"Celta Vigo B"
+]
 }
 ]
