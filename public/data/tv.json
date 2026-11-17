@@ -155,8 +155,8 @@
 "t": "La ruota della fortuna",
 "ty": "show",
 "s": "c5",
-"time": "20:39",
-"dur": 41,
+"time": "20:38",
+"dur": 42,
 "m": [
 "relax",
 "risate"
@@ -210,7 +210,7 @@
 "t": "Una notte da leoni",
 "ty": "film",
 "s": "i1",
-"time": "23:15",
+"time": "23:07",
 "dur": 110,
 "m": [
 "risate",
@@ -374,7 +374,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12976,
+"vc": 12979,
 "l": "en",
 "gs": [
 35
@@ -405,7 +405,7 @@
 "amici"
 ],
 "v": 6.7,
-"vc": 4358,
+"vc": 4359,
 "l": "en",
 "gs": [
 28,
@@ -794,8 +794,8 @@
 "t": "Miss Detective",
 "ty": "film",
 "s": "la5",
-"time": "21:15",
-"dur": 130,
+"time": "21:17",
+"dur": 131,
 "m": [
 "risate",
 "relax"
@@ -1316,7 +1316,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 11176,
+"vc": 11178,
 "l": "en",
 "gs": [
 16,
@@ -2005,7 +2005,7 @@
 "amici"
 ],
 "v": 5.6,
-"vc": 312,
+"vc": 313,
 "l": "en",
 "gs": [
 28,
