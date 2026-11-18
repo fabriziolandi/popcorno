@@ -168,7 +168,7 @@
 "t": "Una notte da leoni 2",
 "ty": "film",
 "s": "i1",
-"time": "22:52",
+"time": "22:53",
 "dur": 110,
 "m": [
 "risate",
@@ -353,7 +353,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12984,
+"vc": 12985,
 "l": "en",
 "gs": [
 35
@@ -450,7 +450,7 @@
 "amici"
 ],
 "v": 6.5,
-"vc": 2262,
+"vc": 2263,
 "l": "en",
 "gs": [
 878,
@@ -513,7 +513,7 @@
 "coppia"
 ],
 "v": 7.7,
-"vc": 4280,
+"vc": 4281,
 "l": "en",
 "gs": [
 80,
@@ -607,7 +607,7 @@
 "ty": "film",
 "s": "raimovie",
 "time": "21:10",
-"dur": 105,
+"dur": 106,
 "m": [
 "tensione"
 ],
@@ -638,7 +638,7 @@
 "t": "9 settimane e 1/2",
 "ty": "film",
 "s": "raimovie",
-"time": "22:55",
+"time": "22:56",
 "dur": 110,
 "m": [
 "emozione"
@@ -785,7 +785,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 9601,
+"vc": 9602,
 "l": "en",
 "gs": [
 35
@@ -850,6 +850,28 @@
 "p": "/5lj4scTsPph49RzHbq68aklBvXs.jpg",
 "tmdb": "movie/9489",
 "d": "Joe Fox e Kathleen Kelly vivono e lavorano a pochi isolati di distanza nell'Upper West Side. I negozi che frequentano sono gli stessi e passeggiano per le stesse strade.…"
+},
+{
+"t": "Il matrimonio del mio miglior amico",
+"ty": "film",
+"s": "la5",
+"time": "23:34",
+"dur": 110,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎬",
+"c": [
+"#614385",
+"#516395"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"d": "Film in prima serata su La 5."
 },
 {
 "t": "Casa a prima vista",
@@ -1103,7 +1125,7 @@
 "ty": "serie",
 "s": "boing",
 "time": "21:00",
-"dur": 20,
+"dur": 15,
 "m": [
 "risate",
 "emozione"
@@ -1135,7 +1157,7 @@
 "t": "Captain Tsubasa",
 "ty": "serie",
 "s": "boing",
-"time": "21:20",
+"time": "21:15",
 "dur": 30,
 "m": [
 "risate",
@@ -1403,7 +1425,7 @@
 "coppia"
 ],
 "v": 6.6,
-"vc": 2639,
+"vc": 2640,
 "l": "en",
 "gs": [
 27
@@ -1630,7 +1652,7 @@
 "coppia"
 ],
 "v": 6.2,
-"vc": 213,
+"vc": 214,
 "l": "en",
 "gs": [
 80,
@@ -1664,7 +1686,7 @@
 "amici"
 ],
 "v": 8.3,
-"vc": 22784,
+"vc": 22785,
 "l": "en",
 "gs": [
 12,
@@ -1698,7 +1720,7 @@
 "amici"
 ],
 "v": 7.8,
-"vc": 14534,
+"vc": 14535,
 "l": "en",
 "gs": [
 12,
@@ -1830,7 +1852,7 @@
 "amici"
 ],
 "v": 7.1,
-"vc": 10109,
+"vc": 10111,
 "l": "en",
 "gs": [
 28,
@@ -2400,8 +2422,8 @@
 {
 "t": "Cobolli - Tiafoe",
 "ty": "sport",
-"s": "now",
-"time": "20:30",
+"s": "i1",
+"time": "20:27",
 "dur": 110,
 "m": [
 "sport"
@@ -2417,10 +2439,13 @@
 "#0b8793",
 "#360033"
 ],
-"d": "In diretta su Sky Sport.",
+"d": "In diretta su Italia 1.",
 "teams": [
 "Cobolli",
 "Tiafoe"
+],
+"also": [
+"now"
 ]
 },
 {
