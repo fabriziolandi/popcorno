@@ -120,11 +120,34 @@
 "d": "Le vite degli inquilini di Palazzo Palladini si intrecciano come quelle di una grande famiglia. In questo vero e proprio condominio vecchio stile non si è solo vicini di…"
 },
 {
+"t": "La ruota della fortuna",
+"ty": "show",
+"s": "c5",
+"time": "20:39",
+"dur": 41,
+"m": [
+"relax",
+"risate"
+],
+"w": [
+"famiglia",
+"coppia",
+"solo"
+],
+"g": "Intrattenimento",
+"e": "🎤",
+"c": [
+"#c31432",
+"#240b36"
+],
+"d": "Intrattenimento in prima serata su Canale 5."
+},
+{
 "t": "Riassunto - tutto per la mia famiglia",
 "ty": "serie",
 "s": "c5",
 "time": "21:20",
-"dur": 33,
+"dur": 118,
 "m": [
 "emozione"
 ],
@@ -145,8 +168,8 @@
 "t": "Tutto per la mia famiglia",
 "ty": "serie",
 "s": "c5",
-"time": "21:53",
-"dur": 85,
+"time": "23:18",
+"dur": 50,
 "m": [
 "risate",
 "relax"
@@ -174,6 +197,38 @@
 "p": "/hAgyCQBa2Q3yHzCQhlsgCSLLMUC.jpg",
 "tmdb": "tv/119267",
 "d": "La famiglia Eren vive con poco, ma è unita e piena d'affetto. Veli e Hatice crescono con amore i loro quattro figli: Kadir, Omer, Asiye ed Emel affrontando ogni giorno…"
+},
+{
+"t": "Una notte da leoni 3",
+"ty": "film",
+"s": "i1",
+"time": "22:52",
+"dur": 110,
+"m": [
+"risate",
+"relax"
+],
+"g": "Commedia",
+"e": "😂",
+"c": [
+"#f7971e",
+"#ffd200"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.2,
+"vc": 9559,
+"l": "en",
+"gs": [
+35
+],
+"y": "2013",
+"p": "/pEcN3pGDKeGP0L7L8mNJmo9K5PU.jpg",
+"tmdb": "movie/109439",
+"d": "Da Los Angeles a Tijuana in Messico e di nuovo a Las Vegas. Il capitolo conclusivo di Una notte da leoni racconta del rapimento di Doug da parte di un certo Marshall.…"
 },
 {
 "t": "Otto e mezzo",
@@ -321,7 +376,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12987,
+"vc": 12988,
 "l": "en",
 "gs": [
 35
@@ -369,7 +424,7 @@
 "ty": "serie",
 "s": "rai4",
 "time": "20:33",
-"dur": 46,
+"dur": 47,
 "m": [
 "tensione"
 ],
@@ -400,7 +455,7 @@
 "t": "River Wild",
 "ty": "film",
 "s": "rai4",
-"time": "21:19",
+"time": "21:20",
 "dur": 94,
 "m": [
 "tensione"
@@ -433,7 +488,7 @@
 "t": "I crimini di Emily",
 "ty": "film",
 "s": "rai4",
-"time": "22:53",
+"time": "22:54",
 "dur": 110,
 "m": [
 "tensione"
@@ -554,7 +609,7 @@
 "ty": "show",
 "s": "rai5",
 "time": "21:22",
-"dur": 169,
+"dur": 185,
 "m": [
 "relax"
 ],
@@ -1075,8 +1130,8 @@
 "t": "Teen Titans Go!",
 "ty": "serie",
 "s": "boing",
-"time": "20:55",
-"dur": 25,
+"time": "21:05",
+"dur": 15,
 "m": [
 "risate",
 "emozione"
@@ -1173,7 +1228,7 @@
 "t": "Goldrake U",
 "ty": "serie",
 "s": "raigulp",
-"time": "21:40",
+"time": "21:45",
 "dur": 50,
 "m": [
 "risate",
@@ -1441,11 +1496,11 @@
 "d": "Documentario in prima serata su Rai Storia."
 },
 {
-"t": "Giulio Cesare. Cronache dalla guerra civile",
+"t": "Guerra",
 "ty": "show",
 "s": "raistoria",
 "time": "21:15",
-"dur": 120,
+"dur": 115,
 "m": [
 "relax"
 ],
@@ -1550,7 +1605,7 @@
 "amici"
 ],
 "v": 7.4,
-"vc": 125,
+"vc": 127,
 "l": "en",
 "gs": [
 18
@@ -1912,7 +1967,7 @@
 "amici"
 ],
 "v": 7.5,
-"vc": 12501,
+"vc": 12502,
 "l": "en",
 "gs": [
 10402,
@@ -2181,7 +2236,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 7526,
+"vc": 7527,
 "l": "en",
 "gs": [
 18
@@ -2386,6 +2441,32 @@
 "d": "Documentario in prima serata su Sky Arte."
 },
 {
+"t": "Zverev - Fils",
+"ty": "sport",
+"s": "i1",
+"time": "20:26",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su Italia 1.",
+"teams": [
+"Zverev",
+"Fils"
+]
+},
+{
 "t": "Zverev - Fils Singolare:",
 "ty": "sport",
 "s": "now",
@@ -2508,6 +2589,32 @@
 "d": "In diretta su Sky Sport."
 },
 {
+"t": "Pitchside Sound - Atalanta-Inter 04/05",
+"ty": "sport",
+"s": "now",
+"time": "21:30",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su Sky Sport.",
+"teams": [
+"Pitchside Sound",
+"Atalanta-Inter 04/05"
+]
+},
+{
 "t": "Sapharia - Destinazione Africa - Ep. 8",
 "ty": "sport",
 "s": "now",
@@ -2531,32 +2638,6 @@
 "teams": [
 "Sapharia",
 "Destinazione Africa - Ep. 8"
-]
-},
-{
-"t": "Verona - GCL Super Cup Quarter Final",
-"ty": "sport",
-"s": "dazn",
-"time": "20:30",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su DAZN.",
-"teams": [
-"Verona",
-"GCL Super Cup Quarter Final"
 ]
 }
 ]
