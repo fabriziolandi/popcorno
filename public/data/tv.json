@@ -120,34 +120,11 @@
 "d": "Le vite degli inquilini di Palazzo Palladini si intrecciano come quelle di una grande famiglia. In questo vero e proprio condominio vecchio stile non si è solo vicini di…"
 },
 {
-"t": "La ruota della fortuna",
-"ty": "show",
-"s": "c5",
-"time": "20:39",
-"dur": 41,
-"m": [
-"relax",
-"risate"
-],
-"w": [
-"famiglia",
-"coppia",
-"solo"
-],
-"g": "Intrattenimento",
-"e": "🎤",
-"c": [
-"#c31432",
-"#240b36"
-],
-"d": "Intrattenimento in prima serata su Canale 5."
-},
-{
 "t": "Riassunto - tutto per la mia famiglia",
 "ty": "serie",
 "s": "c5",
 "time": "21:20",
-"dur": 118,
+"dur": 33,
 "m": [
 "emozione"
 ],
@@ -168,8 +145,8 @@
 "t": "Tutto per la mia famiglia",
 "ty": "serie",
 "s": "c5",
-"time": "23:18",
-"dur": 50,
+"time": "21:53",
+"dur": 85,
 "m": [
 "risate",
 "relax"
@@ -780,6 +757,38 @@
 "d": "Frank Wilson è un ex poliziotto che viene riportato alla sua vecchia vita quando viene ucciso suo figlio. Senza niente da perdere, si mette alla ricerca di risposte tra…"
 },
 {
+"t": "Kickboxer - Il nuovo guerriero",
+"ty": "film",
+"s": "cielo",
+"time": "23:05",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.8,
+"vc": 1660,
+"l": "en",
+"gs": [
+28,
+53
+],
+"y": "1989",
+"p": "/coPesV5N8A92Vduc3vQ1LuplAPl.jpg",
+"tmdb": "movie/10222",
+"d": "Un campione di boxe thailandese fa un viaggio in Oriente e si scontra con un campione locale che lo riduce in fin di vita. Il fratello minore, sconvolto dalla crudeltà…"
+},
+{
 "t": "The Perfect Man",
 "ty": "film",
 "s": "la5",
@@ -1066,8 +1075,8 @@
 "t": "Teen Titans Go!",
 "ty": "serie",
 "s": "boing",
-"time": "21:05",
-"dur": 15,
+"time": "20:55",
+"dur": 25,
 "m": [
 "risate",
 "emozione"
@@ -1836,7 +1845,7 @@
 "coppia"
 ],
 "v": 7.1,
-"vc": 8646,
+"vc": 8647,
 "l": "en",
 "gs": [
 27,
@@ -2522,6 +2531,32 @@
 "teams": [
 "Sapharia",
 "Destinazione Africa - Ep. 8"
+]
+},
+{
+"t": "Verona - GCL Super Cup Quarter Final",
+"ty": "sport",
+"s": "dazn",
+"time": "20:30",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su DAZN.",
+"teams": [
+"Verona",
+"GCL Super Cup Quarter Final"
 ]
 }
 ]
