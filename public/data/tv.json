@@ -165,37 +165,37 @@
 "d": "Mahir torna a Denizli vent'anni dopo l'assassinio del padre, deciso a vendicarlo. Ma la sua missione prende una piega inaspettata quando incontra Canfeza, la figlia di…"
 },
 {
-"t": "Bumblebee",
+"t": "Harry Potter e il prigioniero di Azkaban",
 "ty": "film",
 "s": "i1",
-"time": "22:52",
+"time": "22:47",
 "dur": 110,
 "m": [
+"emozione",
 "tensione"
 ],
-"g": "Azione",
-"e": "💥",
+"g": "Avventura",
+"e": "🗺️",
 "c": [
-"#cb2d3e",
-"#ef473a"
+"#f7971e",
+"#c94b4b"
 ],
 "w": [
 "solo",
 "coppia",
 "amici"
 ],
-"v": 6.7,
-"vc": 6954,
+"v": 8.0,
+"vc": 24012,
 "l": "en",
 "gs": [
-28,
 12,
-878
+14
 ],
-"y": "2018",
-"p": "/fN3mlJq5LV3oFJXbnMGe14qOKEc.jpg",
-"tmdb": "movie/424783",
-"d": "Infuria la guerra sul pianeta Cybertron tra Decepticons e Autobots e le cose si mettono male per questi ultimi, tanto che il loro leader Optimus Prime organizza una…"
+"y": "2004",
+"p": "/awKY7JPZpNvWWLCPViqmC5j8brj.jpg",
+"tmdb": "movie/673",
+"d": "Harry Potter ha tredici anni e deve trascorrere ancora una volta le vacanze estive con i terribili zii Dursley, i suoi unici parenti, che hanno un atteggiamento davvero…"
 },
 {
 "t": "Otto e mezzo",
@@ -403,7 +403,7 @@
 "coppia"
 ],
 "v": 7.7,
-"vc": 1925,
+"vc": 1926,
 "l": "en",
 "gs": [
 80,
@@ -731,7 +731,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 9612,
+"vc": 9613,
 "l": "en",
 "gs": [
 35
@@ -762,7 +762,7 @@
 "amici"
 ],
 "v": 5.7,
-"vc": 3946,
+"vc": 3948,
 "l": "en",
 "gs": [
 18,
@@ -1412,7 +1412,7 @@
 "coppia"
 ],
 "v": 6.0,
-"vc": 2598,
+"vc": 2599,
 "l": "en",
 "gs": [
 53,
@@ -1706,7 +1706,7 @@
 "amici"
 ],
 "v": 7.5,
-"vc": 6515,
+"vc": 6516,
 "l": "en",
 "gs": [
 12,
@@ -1738,7 +1738,7 @@
 "coppia"
 ],
 "v": 6.9,
-"vc": 1878,
+"vc": 1879,
 "l": "en",
 "gs": [
 53,
@@ -2023,7 +2023,7 @@
 "amici"
 ],
 "v": 6.2,
-"vc": 9563,
+"vc": 9564,
 "l": "en",
 "gs": [
 35
@@ -2088,7 +2088,7 @@
 "amici"
 ],
 "v": 7.3,
-"vc": 3143,
+"vc": 3144,
 "l": "en",
 "gs": [
 28,
@@ -2558,33 +2558,7 @@
 ]
 },
 {
-"t": "Chorale Roanne - Limoges",
-"ty": "sport",
-"s": "dazn",
-"time": "20:00",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su DAZN.",
-"teams": [
-"Chorale Roanne",
-"Limoges"
-]
-},
-{
-"t": "Hellas Verona - Cesena",
+"t": "Bristol Flyers - Cheshire Phoenix",
 "ty": "sport",
 "s": "dazn",
 "time": "20:30",
@@ -2605,8 +2579,8 @@
 ],
 "d": "In diretta su DAZN.",
 "teams": [
-"Hellas Verona",
-"Cesena"
+"Bristol Flyers",
+"Cheshire Phoenix"
 ]
 }
 ]
