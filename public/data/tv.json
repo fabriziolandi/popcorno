@@ -23,7 +23,7 @@
 "d": "Intrattenimento in prima serata su Rai 1."
 },
 {
-"t": "Meravigliosamente",
+"t": "SAL DA VINCI in Meravigliosamente",
 "ty": "show",
 "s": "rai1",
 "time": "21:30",
@@ -114,8 +114,8 @@
 "t": "La ruota della fortuna",
 "ty": "show",
 "s": "c5",
-"time": "20:36",
-"dur": 45,
+"time": "20:42",
+"dur": 39,
 "m": [
 "relax",
 "risate"
@@ -138,7 +138,7 @@
 "ty": "serie",
 "s": "c5",
 "time": "21:21",
-"dur": 195,
+"dur": 88,
 "m": [
 "emozione"
 ],
@@ -185,7 +185,7 @@
 "amici"
 ],
 "v": 6.7,
-"vc": 6953,
+"vc": 6954,
 "l": "en",
 "gs": [
 28,
@@ -341,7 +341,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12989,
+"vc": 12992,
 "l": "en",
 "gs": [
 35
@@ -372,7 +372,7 @@
 "amici"
 ],
 "v": 6.4,
-"vc": 6871,
+"vc": 6872,
 "l": "en",
 "gs": [
 28,
@@ -500,7 +500,7 @@
 "coppia"
 ],
 "v": 6.7,
-"vc": 1331,
+"vc": 1332,
 "l": "en",
 "gs": [
 80,
@@ -533,7 +533,7 @@
 "amici"
 ],
 "v": 6.1,
-"vc": 479,
+"vc": 480,
 "l": "en",
 "gs": [
 28,
@@ -546,32 +546,10 @@
 "d": "Dal romanzo Il castigo dell'Eiger di Trevanian. Collezionista d'arte ha avuto una doppia vita come agente della CIA. Per soldi e per vendicare la morte di un ex collega,…"
 },
 {
-"t": "Overland",
-"ty": "show",
-"s": "rai5",
-"time": "20:25",
-"dur": 55,
-"m": [
-"relax"
-],
-"w": [
-"famiglia",
-"coppia",
-"solo"
-],
-"g": "Documentario",
-"e": "🌍",
-"c": [
-"#56ab2f",
-"#a8e063"
-],
-"d": "Documentario in prima serata su Rai 5."
-},
-{
 "t": "Il Borgo dei Borghi",
 "ty": "show",
 "s": "rai5",
-"time": "21:20",
+"time": "21:19",
 "dur": 176,
 "m": [
 "relax"
@@ -753,7 +731,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 9611,
+"vc": 9612,
 "l": "en",
 "gs": [
 35
@@ -881,7 +859,7 @@
 "amici"
 ],
 "v": 5.6,
-"vc": 324,
+"vc": 325,
 "l": "en",
 "gs": [
 28,
@@ -1119,7 +1097,7 @@
 "coppia"
 ],
 "v": 7.6,
-"vc": 453,
+"vc": 454,
 "l": "en",
 "gs": [
 80,
@@ -1167,8 +1145,8 @@
 "t": "Cercami a Parigi",
 "ty": "serie",
 "s": "raigulp",
-"time": "20:50",
-"dur": 25,
+"time": "20:55",
+"dur": 20,
 "m": [
 "emozione"
 ],
@@ -1199,7 +1177,7 @@
 "t": "Goldrake U",
 "ty": "serie",
 "s": "raigulp",
-"time": "21:40",
+"time": "21:45",
 "dur": 50,
 "m": [
 "risate",
@@ -1286,8 +1264,8 @@
 "t": "Batwheels",
 "ty": "serie",
 "s": "cartoonito",
-"time": "21:00",
-"dur": 30,
+"time": "21:15",
+"dur": 20,
 "m": [
 "risate",
 "relax"
@@ -1319,8 +1297,8 @@
 "t": "Simone",
 "ty": "serie",
 "s": "cartoonito",
-"time": "21:30",
-"dur": 10,
+"time": "21:35",
+"dur": 5,
 "m": [
 "risate",
 "emozione"
@@ -1371,7 +1349,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 11188,
+"vc": 11189,
 "l": "en",
 "gs": [
 16,
@@ -1564,7 +1542,7 @@
 "coppia"
 ],
 "v": 6.5,
-"vc": 271,
+"vc": 272,
 "l": "en",
 "gs": [
 80,
@@ -1624,7 +1602,7 @@
 "amici"
 ],
 "v": 7.5,
-"vc": 12027,
+"vc": 12028,
 "l": "en",
 "gs": [
 12,
@@ -1658,7 +1636,7 @@
 "amici"
 ],
 "v": 8.3,
-"vc": 22798,
+"vc": 22799,
 "l": "en",
 "gs": [
 12,
@@ -1693,7 +1671,7 @@
 "amici"
 ],
 "v": 6.9,
-"vc": 6900,
+"vc": 6901,
 "l": "en",
 "gs": [
 16,
@@ -1792,7 +1770,7 @@
 "amici"
 ],
 "v": 7.6,
-"vc": 15772,
+"vc": 15774,
 "l": "en",
 "gs": [
 28,
@@ -1823,7 +1801,7 @@
 "coppia"
 ],
 "v": 5.7,
-"vc": 453,
+"vc": 454,
 "l": "en",
 "gs": [
 80
@@ -1886,7 +1864,7 @@
 "amici"
 ],
 "v": 6.5,
-"vc": 201,
+"vc": 202,
 "l": "en",
 "gs": [
 18
@@ -1979,7 +1957,7 @@
 "coppia"
 ],
 "v": 7.7,
-"vc": 7856,
+"vc": 7857,
 "l": "en",
 "gs": [
 53,
@@ -2045,7 +2023,7 @@
 "amici"
 ],
 "v": 6.2,
-"vc": 9562,
+"vc": 9563,
 "l": "en",
 "gs": [
 35
@@ -2110,7 +2088,7 @@
 "amici"
 ],
 "v": 7.3,
-"vc": 3142,
+"vc": 3143,
 "l": "en",
 "gs": [
 28,
@@ -2219,7 +2197,7 @@
 "coppia"
 ],
 "v": 7.6,
-"vc": 2626,
+"vc": 2627,
 "l": "en",
 "gs": [
 80,
@@ -2251,7 +2229,7 @@
 "coppia"
 ],
 "v": 7.2,
-"vc": 340,
+"vc": 341,
 "l": "en",
 "gs": [
 80,
