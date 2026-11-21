@@ -23,7 +23,7 @@
 "d": "Intrattenimento in prima serata su Rai 1."
 },
 {
-"t": "SAL DA VINCI in Meravigliosamente",
+"t": "Ballando con le Stelle",
 "ty": "show",
 "s": "rai1",
 "time": "21:30",
@@ -46,11 +46,98 @@
 "d": "Intrattenimento in prima serata su Rai 1."
 },
 {
-"t": "L'ispettore Coliandro",
+"t": "S.W.A.T. Exiles",
 "ty": "serie",
 "s": "rai2",
 "time": "21:20",
-"dur": 125,
+"dur": 50,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎭",
+"c": [
+"#41295a",
+"#2f0743"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.4,
+"vc": 29,
+"l": "en",
+"gs": [
+18,
+80
+],
+"y": "2026",
+"p": "/pPiEujhVa2MBSowmvnNWqEzxH0x.jpg",
+"tmdb": "tv/292742",
+"d": "Prima TV. Stagione 1 - Ep. 6. Dopo che una missione di alto profilo prende una brutta piega, Daniel \"Hondo\" Harrelson viene richiamato dal suo pensionamento forzato per guidare un'unità SWAT…"
+},
+{
+"t": "Sapiens Un solo pianeta",
+"ty": "show",
+"s": "rai3",
+"time": "21:30",
+"dur": 195,
+"m": [
+"relax"
+],
+"w": [
+"famiglia",
+"coppia",
+"solo"
+],
+"g": "Documentario",
+"e": "🌍",
+"c": [
+"#56ab2f",
+"#a8e063"
+],
+"d": "Documentario in prima serata su Rai 3."
+},
+{
+"t": "Jason Bourne",
+"ty": "film",
+"s": "r4",
+"time": "21:33",
+"dur": 152,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.4,
+"vc": 6488,
+"l": "en",
+"gs": [
+28,
+12,
+53
+],
+"y": "2016",
+"p": "/xk48cSDP4k641AQp9NcZ1Gze4si.jpg",
+"tmdb": "movie/324668",
+"d": "Nicky Parsons, ex-agente della CIA, si infiltra in un ritrovo di hacker a Reykjavik per penetrare nei segreti dell'agenzia statunitense; così facendo, recupera quello…"
+},
+{
+"t": "Fino a prova contraria",
+"ty": "film",
+"s": "r4",
+"time": "00:05",
+"dur": 110,
 "m": [
 "tensione"
 ],
@@ -64,58 +151,25 @@
 "solo",
 "coppia"
 ],
-"v": 8.1,
-"vc": 27,
-"l": "it",
+"v": 6.5,
+"vc": 899,
+"l": "en",
 "gs": [
 80,
-10759,
-35
+53,
+9648
 ],
-"y": "2006",
-"p": "/bPJbQyRJ0m5WAzMXZV6JOikZcTc.jpg",
-"tmdb": "tv/18863",
-"d": "Stagione 8 - Ep. 2. Coliandro è un ispettore in servizio alla questura di Bologna che si ritrova sempre invischiato, suo malgrado, in vicende più grandi di lui. Ma Coliandro non si tira mai…"
-},
-{
-"t": "Un posto al sole",
-"ty": "serie",
-"s": "rai3",
-"time": "20:50",
-"dur": 30,
-"m": [
-"emozione",
-"relax"
-],
-"g": "Soap",
-"e": "💌",
-"c": [
-"#ee9ca7",
-"#ffdde1"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 0,
-"vc": 4,
-"l": "it",
-"gs": [
-10766,
-18
-],
-"y": "1996",
-"p": "/usqmtjFRjn5WJ6Vh2Ce8bzUfF1a.jpg",
-"tmdb": "tv/105845",
-"d": "Le vite degli inquilini di Palazzo Palladini si intrecciano come quelle di una grande famiglia. In questo vero e proprio condominio vecchio stile non si è solo vicini di…"
+"y": "1999",
+"p": "/jJ3p9Kltom9lMfI9iyP9nOchQOl.jpg",
+"tmdb": "movie/10354",
+"d": "Chiuso da sei anni nella cella della morte del carcere di San Quentin, il giovane nero Frank deve essere giustiziato con una triplice iniezione letale un minuto dopo la…"
 },
 {
 "t": "La ruota della fortuna",
 "ty": "show",
 "s": "c5",
-"time": "20:42",
-"dur": 39,
+"time": "20:37",
+"dur": 43,
 "m": [
 "relax",
 "risate"
@@ -134,98 +188,99 @@
 "d": "Intrattenimento in prima serata su Canale 5."
 },
 {
-"t": "Racconto di una notte",
-"ty": "serie",
+"t": "Tu si que vales",
+"ty": "show",
 "s": "c5",
-"time": "21:21",
-"dur": 88,
+"time": "21:20",
+"dur": 215,
 "m": [
-"emozione"
+"relax",
+"risate"
 ],
-"g": "Drammatico",
-"e": "🎭",
+"w": [
+"famiglia",
+"coppia",
+"solo"
+],
+"g": "Intrattenimento",
+"e": "🎤",
 "c": [
-"#41295a",
-"#2f0743"
+"#c31432",
+"#240b36"
+],
+"d": "Intrattenimento in prima serata su Canale 5."
+},
+{
+"t": "NCIS - Unità anticrimine",
+"ty": "serie",
+"s": "i1",
+"time": "20:26",
+"dur": 51,
+"m": [
+"tensione"
+],
+"g": "Crime",
+"e": "🕵️",
+"c": [
+"#232526",
+"#414345"
 ],
 "w": [
 "solo",
-"coppia",
-"amici"
+"coppia"
 ],
-"v": 0,
-"vc": 6,
-"l": "tr",
+"v": 7.6,
+"vc": 2628,
+"l": "en",
 "gs": [
-18
+80,
+18,
+10759
 ],
-"y": "2024",
-"p": "/c8hTi8viYyaFYm0EHETjSDpc85t.jpg",
-"tmdb": "tv/261918",
-"d": "Mahir torna a Denizli vent'anni dopo l'assassinio del padre, deciso a vendicarlo. Ma la sua missione prende una piega inaspettata quando incontra Canfeza, la figlia di…"
+"y": "2003",
+"p": "/mCA9VTvNNMalJ0WBoUcjxMh4UJV.jpg",
+"tmdb": "tv/4614",
+"d": "L'NCIS (Naval Criminal Investigative Service) è un nucleo di agenti investigativi speciali incaricati di indagare su crimini che coinvolgono personale della Marina…"
 },
 {
-"t": "Harry Potter e il prigioniero di Azkaban",
+"t": "Animali fantastici - I segreti di Silente",
 "ty": "film",
 "s": "i1",
-"time": "22:47",
-"dur": 110,
+"time": "21:17",
+"dur": 217,
 "m": [
 "emozione",
 "tensione"
 ],
-"g": "Avventura",
-"e": "🗺️",
+"g": "Fantasy",
+"e": "🐉",
 "c": [
-"#f7971e",
-"#c94b4b"
+"#3a1c71",
+"#d76d77"
 ],
 "w": [
 "solo",
 "coppia",
 "amici"
 ],
-"v": 8.0,
-"vc": 24012,
+"v": 6.6,
+"vc": 5367,
 "l": "en",
 "gs": [
-12,
-14
+14,
+12
 ],
-"y": "2004",
-"p": "/awKY7JPZpNvWWLCPViqmC5j8brj.jpg",
-"tmdb": "movie/673",
-"d": "Harry Potter ha tredici anni e deve trascorrere ancora una volta le vacanze estive con i terribili zii Dursley, i suoi unici parenti, che hanno un atteggiamento davvero…"
+"y": "2022",
+"p": "/fTcXI2PuH1AQfIia2whEcMMQqI9.jpg",
+"tmdb": "movie/338953",
+"d": "Il professor Albus Silente sa che il potente mago oscuro Gellert Grindelwald è intenzionato a prendere il controllo del mondo magico. Non essendo in grado di fermarlo da…"
 },
 {
-"t": "Otto e mezzo",
-"ty": "show",
-"s": "la7",
-"time": "20:35",
-"dur": 40,
-"m": [
-"relax",
-"risate"
-],
-"w": [
-"famiglia",
-"coppia",
-"solo"
-],
-"g": "Intrattenimento",
-"e": "🎤",
-"c": [
-"#c31432",
-"#240b36"
-],
-"d": "Intrattenimento in prima serata su La7."
-},
-{
-"t": "Italia per due: Consigli... 1^TV",
+"t": "Alessandro Borghese - 4 Ristoranti",
 "ty": "show",
 "s": "tv8",
-"time": "20:40",
-"dur": 60,
+"time": "21:35",
+"dur": 85,
 "m": [
 "relax"
 ],
@@ -234,128 +289,19 @@
 "coppia",
 "solo"
 ],
-"g": "Documentario",
-"e": "🌍",
+"g": "Lifestyle",
+"e": "🍝",
 "c": [
-"#56ab2f",
-"#a8e063"
+"#ff9a9e",
+"#f6416c"
 ],
-"d": "Documentario in prima serata su TV8."
+"d": "Lifestyle in prima serata su TV8."
 },
 {
-"t": "Avvocato Ligas",
-"ty": "serie",
-"s": "tv8",
-"time": "21:40",
-"dur": 70,
-"m": [
-"emozione"
-],
-"g": "Drammatico",
-"e": "🎭",
-"c": [
-"#41295a",
-"#2f0743"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 7.8,
-"vc": 21,
-"l": "it",
-"gs": [
-18
-],
-"y": "2026",
-"p": "/vZJsHSCcS42IK1SA9sR0Un10coE.jpg",
-"tmdb": "tv/314658",
-"d": "Stagione 1 - Ep. 5. Geniale ma controverso, l'avvocato Lorenzo Ligas lotta per i casi disperati di Milano con la tirocinante idealista Marta, cercando giustizia mentre affronta i propri…"
-},
-{
-"t": "Cash or Trash - Chi offre di piu'?",
-"ty": "show",
-"s": "nove",
-"time": "20:25",
-"dur": 65,
-"m": [
-"relax",
-"risate"
-],
-"w": [
-"famiglia",
-"coppia",
-"solo"
-],
-"g": "Intrattenimento",
-"e": "🎤",
-"c": [
-"#c31432",
-"#240b36"
-],
-"d": "Intrattenimento in prima serata su Nove."
-},
-{
-"t": "Fratelli di Crozza",
-"ty": "show",
-"s": "nove",
-"time": "21:30",
-"dur": 95,
-"m": [
-"relax",
-"risate"
-],
-"w": [
-"famiglia",
-"coppia",
-"solo"
-],
-"g": "Intrattenimento",
-"e": "🎤",
-"c": [
-"#c31432",
-"#240b36"
-],
-"d": "Intrattenimento in prima serata su Nove."
-},
-{
-"t": "The Big Bang Theory",
-"ty": "serie",
-"s": "venti",
-"time": "20:35",
-"dur": 35,
-"m": [
-"risate",
-"relax"
-],
-"g": "Commedia",
-"e": "😂",
-"c": [
-"#f7971e",
-"#ffd200"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 7.9,
-"vc": 12992,
-"l": "en",
-"gs": [
-35
-],
-"y": "2007",
-"p": "/euKFiO5M125rpngFRBbSW83beeI.jpg",
-"tmdb": "tv/1418",
-"d": "Pasadena, California. Quattro giovani scienziati di diversi campi – il fisico sperimentale Leonard Hofstadter, il fisico teorico Sheldon Cooper, l'astrofisico Rajesh…"
-},
-{
-"t": "Atomica bionda",
+"t": "300",
 "ty": "film",
 "s": "venti",
-"time": "21:10",
+"time": "21:09",
 "dur": 153,
 "m": [
 "tensione"
@@ -371,24 +317,25 @@
 "coppia",
 "amici"
 ],
-"v": 6.4,
-"vc": 6872,
+"v": 7.2,
+"vc": 15317,
 "l": "en",
 "gs": [
 28,
-53
+12,
+10752
 ],
-"y": "2017",
-"p": "/c7EgXIrmX2VcNCugXl0mXbrJo2P.jpg",
-"tmdb": "movie/341013",
-"d": "In piena Guerra fredda, Lorraine Broughton, una agente sotto copertura del MI6, viene spedita a Berlino per recuperare un prezioso dossier. Una volta in Germania, si…"
+"y": "2007",
+"p": "/p5mkzoF4xSaDhAB4oCNBHHojjqn.jpg",
+"tmdb": "movie/1271",
+"d": "300 è il numero di spartani che si opposero al re persiano Serse nel 480 A.C. Questa pellicola narra infatti di una storia realmente accaduta, di una battaglia epica…"
 },
 {
 "t": "Hawaii Five-0",
 "ty": "serie",
 "s": "rai4",
-"time": "20:32",
-"dur": 47,
+"time": "20:33",
+"dur": 48,
 "m": [
 "tensione"
 ],
@@ -403,7 +350,7 @@
 "coppia"
 ],
 "v": 7.7,
-"vc": 1926,
+"vc": 1928,
 "l": "en",
 "gs": [
 80,
@@ -416,108 +363,73 @@
 "d": "Crime poliziesco, remake della famosa serie anni '70 che segue le vicende di un gruppo d'élite della polizia Hawaiana che segue soltanto i crimini più sensazionali e…"
 },
 {
-"t": "Fast Charlie",
+"t": "Io sono Alice",
 "ty": "film",
 "s": "rai4",
-"time": "21:19",
-"dur": 97,
+"time": "21:21",
+"dur": 104,
 "m": [
 "tensione"
 ],
-"g": "Azione",
-"e": "💥",
-"c": [
-"#cb2d3e",
-"#ef473a"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.3,
-"vc": 380,
-"l": "en",
-"gs": [
-28,
-80,
-18
-],
-"y": "2023",
-"p": "/w0rYX6dDvcz1ASO4MAKPviaAj2x.jpg",
-"tmdb": "movie/945937",
-"d": "Charlie Swift è un faccendiere con un problema: al delinquente che ha fatto fuori manca la testa e Charlie verrà pagato solo se il corpo verrà identificato."
-},
-{
-"t": "Savage Dog - Il selvaggio",
-"ty": "film",
-"s": "rai4",
-"time": "22:56",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Azione",
-"e": "💥",
-"c": [
-"#cb2d3e",
-"#ef473a"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 5.3,
-"vc": 142,
-"l": "en",
-"gs": [
-28,
-18
-],
-"y": "2017",
-"p": "/fvoUExpdoIBhbI5kgVmPAIvERRU.jpg",
-"tmdb": "movie/437291",
-"d": "L’Indocina nel 1959 è una terra senza legge controllata dalle fazioni criminali formate dai vietnamiti e dagli europei. Il campo di lavori forzati di Den-Dhin-Chan è…"
-},
-{
-"t": "Potere assoluto",
-"ty": "film",
-"s": "iris",
-"time": "21:13",
-"dur": 152,
-"m": [
-"tensione"
-],
-"g": "Crime",
-"e": "🕵️",
+"g": "Thriller",
+"e": "😬",
 "c": [
 "#232526",
-"#414345"
+"#5b5e49"
 ],
 "w": [
 "solo",
 "coppia"
 ],
-"v": 6.7,
-"vc": 1332,
+"v": 5.6,
+"vc": 87,
 "l": "en",
 "gs": [
-80,
-18,
-28
+53,
+18
 ],
-"y": "1997",
-"p": "/vbbeuAdGQNo9qOl4NVOmTQNQbY7.jpg",
-"tmdb": "movie/66",
-"d": "Al presidente degli Stati Uniti non basta portarsi a letto la moglie del suo migliore amico e sostenitore, ma la picchia e ne nasce una lite furibonda. Le guardie del…"
+"y": "2022",
+"p": "/jrGyjoCsRLVbzmsaeFCueOnGOKL.jpg",
+"tmdb": "movie/714676",
+"d": "Alice trascorre le sue giornate come schiava in una piantagione rurale della Georgia, desiderando irrefrenabilmente la libertà. Dopo un violento scontro con il…"
 },
 {
-"t": "Assassinio sull'Eiger",
+"t": "Sons",
+"ty": "film",
+"s": "rai4",
+"time": "23:05",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Thriller",
+"e": "😬",
+"c": [
+"#232526",
+"#5b5e49"
+],
+"w": [
+"solo",
+"coppia"
+],
+"v": 6.5,
+"vc": 112,
+"l": "da",
+"gs": [
+53,
+18
+],
+"y": "2024",
+"p": "/9O2wkxR1gBZqbYudqub438JXKhl.jpg",
+"tmdb": "movie/1113120",
+"d": "Eva, una guardia carceraria idealista, si trova ad affrontare il dilemma della sua vita quando un giovane del suo passato viene trasferito nel carcere in cui lavora.…"
+},
+{
+"t": "Sotto il segno del pericolo",
 "ty": "film",
 "s": "iris",
-"time": "23:45",
-"dur": 110,
+"time": "21:14",
+"dur": 180,
 "m": [
 "tensione"
 ],
@@ -532,25 +444,57 @@
 "coppia",
 "amici"
 ],
-"v": 6.1,
-"vc": 480,
+"v": 6.6,
+"vc": 1788,
 "l": "en",
 "gs": [
 28,
-12,
-18
+18,
+53
 ],
-"y": "1975",
-"p": "/2Yp1Nps41fjmj90ulrZNNlsaTm1.jpg",
-"tmdb": "movie/20187",
-"d": "Dal romanzo Il castigo dell'Eiger di Trevanian. Collezionista d'arte ha avuto una doppia vita come agente della CIA. Per soldi e per vendicare la morte di un ex collega,…"
+"y": "1994",
+"p": "/zV9XJwb0UY0sxEc4ohARnLC2Bee.jpg",
+"tmdb": "movie/9331",
+"d": "Quando il suo mentore, l'Ammiraglio James Greer, si ammala gravemente, Jack Ryan viene assegnato alla carica di Vice Direttore dell'Intelligence della CIA. Il suo primo…"
 },
 {
-"t": "Il Borgo dei Borghi",
+"t": "Al vertice della tensione",
+"ty": "film",
+"s": "iris",
+"time": "00:14",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Thriller",
+"e": "😬",
+"c": [
+"#232526",
+"#5b5e49"
+],
+"w": [
+"solo",
+"coppia"
+],
+"v": 6.4,
+"vc": 2096,
+"l": "en",
+"gs": [
+53,
+28,
+18
+],
+"y": "2002",
+"p": "/uUY1q0d5ysvJbnn7x6RovypgTLC.jpg",
+"tmdb": "movie/4614",
+"d": "Jack Ryan, giovane analista, da poco entrato alla CIA, viene incaricato da WIlliam Cabot, capo del controspionaggio, di una missione particolarmente pericolosa: mettersi…"
+},
+{
+"t": "Overland",
 "ty": "show",
 "s": "rai5",
-"time": "21:19",
-"dur": 176,
+"time": "20:27",
+"dur": 53,
 "m": [
 "relax"
 ],
@@ -568,314 +512,11 @@
 "d": "Documentario in prima serata su Rai 5."
 },
 {
-"t": "Scusate se esisto!",
-"ty": "film",
-"s": "raimovie",
-"time": "21:10",
-"dur": 105,
-"m": [
-"risate",
-"relax"
-],
-"g": "Commedia",
-"e": "😂",
-"c": [
-"#f7971e",
-"#ffd200"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.4,
-"vc": 597,
-"l": "it",
-"gs": [
-35
-],
-"y": "2014",
-"p": "/gK2EeqBWLDQg29V6SoTKw16NZG7.jpg",
-"tmdb": "movie/298729",
-"d": "Serena Bruno proviene da un paesino abruzzese, è laureata in architettura con il massimo dei voti, ha un master e conosce molte lingue straniere. Lavora a Londra, dove…"
-},
-{
-"t": "Piedone a Hong Kong",
-"ty": "film",
-"s": "raimovie",
-"time": "22:55",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Azione",
-"e": "💥",
-"c": [
-"#cb2d3e",
-"#ef473a"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.3,
-"vc": 160,
-"l": "it",
-"gs": [
-28,
-35,
-53
-],
-"y": "1975",
-"p": "/uWOUQa0zcgtGGlZNR4OfF4U2i2L.jpg",
-"tmdb": "movie/11053",
-"d": "Parecchio da fare per il commissario Rizzo della sezione narcotici di Napoli. I superiori non condividono i suoi sistemi e c'è perfino un inviato da New York che…"
-},
-{
-"t": "Il commissario Rex",
-"ty": "serie",
-"s": "raipremium",
-"time": "20:25",
-"dur": 55,
-"m": [
-"tensione"
-],
-"g": "Azione",
-"e": "💥",
-"c": [
-"#cb2d3e",
-"#ef473a"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 7.8,
-"vc": 20,
-"l": "it",
-"gs": [
-10759,
-80,
-18
-],
-"y": "2008",
-"p": "/iqpkxQLqxF7ZQUL6e4nAfLfprif.jpg",
-"tmdb": "tv/95926",
-"d": "Rex è stata una serie televisiva poliziesca di produzione italiana, sequel delle avventure della serie austriaca Il commissario Rex."
-},
-{
-"t": "Un omicidio per due",
-"ty": "serie",
-"s": "raipremium",
-"time": "21:20",
-"dur": 95,
-"m": [
-"emozione"
-],
-"g": "Serie",
-"e": "📺",
-"c": [
-"#614385",
-"#516395"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"d": "Serie in prima serata su Rai Premium."
-},
-{
-"t": "Squadra Omicidi Spalato",
-"ty": "serie",
-"s": "raipremium",
-"time": "22:55",
-"dur": 50,
-"m": [
-"emozione"
-],
-"g": "Serie",
-"e": "📺",
-"c": [
-"#614385",
-"#516395"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"d": "Serie in prima serata su Rai Premium."
-},
-{
-"t": "Friends",
-"ty": "serie",
-"s": "cielo",
-"time": "20:50",
-"dur": 30,
-"m": [
-"risate",
-"relax"
-],
-"g": "Commedia",
-"e": "😂",
-"c": [
-"#f7971e",
-"#ffd200"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 8.4,
-"vc": 9613,
-"l": "en",
-"gs": [
-35
-],
-"y": "1994",
-"p": "/2koX1xLkpTQM4IZebYvKysFW1Nh.jpg",
-"tmdb": "tv/1668",
-"d": "Una delle commedie televisive più amate di sempre su un gruppo di sei amici trentenni, la trama si svolge prevalentemente in due appartamenti e un Coffee-Bar: Monica,…"
-},
-{
-"t": "Ultimatum alla Terra",
-"ty": "film",
-"s": "cielo",
-"time": "21:20",
-"dur": 120,
-"m": [
-"emozione"
-],
-"g": "Drammatico",
-"e": "🎭",
-"c": [
-"#41295a",
-"#2f0743"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 5.7,
-"vc": 3948,
-"l": "en",
-"gs": [
-18,
-878,
-53
-],
-"y": "2008",
-"p": "/v2ePTIb7VmdZPOnHvCd4SsyFW3a.jpg",
-"tmdb": "movie/10200",
-"d": "Una smisurata e misteriosa sfera luminosa atterra tra gli alberi di Central Park e sotto gli occhi meravigliati dei newyorkesi. L'alieno che la abita e ne discende viene…"
-},
-{
-"t": "Beyond the Law - L'infiltrato",
-"ty": "film",
-"s": "cielo",
-"time": "23:20",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Azione",
-"e": "💥",
-"c": [
-"#cb2d3e",
-"#ef473a"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 5.2,
-"vc": 104,
-"l": "en",
-"gs": [
-28
-],
-"y": "2019",
-"p": "/w6vFX58SCxXFhsPXoOzmTPz0i26.jpg",
-"tmdb": "movie/650272",
-"d": "Frank Wilson è un ex poliziotto che viene riportato alla sua vecchia vita quando viene ucciso suo figlio. Senza niente da perdere, si mette alla ricerca di risposte tra…"
-},
-{
-"t": "The Wedding Date - L'amore ha il suo prezzo",
-"ty": "film",
-"s": "la5",
-"time": "21:15",
-"dur": 102,
-"m": [
-"emozione",
-"relax"
-],
-"g": "Romantico",
-"e": "💕",
-"c": [
-"#a8577e",
-"#f1a7a1"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.8,
-"vc": 1301,
-"l": "en",
-"gs": [
-10749,
-35
-],
-"y": "2005",
-"p": "/6CgolFc5QN5omJ97wgprnxlSMIS.jpg",
-"tmdb": "movie/6961",
-"d": "Kat è una single delusa ed ancora segretamente innamorata del proprio ex, dal quale è stata scaricata anni prima senza troppe spiegazioni. Alla notizia che la…"
-},
-{
-"t": "Matrimonio impossibile",
-"ty": "film",
-"s": "la5",
-"time": "22:57",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Azione",
-"e": "💥",
-"c": [
-"#cb2d3e",
-"#ef473a"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 5.6,
-"vc": 325,
-"l": "en",
-"gs": [
-28,
-35
-],
-"y": "2003",
-"p": "/nrdNIBaonDQEJNHYp834zlWie8d.jpg",
-"tmdb": "movie/5146",
-"d": "Mark e Melissa hanno deciso di sposarsi e i preparativi sono a buon punto, manca solamente far incontrare le rispettive famiglie. Il padre di lei, Jerry, è un ansioso…"
-},
-{
-"t": "Casa a prima vista",
+"t": "Il coro degli amanti",
 "ty": "show",
-"s": "realtime",
-"time": "20:35",
-"dur": 60,
+"s": "rai5",
+"time": "21:20",
+"dur": 133,
 "m": [
 "relax"
 ],
@@ -890,14 +531,219 @@
 "#56ab2f",
 "#a8e063"
 ],
-"d": "Documentario in prima serata su Real Time."
+"d": "Documentario in prima serata su Rai 5."
+},
+{
+"t": "Piedone l'africano",
+"ty": "film",
+"s": "raimovie",
+"time": "21:10",
+"dur": 115,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.2,
+"vc": 184,
+"l": "it",
+"gs": [
+28,
+35,
+80
+],
+"y": "1978",
+"p": "/cMqcygtXvIthmBh5l8pSX9XYYD8.jpg",
+"tmdb": "movie/11055",
+"d": "Un agente nero, proveniente dal Sudafrica per mettersi in contatto con il commissario Rizzo, viene ucciso a Napoli. Il poliziotto napoletano parte subito per…"
+},
+{
+"t": "Heat - La sfida",
+"ty": "film",
+"s": "raimovie",
+"time": "23:05",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Crime",
+"e": "🕵️",
+"c": [
+"#232526",
+"#414345"
+],
+"w": [
+"solo",
+"coppia"
+],
+"v": 7.9,
+"vc": 8921,
+"l": "en",
+"gs": [
+80,
+18,
+28
+],
+"y": "1995",
+"p": "/sbKoZGcyDHEhOQ6VntxP3jEJnIs.jpg",
+"tmdb": "movie/949",
+"d": "Neil McCauley è un pericoloso criminale che ha passato molti anni della sua vita in galera ed è fermamente deciso a non metterci mai più piede. Ma ora a Los Angeles c'è…"
+},
+{
+"t": "Doc – Nelle tue mani",
+"ty": "serie",
+"s": "raipremium",
+"time": "21:20",
+"dur": 60,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎭",
+"c": [
+"#41295a",
+"#2f0743"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 8.1,
+"vc": 214,
+"l": "it",
+"gs": [
+18,
+10759
+],
+"y": "2020",
+"p": "/6yFfvnYMGXYmGbtmiIrRuRzJzUU.jpg",
+"tmdb": "tv/101048",
+"d": "Stagione 4 - Ep. 13. Andrea Fanti, un brillante primario di Medicina interna del Policlinico Ambrosanio. Ha una personalità autorevole, sicura di sé, preparata, in grado di prendere in mano…"
+},
+{
+"t": "Airport Security: Madrid",
+"ty": "show",
+"s": "cielo",
+"time": "20:35",
+"dur": 50,
+"m": [
+"relax"
+],
+"w": [
+"famiglia",
+"coppia",
+"solo"
+],
+"g": "Documentario",
+"e": "🌍",
+"c": [
+"#56ab2f",
+"#a8e063"
+],
+"d": "Documentario in prima serata su Cielo."
+},
+{
+"t": "Men in Black",
+"ty": "film",
+"s": "cielo",
+"time": "21:25",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 7.2,
+"vc": 15459,
+"l": "en",
+"gs": [
+28,
+12,
+35
+],
+"y": "1997",
+"p": "/4yNhfCbAdD18mzqv8IFG1sNVp2H.jpg",
+"tmdb": "movie/607",
+"d": "Dal 1963 gli extraterrestri sono tra noi: sbarcano clandestinamente, assumono sembianze umane e i più s'integrano pacificamente. Nessuno lo sa, tranne il governo degli…"
+},
+{
+"t": "Rosamunde Pilcher: Il coraggio di ricominciare",
+"ty": "film",
+"s": "la5",
+"time": "21:10",
+"dur": 112,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎬",
+"c": [
+"#614385",
+"#516395"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"d": "Film in prima serata su La 5."
+},
+{
+"t": "Il segreto del suo passato",
+"ty": "film",
+"s": "la5",
+"time": "23:02",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Thriller",
+"e": "😬",
+"c": [
+"#232526",
+"#5b5e49"
+],
+"w": [
+"solo",
+"coppia"
+],
+"v": 6.4,
+"vc": 18,
+"l": "en",
+"gs": [
+53,
+10770
+],
+"y": "2016",
+"p": "/9AJKhyLTUb1Nz1bf6mM3MY04atC.jpg",
+"tmdb": "movie/432831",
+"d": "La popolare romanziera del crimine, Jennifer Becker, vive una vita sontuosa in una piccola città costiera della California con sua figlia, Lily. Un giorno, mentre è…"
 },
 {
 "t": "Bake Off Italia: dolci in forno",
 "ty": "show",
 "s": "realtime",
-"time": "21:35",
-"dur": 120,
+"time": "20:40",
+"dur": 160,
 "m": [
 "relax",
 "risate"
@@ -916,43 +762,42 @@
 "d": "Intrattenimento in prima serata su Real Time."
 },
 {
-"t": "Da grande",
+"t": "Zucchero, miele e peperoncino",
 "ty": "film",
 "s": "cine34",
-"time": "21:00",
-"dur": 113,
+"time": "21:15",
+"dur": 146,
 "m": [
-"emozione",
-"tensione"
+"risate",
+"relax"
 ],
-"g": "Fantasy",
-"e": "🐉",
+"g": "Commedia",
+"e": "😂",
 "c": [
-"#3a1c71",
-"#d76d77"
+"#f7971e",
+"#ffd200"
 ],
 "w": [
 "solo",
 "coppia",
 "amici"
 ],
-"v": 6.0,
-"vc": 204,
+"v": 5.9,
+"vc": 66,
 "l": "it",
 "gs": [
-14,
 35
 ],
-"y": "1987",
-"p": "/e9YszGfap4GhfNYEtoiU9VEWhah.jpg",
-"tmdb": "movie/57918",
-"d": "Marco compie otto anni e dopo una giornata difficile a scuola scopre che il padre Claudio non è riuscito a regalargli il grande Lego che gli aveva promesso. Ne nasce…"
+"y": "1980",
+"p": "/o1QUDhO0HAfCO1YaQBMHISiIFZp.jpg",
+"tmdb": "movie/48961",
+"d": "Il film si articola in tre episodi comici, nei quali i protagonisti raccontano in un tribunale le loro vicissitudini. Nel primo episodio Lino Banfi interpreta un…"
 },
 {
-"t": "Serafino",
+"t": "Occhio, malocchio, prezzemolo e finocchio",
 "ty": "film",
 "s": "cine34",
-"time": "22:53",
+"time": "23:41",
 "dur": 110,
 "m": [
 "risate",
@@ -969,23 +814,23 @@
 "coppia",
 "amici"
 ],
-"v": 6.0,
-"vc": 88,
+"v": 5.9,
+"vc": 124,
 "l": "it",
 "gs": [
 35
 ],
-"y": "1968",
-"p": "/60BNQoHZUyoDpp4AjdqtBHvTc5u.jpg",
-"tmdb": "movie/50197",
-"d": "Il giovane Serafino Fiorin, giovane e scanzonato pastore, tornato dal servizio militare, congedato anzitempo per \"insufficienza mentale\", si trova erede di tutti i beni…"
+"y": "1983",
+"p": "/hSixouCxKXgIlIVGubXFEHq73rz.jpg",
+"tmdb": "movie/55493",
+"d": "Due episodi: nel primo un commerciante è convinto di essere vittima del vicino, che crede uno iettatore potentissimo. Si risolverà tutto per il meglio quando interverrà…"
 },
 {
 "t": "Enigmi alieni",
 "ty": "show",
 "s": "focus",
-"time": "20:30",
-"dur": 50,
+"time": "20:36",
+"dur": 51,
 "m": [
 "relax"
 ],
@@ -1003,11 +848,11 @@
 "d": "Documentario in prima serata su Focus."
 },
 {
-"t": "Freedom oltre il confine - Focus",
+"t": "Il respiro della terra",
 "ty": "show",
 "s": "focus",
-"time": "21:20",
-"dur": 155,
+"time": "21:27",
+"dur": 119,
 "m": [
 "relax"
 ],
@@ -1025,41 +870,10 @@
 "d": "Documentario in prima serata su Focus."
 },
 {
-"t": "Jacobs: un veterinario per agente",
-"ty": "serie",
-"s": "giallo",
-"time": "21:10",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Crime",
-"e": "🕵️",
-"c": [
-"#232526",
-"#414345"
-],
-"w": [
-"solo",
-"coppia"
-],
-"v": 6.5,
-"vc": 26,
-"l": "de",
-"gs": [
-80,
-18
-],
-"y": "2014",
-"p": "/urMmpyNfasSsFI5EVt3Z2IOfEjP.jpg",
-"tmdb": "tv/64838",
-"d": "Prima TV. Stagione 1 - Ep. 29. L’ex detective Hauke Jacobs: un uomo che ha deciso di rifarsi una vita e stabilirsi sul Mar Baltico per ragioni misteriose, finirà a vivere nel villaggio di Schwanitz…"
-},
-{
-"t": "I misteri di Murdoch - C'era una volta il Natale di Murdoch",
+"t": "I misteri di Murdoch - A casa per le feste",
 "ty": "film",
 "s": "giallo",
-"time": "23:00",
+"time": "21:10",
 "dur": 110,
 "m": [
 "emozione"
@@ -1078,11 +892,66 @@
 "d": "Film in prima serata su Giallo."
 },
 {
+"t": "Alexa - Vita da detective",
+"ty": "serie",
+"s": "giallo",
+"time": "23:00",
+"dur": 50,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎭",
+"c": [
+"#41295a",
+"#2f0743"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 7.1,
+"vc": 75,
+"l": "en",
+"gs": [
+18,
+80,
+9648
+],
+"y": "2019",
+"p": "/iMdJbjePWNEKVTdFEYnJzNo1HOJ.jpg",
+"tmdb": "tv/91267",
+"d": "La serie segue le avventure dell'intrepida ex agente di polizia e attuale consulente Alexa Crowe, che aiuta la polizia a risolvere una serie di omicidi complessi con…"
+},
+{
+"t": "La Signora in giallo - L'ultimo uomo libero",
+"ty": "film",
+"s": "topcrime",
+"time": "21:16",
+"dur": 109,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎬",
+"c": [
+"#614385",
+"#516395"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"d": "Film in prima serata su Top Crime."
+},
+{
 "t": "FBI: Most Wanted",
 "ty": "serie",
 "s": "topcrime",
-"time": "21:14",
-"dur": 54,
+"time": "23:05",
+"dur": 50,
 "m": [
 "tensione"
 ],
@@ -1106,13 +975,13 @@
 "y": "2020",
 "p": "/uwTNBqFrEur3EtK8ofWbtGXMQOP.jpg",
 "tmdb": "tv/94372",
-"d": "Stagione 5 - Ep. 1. Una squadra speciale dell'FBI ha il compito di catturare i malviventi e terroristi più ricercati negli Stati Uniti, e che costituiscono una seria minaccia per la…"
+"d": "Una squadra speciale dell'FBI ha il compito di catturare i malviventi e terroristi più ricercati negli Stati Uniti, e che costituiscono una seria minaccia per la…"
 },
 {
 "t": "Captain Tsubasa",
 "ty": "serie",
 "s": "boing",
-"time": "21:25",
+"time": "20:40",
 "dur": 30,
 "m": [
 "risate",
@@ -1142,42 +1011,31 @@
 "d": "Nuova trasposizione ambientata ai giorni del classico calcistico degli anni '80. Tsubasa Oozora è un bambino con un amore nel calcio pari soltanto alla sua abilità;…"
 },
 {
-"t": "Cercami a Parigi",
+"t": "Il diritto alla felicità",
 "ty": "serie",
 "s": "raigulp",
-"time": "20:55",
-"dur": 20,
+"time": "20:50",
+"dur": 80,
 "m": [
 "emozione"
 ],
-"g": "Drammatico",
-"e": "🎭",
+"g": "Cartoni",
+"e": "📺",
 "c": [
-"#41295a",
-"#2f0743"
+"#614385",
+"#516395"
 ],
 "kids": 1,
 "w": [
 "famiglia"
 ],
-"v": 8.0,
-"vc": 138,
-"l": "fr",
-"gs": [
-18,
-10765,
-35
-],
-"y": "2018",
-"p": "/ngCjcKEcMSDncJDX7wT3y63WYhx.jpg",
-"tmdb": "tv/82199",
-"d": "Lena Grisky è una principessa russa che studia alla scuola di danza dell’Opéra di Parigi e accidentalmente viaggia nel tempo fino ai giorni nostri. Ma per mantenere il…"
+"d": "Serie in prima serata su Rai Gulp."
 },
 {
-"t": "Goldrake U",
+"t": "Il campeggio",
 "ty": "serie",
 "s": "raigulp",
-"time": "21:45",
+"time": "22:10",
 "dur": 50,
 "m": [
 "risate",
@@ -1193,57 +1051,45 @@
 "w": [
 "famiglia"
 ],
-"v": 0,
-"vc": 9,
-"l": "ja",
+"v": 7.7,
+"vc": 60,
+"l": "en",
 "gs": [
 16,
-10759,
+35,
 10765
 ],
-"y": "2024",
-"p": "/csjNrSGvHbz3jCsNQ9dKnwS7RYT.jpg",
-"tmdb": "tv/232022",
-"d": "In seguito ad un devastante attacco da parte delle forze di Vega sul pianeta Fleed, Duke Fleed e Goldrake fuggirono sulla Terra. Quando arrivò lì, il dottor Amon, il…"
+"y": "2018",
+"p": "/syipk7iIpV4DTvGuBuEqrVbAbaY.jpg",
+"tmdb": "tv/81665",
+"d": "Oscar e Scricciola sono migliori amici e partecipano insieme al loro primo campeggio estivo…ma non sarà un’estate come le altre! L’isola è, infatti, abitata da creature…"
 },
 {
-"t": "Bing",
+"t": "Winnie the Pooh alla ricerca di Christopher Robin",
 "ty": "serie",
 "s": "raiyoyo",
-"time": "21:20",
-"dur": 15,
+"time": "20:45",
+"dur": 75,
 "m": [
-"risate",
-"relax"
+"emozione"
 ],
-"g": "Per bambini",
-"e": "🧸",
+"g": "Cartoni",
+"e": "📺",
 "c": [
-"#56ccf2",
-"#2f80ed"
+"#614385",
+"#516395"
 ],
 "kids": 1,
 "w": [
 "famiglia"
 ],
-"v": 0,
-"vc": 0,
-"l": "en",
-"gs": [
-10762,
-16,
-10751
-],
-"y": "2014",
-"p": "/2p7S8pkFQsmZjSLaCZmCphdLaXz.jpg",
-"tmdb": "tv/69501",
-"d": "Bing è un coniglietto di età prescolare che in ogni episodio affronta sfide che sembrano alla sua portata, ma che, al contrario, si rivelano spesso più grandi di lui.…"
+"d": "Serie in prima serata su Rai Yoyo."
 },
 {
 "t": "Buonanotte con Carolina Storie e letterine",
 "ty": "serie",
 "s": "raiyoyo",
-"time": "21:45",
+"time": "22:00",
 "dur": 50,
 "m": [
 "emozione"
@@ -1264,8 +1110,8 @@
 "t": "Batwheels",
 "ty": "serie",
 "s": "cartoonito",
-"time": "21:15",
-"dur": 20,
+"time": "21:05",
+"dur": 30,
 "m": [
 "risate",
 "relax"
@@ -1330,7 +1176,7 @@
 "t": "I Simpson",
 "ty": "serie",
 "s": "italia2",
-"time": "20:48",
+"time": "20:49",
 "dur": 22,
 "m": [
 "risate",
@@ -1349,7 +1195,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 11189,
+"vc": 11191,
 "l": "en",
 "gs": [
 16,
@@ -1361,11 +1207,41 @@
 "d": "I Simpson (The Simpsons) è una popolare sitcom animata creata dal fumettista statunitense Matt Groening alla fine degli anni ottanta per la Fox Broadcasting Company. È…"
 },
 {
+"t": "L'esorcista",
+"ty": "film",
+"s": "italia2",
+"time": "21:11",
+"dur": 158,
+"m": [
+"tensione"
+],
+"g": "Horror",
+"e": "👻",
+"c": [
+"#1a0000",
+"#7a0000"
+],
+"w": [
+"solo",
+"coppia"
+],
+"v": 7.8,
+"vc": 9055,
+"l": "en",
+"gs": [
+27
+],
+"y": "1973",
+"p": "/49uIBJqG4ugL7KC2yBhz0nCLeHG.jpg",
+"tmdb": "movie/9552",
+"d": "In un quartiere tranquillo, in una casa dotata di tutti i moderni comfort, una ragazzina modello cade ammalata. La madre non può aiutarla. I medici non riescono ad…"
+},
+{
 "t": "L'ultima casa a sinistra",
 "ty": "film",
 "s": "italia2",
-"time": "21:10",
-"dur": 143,
+"time": "23:49",
+"dur": 110,
 "m": [
 "tensione"
 ],
@@ -1393,43 +1269,33 @@
 "d": "La sera in cui arrivano nella casa sul lago nei pressi di una remota cittadina, Mari saluta i suoi genitori e va a trovare la sua sua amica Paige. La stessa sera le due…"
 },
 {
-"t": "Cocainorso",
-"ty": "film",
-"s": "italia2",
-"time": "23:33",
-"dur": 110,
+"t": "Avamposti: la radiomobile",
+"ty": "show",
+"s": "dmax",
+"time": "20:40",
+"dur": 65,
 "m": [
-"tensione"
-],
-"g": "Thriller",
-"e": "😬",
-"c": [
-"#232526",
-"#5b5e49"
+"relax"
 ],
 "w": [
-"solo",
-"coppia"
+"famiglia",
+"coppia",
+"solo"
 ],
-"v": 6.0,
-"vc": 2599,
-"l": "en",
-"gs": [
-53,
-35,
-80
+"g": "Documentario",
+"e": "🌍",
+"c": [
+"#56ab2f",
+"#a8e063"
 ],
-"y": "2023",
-"p": "/7G0RKoHcQE5JKyCBM1bs3qgT08e.jpg",
-"tmdb": "movie/804150",
-"d": "Ispirato alla storia vera del 1985 dell'incidente aereo in cui un narcotrafficante perse un carico di cocaina che finì per essere mangiata da un orso nero. Questa feroce…"
+"d": "Documentario in prima serata su DMAX."
 },
 {
-"t": "Border Control Turchia",
+"t": "Real TV: agenti in prima linea",
 "ty": "show",
 "s": "dmax",
 "time": "21:45",
-"dur": 115,
+"dur": 95,
 "m": [
 "relax"
 ],
@@ -1469,18 +1335,44 @@
 "d": "Documentario in prima serata su Rai Storia."
 },
 {
-"t": "La fine del nazismo",
-"ty": "show",
+"t": "Gli indifferenti",
+"ty": "film",
 "s": "raistoria",
 "time": "21:15",
-"dur": 90,
+"dur": 95,
 "m": [
-"relax"
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎭",
+"c": [
+"#41295a",
+"#2f0743"
 ],
 "w": [
-"famiglia",
+"solo",
 "coppia",
-"solo"
+"amici"
+],
+"v": 6.3,
+"vc": 27,
+"l": "it",
+"gs": [
+18
+],
+"y": "1964",
+"p": "/bIxpWQoOVJ9SsHuyPS14xGQqOHO.jpg",
+"tmdb": "movie/124177",
+"d": "Carla e Michele appartengono alla buona borghesia romana. Nonostante le loro velleità, sono incapaci di riprendere in mano la disastrata situazione familiare. Carla si…"
+},
+{
+"t": "I vetri tremano",
+"ty": "film",
+"s": "raistoria",
+"time": "22:50",
+"dur": 110,
+"m": [
+"relax"
 ],
 "g": "Documentario",
 "e": "🌍",
@@ -1488,14 +1380,578 @@
 "#56ab2f",
 "#a8e063"
 ],
-"d": "Documentario in prima serata su Rai Storia."
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 0,
+"vc": 0,
+"l": "it",
+"gs": [
+99
+],
+"y": "2017",
+"p": "/9R6YbEftxDMLHAMvhXdPYykikqS.jpg",
+"tmdb": "movie/1022886",
+"d": "I vetri tremano"
+},
+{
+"t": "Il giustiziere della notte - Death Wish",
+"ty": "film",
+"s": "skycin1",
+"time": "21:15",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.2,
+"vc": 2929,
+"l": "en",
+"gs": [
+28,
+80,
+53
+],
+"y": "2018",
+"p": "/6eNDKoMHL3tHBmA9upgIUsfsmvr.jpg",
+"tmdb": "movie/395990",
+"d": "Ad indossare gli abiti del vigilante Paul Kersey, resi celebri dal mitico Charles Bronson, questa volta è Bruce Willis, un chirurgo di Chicago la cui vita viene…"
+},
+{
+"t": "Braveheart - Cuore impavido",
+"ty": "film",
+"s": "skycin1",
+"time": "23:05",
+"dur": 110,
+"m": [
+"emozione"
+],
+"g": "Storico",
+"e": "📜",
+"c": [
+"#3e5151",
+"#decba4"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 7.9,
+"vc": 11653,
+"l": "en",
+"gs": [
+36,
+18,
+10752
+],
+"y": "1995",
+"p": "/gZvvrgehgqYNy12Z2sP333nn5Nw.jpg",
+"tmdb": "movie/197",
+"d": "Nell'anno 1280 la Scozia rimane senza eredi al trono e il re d'Inghilterra, Edoardo I, mette in atto un piano per estendere i propri domini. Fa uccidere molti nobili…"
+},
+{
+"t": "La donna più ricca del mondo",
+"ty": "film",
+"s": "skycin2",
+"time": "21:15",
+"dur": 125,
+"m": [
+"risate",
+"relax"
+],
+"g": "Commedia",
+"e": "😂",
+"c": [
+"#f7971e",
+"#ffd200"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.1,
+"vc": 154,
+"l": "fr",
+"gs": [
+35,
+18
+],
+"y": "2025",
+"p": "/tJFj2o8k6yMM5wpaFeSkZzTVpBo.jpg",
+"tmdb": "movie/1309725",
+"d": "I soldi non fanno la felicità, lo sa bene Marianne Farrère, miliardaria proprietaria della galassia Windler. Marianne 'vende' cosmetici e bellezza ma sembra aver…"
+},
+{
+"t": "I peggiori giorni",
+"ty": "film",
+"s": "skycin2",
+"time": "23:20",
+"dur": 110,
+"m": [
+"risate",
+"relax"
+],
+"g": "Commedia",
+"e": "😂",
+"c": [
+"#f7971e",
+"#ffd200"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 5.9,
+"vc": 131,
+"l": "it",
+"gs": [
+35
+],
+"y": "2023",
+"p": "/hZKCtmvQXDPM3ydFZZzIP3taQR9.jpg",
+"tmdb": "movie/1054698",
+"d": "Quanto è bello stare in famiglia a Natale. O no? E il Primo Maggio è davvero la festa di tutti i lavoratori? Ferragosto in spensieratezza tra una grigliata e un tuffo in…"
+},
+{
+"t": "Ocean's Thirteen",
+"ty": "film",
+"s": "skycoll",
+"time": "21:15",
+"dur": 125,
+"m": [
+"tensione"
+],
+"g": "Crime",
+"e": "🕵️",
+"c": [
+"#232526",
+"#414345"
+],
+"w": [
+"solo",
+"coppia"
+],
+"v": 6.7,
+"vc": 7221,
+"l": "en",
+"gs": [
+80,
+53
+],
+"y": "2007",
+"p": "/2IKCjuu5dGMh44MWbfuBxRD2HNa.jpg",
+"tmdb": "movie/298",
+"d": "Reuben Tishkoff, grande amico di Danny Ocean, è stato colpito da un infarto a causa del tradimento operato da Willy Bank. Costui si vanta infatti dei numerosi premi \"5…"
+},
+{
+"t": "Ocean's 8",
+"ty": "film",
+"s": "skycoll",
+"time": "23:20",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Crime",
+"e": "🕵️",
+"c": [
+"#232526",
+"#414345"
+],
+"w": [
+"solo",
+"coppia"
+],
+"v": 6.9,
+"vc": 9108,
+"l": "en",
+"gs": [
+80,
+35,
+28
+],
+"y": "2018",
+"p": "/ecMVNMYWBTS8REgx8mEGXQ4NyA1.jpg",
+"tmdb": "movie/402900",
+"d": "Debbie Ocean ha passato cinque anni in carcere a progettare un colpo del secolo degno delle imprese del fratello Danny, ormai dato per morto. Il piano di Debbie è…"
+},
+{
+"t": "E.T. l'extra-terrestre",
+"ty": "film",
+"s": "skyfam",
+"time": "21:00",
+"dur": 120,
+"m": [
+"emozione",
+"tensione"
+],
+"g": "Avventura",
+"e": "🗺️",
+"c": [
+"#f7971e",
+"#c94b4b"
+],
+"kids": 1,
+"w": [
+"famiglia",
+"coppia",
+"amici"
+],
+"v": 7.5,
+"vc": 12445,
+"l": "en",
+"gs": [
+12,
+878,
+10751
+],
+"y": "1982",
+"p": "/3DIwTC2A58WDtsgjaXjo2FYA1pW.jpg",
+"tmdb": "movie/601",
+"d": "Durante un sopralluogo sulla Terra per raccogliere vegetali, un gruppo di alieni viene sorpreso e uno di loro viene lasciato erroneamente al suolo per l'affrettato…"
+},
+{
+"t": "I segni del cuore",
+"ty": "film",
+"s": "skyfam",
+"time": "23:00",
+"dur": 110,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎭",
+"c": [
+"#41295a",
+"#2f0743"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 7.9,
+"vc": 2796,
+"l": "en",
+"gs": [
+18,
+10402,
+10749
+],
+"y": "2021",
+"p": "/t1E8EQPNVMUYenp3mn7vs2nBvnh.jpg",
+"tmdb": "movie/776503",
+"d": "Ruby è l'unica persona udente nella sua famiglia e quando l'attività di pesca famigliare è minacciata, si ritrova combattuta tra perseguire il suo amore per la musica e…"
+},
+{
+"t": "Ballerina",
+"ty": "film",
+"s": "skyact",
+"time": "21:00",
+"dur": 130,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 7.3,
+"vc": 3145,
+"l": "en",
+"gs": [
+28,
+53,
+80
+],
+"y": "2025",
+"p": "/fgzv2GA50AcvajcrIsShEOJ8G5v.jpg",
+"tmdb": "movie/541671",
+"d": "La giovanissima ballerina Rooney diventa una killer in seguito all'uccisione di tutta la sua famiglia. Una volta cresciuta e addestrata, la donna è assetata di vendetta…"
+},
+{
+"t": "Rampage - Furia animale",
+"ty": "film",
+"s": "skyact",
+"time": "23:10",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Azione",
+"e": "💥",
+"c": [
+"#cb2d3e",
+"#ef473a"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.5,
+"vc": 7828,
+"l": "en",
+"gs": [
+28,
+12,
+878
+],
+"y": "2018",
+"p": "/gDXbAh3HKXwn8pKf1vvjcJGQ6Ii.jpg",
+"tmdb": "movie/427641",
+"d": "Il primatologo Davis Okoye è un uomo schivo. Condivide un legame indissolubile con George, un gorilla silverback straordinariamente intelligente di cui si occupa dalla…"
+},
+{
+"t": "Illusione",
+"ty": "film",
+"s": "skysus",
+"time": "21:00",
+"dur": 110,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎭",
+"c": [
+"#41295a",
+"#2f0743"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 5.6,
+"vc": 17,
+"l": "it",
+"gs": [
+18,
+9648
+],
+"y": "2026",
+"p": "/rxDFV66LmAtvz61JeFwdUJGG7dv.jpg",
+"tmdb": "movie/1407548",
+"d": "Periferia di Perugia. In un fosso viene ritrovata una ragazzina. Indossa un completo d'alta moda ed è bellissima. La polizia sta per portare via il corpo, quando un…"
+},
+{
+"t": "Mindcage - Mente criminale",
+"ty": "film",
+"s": "skysus",
+"time": "22:50",
+"dur": 110,
+"m": [
+"tensione"
+],
+"g": "Mistero",
+"e": "🔎",
+"c": [
+"#141e30",
+"#243b55"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 5.8,
+"vc": 453,
+"l": "en",
+"gs": [
+9648,
+53,
+80
+],
+"y": "2022",
+"p": "/bZWlihGHWYSqXTL0qEvrQnkFgEC.jpg",
+"tmdb": "movie/1043565",
+"d": "Gli agenti Jake Doyle e Mary Kelly (Martin Lawrence e Melissa Roxburgh) sono impegnati nella ricerca di un serial killer che sembra imitare i crimini commessi da The…"
+},
+{
+"t": "Breve storia d'amore",
+"ty": "film",
+"s": "skyrom",
+"time": "21:00",
+"dur": 105,
+"m": [
+"risate",
+"relax"
+],
+"g": "Commedia",
+"e": "😂",
+"c": [
+"#f7971e",
+"#ffd200"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.1,
+"vc": 44,
+"l": "it",
+"gs": [
+35,
+10749,
+53
+],
+"y": "2025",
+"p": "/avqBTEK53Zqyr5sWIi6EuE51UaH.jpg",
+"tmdb": "movie/1299382",
+"d": "Lea incontra Rocco in un bar e ne diventa l'amante. La loro relazione clandestina, consumata in una stanza d'albergo, prende una piega sinistra quando lei inizia a…"
+},
+{
+"t": "Rifkin's Festival",
+"ty": "film",
+"s": "skyrom",
+"time": "22:45",
+"dur": 110,
+"m": [
+"risate",
+"relax"
+],
+"g": "Commedia",
+"e": "😂",
+"c": [
+"#f7971e",
+"#ffd200"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.1,
+"vc": 486,
+"l": "en",
+"gs": [
+35,
+10749
+],
+"y": "2020",
+"p": "/1YS2kNJLU5qs5VasintqQVKXc64.jpg",
+"tmdb": "movie/606876",
+"d": "Mort Rifkin (Wallace Shawn) è un ex professore e un fanatico di cinema sposato con Sue (Gina Gershon), addetta stampa di cinema. Il loro viaggio al Festival del cinema…"
+},
+{
+"t": "Ammazzare stanca - Autobiografia di un assassino",
+"ty": "film",
+"s": "skydra",
+"time": "21:00",
+"dur": 140,
+"m": [
+"emozione"
+],
+"g": "Drammatico",
+"e": "🎬",
+"c": [
+"#614385",
+"#516395"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"d": "Film in prima serata su Sky Cinema Drama."
+},
+{
+"t": "L'amico fedele",
+"ty": "film",
+"s": "skydra",
+"time": "23:20",
+"dur": 110,
+"m": [
+"risate",
+"relax"
+],
+"g": "Commedia",
+"e": "😂",
+"c": [
+"#f7971e",
+"#ffd200"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 6.6,
+"vc": 135,
+"l": "en",
+"gs": [
+35,
+18
+],
+"y": "2025",
+"p": "/f0Ewky0Rz2vOc83L72JTmwYVh04.jpg",
+"tmdb": "movie/1186563",
+"d": "Dopo l'improvvisa scomparsa del suo più caro amico e mentore, Iris, autrice e insegnante di scrittura a New York, si ritrova a dover custodire sia l'eredità letteraria…"
+},
+{
+"t": "Quo vado?",
+"ty": "film",
+"s": "skycom",
+"time": "21:00",
+"dur": 205,
+"m": [
+"risate",
+"relax"
+],
+"g": "Commedia",
+"e": "😂",
+"c": [
+"#f7971e",
+"#ffd200"
+],
+"kids": 1,
+"w": [
+"famiglia",
+"coppia",
+"amici"
+],
+"v": 6.8,
+"vc": 2256,
+"l": "it",
+"gs": [
+35,
+10751,
+12
+],
+"y": "2016",
+"p": "/t81E5XzBZ7OhJnYpUWvy2LNdv54.jpg",
+"tmdb": "movie/374416",
+"d": "Il nuovo film con Zalone racconta la storia di Checco, un ragazzo che ha realizzato tutti i sogni della sua vita. Voleva vivere con i suoi genitori evitando così una…"
 },
 {
 "t": "Play Dirty - Triplo gioco",
 "ty": "film",
-"s": "skycin1",
+"s": "skycin24",
 "time": "21:15",
-"dur": 130,
+"dur": 125,
 "m": [
 "tensione"
 ],
@@ -1525,8 +1981,8 @@
 {
 "t": "Il filo del ricatto -  Dead Man's Wire",
 "ty": "film",
-"s": "skycin1",
-"time": "23:25",
+"s": "skycin24",
+"time": "23:20",
 "dur": 110,
 "m": [
 "tensione"
@@ -1555,557 +2011,11 @@
 "d": "La mattina dell’8 febbraio 1977, Anthony G. “Tony” Kiritsis, quarantaquattro anni, entrò nell’ufficio di Richard O. Hall, presidente della Meridian Mortgage Company, e…"
 },
 {
-"t": "La vera storia degli 883",
-"ty": "serie",
-"s": "skycin2",
-"time": "21:15",
-"dur": 160,
-"m": [
-"emozione"
-],
-"g": "Serie",
-"e": "📺",
-"c": [
-"#614385",
-"#516395"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"d": "Stagione 1 - Ep. 8.",
-"also": [
-"skyuno",
-"skyserie"
-]
-},
-{
-"t": "Ritorno al futuro - Parte III",
-"ty": "film",
-"s": "skycoll",
-"time": "21:15",
-"dur": 135,
-"m": [
-"emozione",
-"tensione"
-],
-"g": "Avventura",
-"e": "🗺️",
-"c": [
-"#f7971e",
-"#c94b4b"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 7.5,
-"vc": 12028,
-"l": "en",
-"gs": [
-12,
-35,
-878
-],
-"y": "1990",
-"p": "/iBfwdp2Sp4aWH9QaHUqFq25sxIU.jpg",
-"tmdb": "movie/196",
-"d": "Per questa terza, conclusiva, puntata della trilogia, Marty McFly è costretto a tornare indietro nel tempo fino al 1885 per salvare Doc, che vi era stato catapultato al…"
-},
-{
-"t": "Ritorno al futuro",
-"ty": "film",
-"s": "skycoll",
-"time": "23:30",
-"dur": 110,
-"m": [
-"emozione",
-"tensione"
-],
-"g": "Avventura",
-"e": "🗺️",
-"c": [
-"#f7971e",
-"#c94b4b"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 8.3,
-"vc": 22799,
-"l": "en",
-"gs": [
-12,
-35,
-878
-],
-"y": "1985",
-"p": "/isqoi7kuUsR5Drlqdh4ZfMULgox.jpg",
-"tmdb": "movie/105",
-"d": "Marty McFly è stato catapultato per errore nel 1955, grazie alla macchina del tempo ideata dal suo amico scienziato Doc. Non avendo più \"carburante\" per poter tornare…"
-},
-{
-"t": "Kung Fu Panda 3",
-"ty": "film",
-"s": "skyfam",
-"time": "21:00",
-"dur": 100,
-"m": [
-"risate",
-"emozione"
-],
-"g": "Animazione",
-"e": "🎨",
-"c": [
-"#56ccf2",
-"#2f80ed"
-],
-"kids": 1,
-"w": [
-"famiglia",
-"coppia",
-"amici"
-],
-"v": 6.9,
-"vc": 6901,
-"l": "en",
-"gs": [
-16,
-28,
-12
-],
-"y": "2016",
-"p": "/oXrC6YNK2cVnjz6T5IUcvu0MaO7.jpg",
-"tmdb": "movie/140300",
-"d": "In Kung fu Panda 3, dopo essersi ricongiunto con il papà Li, che non vedeva da lungo tempo, Po raggiunge con lui il suo villaggio d'origine: un paradiso segreto dei…"
-},
-{
-"t": "I Goonies",
-"ty": "film",
-"s": "skyfam",
-"time": "22:40",
-"dur": 110,
-"m": [
-"emozione",
-"tensione"
-],
-"g": "Avventura",
-"e": "🗺️",
-"c": [
-"#f7971e",
-"#c94b4b"
-],
-"kids": 1,
-"w": [
-"famiglia",
-"coppia",
-"amici"
-],
-"v": 7.5,
-"vc": 6516,
-"l": "en",
-"gs": [
-12,
-35,
-10751
-],
-"y": "1985",
-"p": "/e1FLwSph4V85y8QE1ewQOwFzn6b.jpg",
-"tmdb": "movie/9340",
-"d": "Il giovane adolescente Mikey Walsh e i suoi amici partono in una missione per trovare il tesoro del pirata Willie \"Occhio Solo\", nella speranza di salvare le loro case…"
-},
-{
-"t": "Operazione Vendetta",
-"ty": "film",
-"s": "skyact",
-"time": "21:00",
-"dur": 125,
-"m": [
-"tensione"
-],
-"g": "Thriller",
-"e": "😬",
-"c": [
-"#232526",
-"#5b5e49"
-],
-"w": [
-"solo",
-"coppia"
-],
-"v": 6.9,
-"vc": 1879,
-"l": "en",
-"gs": [
-53,
-28
-],
-"y": "2025",
-"p": "/9IoYsiQEUe50ViywjffKh5pUJqX.jpg",
-"tmdb": "movie/1087891",
-"d": "Charlie Heller (Malek) è un brillante ma profondamente introverso decodificatore della CIA che lavora in un ufficio nel seminterrato del quartier generale di Langley e…"
-},
-{
-"t": "Edge of Tomorrow - Senza domani",
-"ty": "film",
-"s": "skyact",
-"time": "23:05",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Azione",
-"e": "💥",
-"c": [
-"#cb2d3e",
-"#ef473a"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 7.6,
-"vc": 15774,
-"l": "en",
-"gs": [
-28,
-878
-],
-"y": "2014",
-"p": "/AbzpU4ookiyWFmiq1bTZwjNl7Y1.jpg",
-"tmdb": "movie/137113",
-"d": "La storia di “Edge of Tomorrow” si svolge in un futuro prossimo in cui una razza aliena ha colpito la Terra con un implacabile assalto che nessuno esercito al mondo…"
-},
-{
-"t": "Detective Marlowe",
-"ty": "film",
-"s": "skysus",
-"time": "21:00",
-"dur": 115,
-"m": [
-"tensione"
-],
-"g": "Crime",
-"e": "🕵️",
-"c": [
-"#232526",
-"#414345"
-],
-"w": [
-"solo",
-"coppia"
-],
-"v": 5.7,
-"vc": 454,
-"l": "en",
-"gs": [
-80
-],
-"y": "2023",
-"p": "/jmgDnHunrypnjr202Itt5fYBD1Z.jpg",
-"tmdb": "movie/844417",
-"d": "Mentre i cattivi affari e la solitudine stanno mettendo a dura prova il detective privato Philip Marlowe, arriva un caso intrigante da risolvere. Nel suo ufficio si…"
-},
-{
-"t": "Scream 7",
-"ty": "film",
-"s": "skysus",
-"time": "22:55",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Horror",
-"e": "👻",
-"c": [
-"#1a0000",
-"#7a0000"
-],
-"w": [
-"solo",
-"coppia"
-],
-"v": 6.2,
-"vc": 1452,
-"l": "en",
-"gs": [
-27,
-9648,
-80
-],
-"y": "2026",
-"p": "/3b10Tv8RvLf2RmVK9zJ01ewSTVh.jpg",
-"tmdb": "movie/1159559",
-"d": "Quando un nuovo assassino mascherato da Ghostface semina il terrore nella tranquilla cittadina dove Sidney Prescott (Neve Campbell) ha ricostruito la sua vita, i suoi…"
-},
-{
-"t": "La sfida delle mogli",
-"ty": "film",
-"s": "skyrom",
-"time": "21:00",
-"dur": 120,
-"m": [
-"emozione"
-],
-"g": "Drammatico",
-"e": "🎭",
-"c": [
-"#41295a",
-"#2f0743"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.5,
-"vc": 202,
-"l": "en",
-"gs": [
-18
-],
-"y": "2020",
-"p": "/l3pUXWZQsZcxRin6ou6IoR4Lvx.jpg",
-"tmdb": "movie/617784",
-"d": "La Sfida delle Mogli, film diretto da Peter Cattaneo, è la storia di alcune donne, mogli di soldati, che si ritrovano a trascorrere la loro vita in una base militare a…"
-},
-{
-"t": "Downton Abbey - Il gran finale",
-"ty": "film",
-"s": "skyrom",
-"time": "23:00",
-"dur": 110,
-"m": [
-"emozione"
-],
-"g": "Drammatico",
-"e": "🎭",
-"c": [
-"#41295a",
-"#2f0743"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 7.1,
-"vc": 316,
-"l": "en",
-"gs": [
-18,
-10749
-],
-"y": "2025",
-"p": "/5zULdRh1vTqqC52TNnubG1DO9P8.jpg",
-"tmdb": "movie/1289936",
-"d": "Gli anni Trenta bussano alle porte di Downton Abbey: morta la Contessa Violet Crawley, le redini della tenuta sono in mano a Lady Mary, chiamata a difenderne gli…"
-},
-{
-"t": "Nel tepore del ballo",
-"ty": "film",
-"s": "skydra",
-"time": "21:00",
-"dur": 100,
-"m": [
-"emozione"
-],
-"g": "Drammatico",
-"e": "🎭",
-"c": [
-"#41295a",
-"#2f0743"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.4,
-"vc": 15,
-"l": "it",
-"gs": [
-18
-],
-"y": "2026",
-"p": "/ng9NBZ5qAJ4k4KlvQWgxKTuM1XT.jpg",
-"tmdb": "movie/1312390",
-"d": "Il film racconta la parabola umana e sentimentale di Gianni Riccio (Massimo Ghini) conduttore televisivo di successo travolto da uno scandalo giudiziario che lo…"
-},
-{
-"t": "Mystic River",
-"ty": "film",
-"s": "skydra",
-"time": "22:40",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Thriller",
-"e": "😬",
-"c": [
-"#232526",
-"#5b5e49"
-],
-"w": [
-"solo",
-"coppia"
-],
-"v": 7.7,
-"vc": 7857,
-"l": "en",
-"gs": [
-53,
-18,
-9648
-],
-"y": "2003",
-"p": "/3D5VS7oWduCmwNLNmRClqGKOgZa.jpg",
-"tmdb": "movie/322",
-"d": "Da ragazzini Jimmy Marcus, Sean Devine e Dave Boyle erano inseparabili. Ora, a distanza di molto tempo, i tre si ritrovano in occasione di un tragico evento: la morte…"
-},
-{
-"t": "Poveri noi",
-"ty": "film",
-"s": "skycom",
-"time": "21:00",
-"dur": 105,
-"m": [
-"emozione"
-],
-"g": "Drammatico",
-"e": "🎭",
-"c": [
-"#41295a",
-"#2f0743"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.0,
-"vc": 26,
-"l": "it",
-"gs": [
-18,
-35
-],
-"y": "2025",
-"p": "/tr26vXCL7JVNgWFVsJd2BL9j7Be.jpg",
-"tmdb": "movie/1441215",
-"d": "Edoardo e Ottavio erano compagni di liceo e grandi amici, ma ormai sono passati 30 anni e da tempo si sono persi di vista. Il primo ha fatto molto successo, ha sposato…"
-},
-{
-"t": "Una notte da leoni 3",
-"ty": "film",
-"s": "skycom",
-"time": "22:45",
-"dur": 110,
-"m": [
-"risate",
-"relax"
-],
-"g": "Commedia",
-"e": "😂",
-"c": [
-"#f7971e",
-"#ffd200"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 6.2,
-"vc": 9564,
-"l": "en",
-"gs": [
-35
-],
-"y": "2013",
-"p": "/pEcN3pGDKeGP0L7L8mNJmo9K5PU.jpg",
-"tmdb": "movie/109439",
-"d": "Da Los Angeles a Tijuana in Messico e di nuovo a Las Vegas. Il capitolo conclusivo di Una notte da leoni racconta del rapimento di Doug da parte di un certo Marshall.…"
-},
-{
-"t": "Adaline - L'eterna giovinezza",
-"ty": "film",
-"s": "skycin24",
-"time": "21:15",
-"dur": 115,
-"m": [
-"emozione",
-"relax"
-],
-"g": "Romantico",
-"e": "💕",
-"c": [
-"#a8577e",
-"#f1a7a1"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 7.5,
-"vc": 7267,
-"l": "en",
-"gs": [
-10749,
-14,
-18
-],
-"y": "2015",
-"p": "/dehVZaQuRTae4uQnOkQvGX8psgz.jpg",
-"tmdb": "movie/293863",
-"d": "Adeline, una giovane donna nata a cavallo del XX secolo, cessa misteriosamente di invecchiare in seguito a un incidente avvenuto in una gelida notte. Mentre custodisce…"
-},
-{
-"t": "Ballerina",
-"ty": "film",
-"s": "skycin24",
-"time": "23:10",
-"dur": 110,
-"m": [
-"tensione"
-],
-"g": "Azione",
-"e": "💥",
-"c": [
-"#cb2d3e",
-"#ef473a"
-],
-"w": [
-"solo",
-"coppia",
-"amici"
-],
-"v": 7.3,
-"vc": 3144,
-"l": "en",
-"gs": [
-28,
-53,
-80
-],
-"y": "2025",
-"p": "/fgzv2GA50AcvajcrIsShEOJ8G5v.jpg",
-"tmdb": "movie/541671",
-"d": "La giovanissima ballerina Rooney diventa una killer in seguito all'uccisione di tutta la sua famiglia. Una volta cresciuta e addestrata, la donna è assetata di vendetta…"
-},
-{
-"t": "X Factor Daily 1^TV",
+"t": "Ante Factor",
 "ty": "show",
 "s": "skyuno",
-"time": "20:35",
-"dur": 40,
+"time": "21:35",
+"dur": 15,
 "m": [
 "relax",
 "risate"
@@ -2124,33 +2034,66 @@
 "d": "Intrattenimento in prima serata su Sky Uno."
 },
 {
-"t": "Alessandro Borghese - 4 Ristoranti",
+"t": "X Factor",
 "ty": "show",
 "s": "skyuno",
-"time": "21:15",
-"dur": 85,
+"time": "21:50",
+"dur": 195,
 "m": [
-"relax"
+"relax",
+"risate"
 ],
 "w": [
 "famiglia",
 "coppia",
 "solo"
 ],
-"g": "Lifestyle",
-"e": "🍝",
+"g": "Intrattenimento",
+"e": "🎤",
 "c": [
-"#ff9a9e",
-"#f6416c"
+"#c31432",
+"#240b36"
 ],
-"d": "Lifestyle in prima serata su Sky Uno."
+"d": "Intrattenimento in prima serata su Sky Uno."
 },
 {
-"t": "The Rainmaker",
+"t": "L'Istituto",
 "ty": "serie",
 "s": "skyatlantic",
 "time": "21:15",
-"dur": 50,
+"dur": 55,
+"m": [
+"tensione"
+],
+"g": "Mistero",
+"e": "🔎",
+"c": [
+"#141e30",
+"#243b55"
+],
+"w": [
+"solo",
+"coppia",
+"amici"
+],
+"v": 7.5,
+"vc": 229,
+"l": "en",
+"gs": [
+9648,
+10765
+],
+"y": "2025",
+"p": "/mOvJlMBwWGwlbzUEOC2KrZQHj0U.jpg",
+"tmdb": "tv/253372",
+"d": "Stagione 1 - Ep. 7. Luke Ellis, un quattordicenne prodigio, viene rapito nel cuore della notte e portato all'Istituto, una struttura simile a una prigione nel Maine rurale che ospita…"
+},
+{
+"t": "The Gilded Age",
+"ty": "serie",
+"s": "skyserie",
+"time": "21:15",
+"dur": 60,
 "m": [
 "emozione"
 ],
@@ -2166,55 +2109,22 @@
 "amici"
 ],
 "v": 7.7,
-"vc": 63,
+"vc": 299,
 "l": "en",
 "gs": [
-18,
-9648
+18
 ],
-"y": "2025",
-"p": "/q8l0lj20amBFi0SBs8NI9yJpaHq.jpg",
-"tmdb": "tv/256711",
-"d": "Stagione 1 - Ep. 9. Appena uscito dalla facoltà di giurisprudenza, Rudy Baylor si scontra con il leone del tribunale Leo Drummond e con la sua ex fidanzata dei tempi della scuola di legge,…"
+"y": "2022",
+"p": "/tdsuFe0JVLqjxfptElRA9YFJcUE.jpg",
+"tmdb": "tv/81723",
+"d": "Stagione 4 - Ep. 3. New York, 1882: la giovane Marian si trasferisce dalle zie a New York e incontra la dura realtà dell'alta società."
 },
 {
-"t": "NCIS - Unità anticrimine",
-"ty": "serie",
-"s": "skyinv",
-"time": "20:25",
-"dur": 50,
-"m": [
-"tensione"
-],
-"g": "Crime",
-"e": "🕵️",
-"c": [
-"#232526",
-"#414345"
-],
-"w": [
-"solo",
-"coppia"
-],
-"v": 7.6,
-"vc": 2627,
-"l": "en",
-"gs": [
-80,
-18,
-10759
-],
-"y": "2003",
-"p": "/mCA9VTvNNMalJ0WBoUcjxMh4UJV.jpg",
-"tmdb": "tv/4614",
-"d": "L'NCIS (Naval Criminal Investigative Service) è un nucleo di agenti investigativi speciali incaricati di indagare su crimini che coinvolgono personale della Marina…"
-},
-{
-"t": "The Equalizer",
+"t": "Capitaine Marleau",
 "ty": "serie",
 "s": "skyinv",
 "time": "21:15",
-"dur": 50,
+"dur": 105,
 "m": [
 "tensione"
 ],
@@ -2228,24 +2138,24 @@
 "solo",
 "coppia"
 ],
-"v": 7.2,
-"vc": 341,
-"l": "en",
+"v": 6.1,
+"vc": 37,
+"l": "fr",
 "gs": [
 80,
 18
 ],
-"y": "2021",
-"p": "/oxJG9F16AUji71jpPxkEOBWanMP.jpg",
-"tmdb": "tv/95205",
-"d": "Stagione 5 - Ep. 16. The Equalizer, serie tv di Andrew W. Marlowe (l'ideatore di Castle) e Terri Edda Miller per la rete americana CBS, è il remake al femminile dell'omonimo crime drama…"
+"y": "2015",
+"p": "/6pErBq8VTQsjEltRNRtCct3LEg8.jpg",
+"tmdb": "tv/71904",
+"d": "Stagione 4 - Ep. 18. Capitaine Marleau ruota intorno a una investigatrice eccezionale. È davvero brillante e non ne sbaglia una. Sembra essere una professionista perfetta, ma siccome la…"
 },
 {
-"t": "Real Cops",
+"t": "Killer Investigations",
 "ty": "show",
 "s": "skycrime",
-"time": "21:05",
-"dur": 25,
+"time": "21:10",
+"dur": 55,
 "m": [
 "tensione"
 ],
@@ -2263,11 +2173,33 @@
 "d": "Cronaca in prima serata su Sky Crime."
 },
 {
-"t": "Me Ne Frego! Il Fascismo E...",
+"t": "Genitori da incubo - 1^TV",
+"ty": "show",
+"s": "skycrime",
+"time": "22:05",
+"dur": 110,
+"m": [
+"tensione"
+],
+"w": [
+"famiglia",
+"coppia",
+"solo"
+],
+"g": "Cronaca",
+"e": "🔎",
+"c": [
+"#283048",
+"#859398"
+],
+"d": "Cronaca in prima serata su Sky Crime."
+},
+{
+"t": "Enigmi Alieni",
 "ty": "show",
 "s": "history",
 "time": "21:10",
-"dur": 155,
+"dur": 100,
 "m": [
 "relax"
 ],
@@ -2285,11 +2217,11 @@
 "d": "Documentario in prima serata su History."
 },
 {
-"t": "Aces: I numeri 1 del tennis 1^TV",
+"t": "E poi il silenzio - Il disastro di Rigopiano",
 "ty": "show",
 "s": "skydocs",
 "time": "21:15",
-"dur": 125,
+"dur": 30,
 "m": [
 "relax"
 ],
@@ -2307,11 +2239,11 @@
 "d": "Documentario in prima serata su Sky Documentaries."
 },
 {
-"t": "Bear Grylls: la legge del piu' forte",
+"t": "La forza della natura 1^TV",
 "ty": "show",
 "s": "skynature",
 "time": "21:15",
-"dur": 110,
+"dur": 120,
 "m": [
 "relax"
 ],
@@ -2329,7 +2261,7 @@
 "d": "Documentario in prima serata su Sky Nature."
 },
 {
-"t": "Lucio Fontana: The final cut 1^TV",
+"t": "Essere Ornella",
 "ty": "show",
 "s": "skyarte",
 "time": "21:15",
@@ -2351,10 +2283,10 @@
 "d": "Documentario in prima serata su Sky Arte."
 },
 {
-"t": "Medvedev - Tiafoe",
+"t": "Serie A · Napoli - Torino",
 "ty": "sport",
-"s": "i1",
-"time": "20:27",
+"s": "dazn",
+"time": "20:40",
 "dur": 110,
 "m": [
 "sport"
@@ -2364,26 +2296,26 @@
 "solo",
 "coppia"
 ],
-"g": "Sport",
-"e": "🏟️",
+"g": "Calcio",
+"e": "⚽",
 "c": [
 "#0b8793",
 "#360033"
 ],
-"d": "In diretta su Italia 1.",
-"teams": [
-"Medvedev",
-"Tiafoe"
-],
+"d": "In diretta su DAZN e Sky Sport.",
 "also": [
 "now"
+],
+"teams": [
+"Napoli",
+"Torino"
 ]
 },
 {
-"t": "Casertana - Salernitana",
+"t": "Francia - Argentina",
 "ty": "sport",
 "s": "now",
-"time": "20:20",
+"time": "21:00",
 "dur": 110,
 "m": [
 "sport"
@@ -2401,15 +2333,15 @@
 ],
 "d": "In diretta su Sky Sport.",
 "teams": [
-"Casertana",
-"Salernitana"
+"Francia",
+"Argentina"
 ]
 },
 {
-"t": "FC Bayern Monaco - Colonia",
+"t": "Rugby · Galles - Australia",
 "ty": "sport",
 "s": "now",
-"time": "20:25",
+"time": "21:00",
 "dur": 110,
 "m": [
 "sport"
@@ -2419,72 +2351,20 @@
 "solo",
 "coppia"
 ],
-"g": "Sport",
-"e": "🏟️",
+"g": "Rugby",
+"e": "🏉",
 "c": [
 "#0b8793",
 "#360033"
 ],
 "d": "In diretta su Sky Sport.",
 "teams": [
-"FC Bayern Monaco",
-"Colonia"
+"Galles",
+"Australia"
 ]
 },
 {
-"t": "Olympiacos - Real Madrid",
-"ty": "sport",
-"s": "now",
-"time": "20:10",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su Sky Sport.",
-"teams": [
-"Olympiacos",
-"Real Madrid"
-]
-},
-{
-"t": "Sandro Abate - Global Work",
-"ty": "sport",
-"s": "now",
-"time": "20:25",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su Sky Sport.",
-"teams": [
-"Sandro Abate",
-"Global Work"
-]
-},
-{
-"t": "GP Las Vegas: Prove libere 2 F1",
+"t": "GP Las Vegas: Qualifiche F1",
 "ty": "sport",
 "s": "now",
 "time": "21:00",
@@ -2506,10 +2386,54 @@
 "d": "In diretta su Sky Sport."
 },
 {
-"t": "Sintesi - Atalanta-Inter 14/15",
+"t": "GP Portogallo: Qualifiche Moto2",
 "ty": "sport",
 "s": "now",
-"time": "20:00",
+"time": "20:15",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Motori",
+"e": "🏎️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su Sky Sport."
+},
+{
+"t": "GP Portogallo: Qualifiche MotoGP",
+"ty": "sport",
+"s": "now",
+"time": "21:00",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Motori",
+"e": "🏎️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su Sky Sport."
+},
+{
+"t": "CIVCA - Misano - Div. 3-4",
+"ty": "sport",
+"s": "now",
+"time": "20:08",
 "dur": 110,
 "m": [
 "sport"
@@ -2527,15 +2451,15 @@
 ],
 "d": "In diretta su Sky Sport.",
 "teams": [
-"Sintesi",
-"Atalanta-Inter 14/15"
+"CIVCA",
+"Misano - Div. 3-4"
 ]
 },
 {
-"t": "Welcome Kit - Jones",
+"t": "CIVCA - Misano - Div. 2-1",
 "ty": "sport",
 "s": "now",
-"time": "21:45",
+"time": "21:34",
 "dur": 110,
 "m": [
 "sport"
@@ -2553,34 +2477,8 @@
 ],
 "d": "In diretta su Sky Sport.",
 "teams": [
-"Welcome Kit",
-"Jones"
-]
-},
-{
-"t": "Bristol Flyers - Cheshire Phoenix",
-"ty": "sport",
-"s": "dazn",
-"time": "20:30",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su DAZN.",
-"teams": [
-"Bristol Flyers",
-"Cheshire Phoenix"
+"CIVCA",
+"Misano - Div. 2-1"
 ]
 }
 ]
