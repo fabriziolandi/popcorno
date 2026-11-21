@@ -1900,7 +1900,7 @@
 "amici"
 ],
 "v": 6.6,
-"vc": 135,
+"vc": 136,
 "l": "en",
 "gs": [
 35,
@@ -2479,32 +2479,6 @@
 "teams": [
 "CIVCA",
 "Misano - Div. 2-1"
-]
-},
-{
-"t": "Igor Gorgonzola Novara - Reale Mutua Fenera Chieri '76",
-"ty": "sport",
-"s": "dazn",
-"time": "20:30",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su DAZN.",
-"teams": [
-"Igor Gorgonzola Novara",
-"Reale Mutua Fenera Chieri '76"
 ]
 }
 ]
