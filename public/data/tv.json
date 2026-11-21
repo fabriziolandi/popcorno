@@ -78,11 +78,11 @@
 "d": "Prima TV. Stagione 1 - Ep. 6. Dopo che una missione di alto profilo prende una brutta piega, Daniel \"Hondo\" Harrelson viene richiamato dal suo pensionamento forzato per guidare un'unità SWAT…"
 },
 {
-"t": "Sapiens Un solo pianeta",
+"t": "Città Segrete",
 "ty": "show",
 "s": "rai3",
-"time": "21:30",
-"dur": 195,
+"time": "21:35",
+"dur": 175,
 "m": [
 "relax"
 ],
@@ -445,7 +445,7 @@
 "amici"
 ],
 "v": 6.6,
-"vc": 1788,
+"vc": 1789,
 "l": "en",
 "gs": [
 28,
@@ -586,7 +586,7 @@
 "coppia"
 ],
 "v": 7.9,
-"vc": 8921,
+"vc": 8922,
 "l": "en",
 "gs": [
 80,
@@ -673,7 +673,7 @@
 "amici"
 ],
 "v": 7.2,
-"vc": 15459,
+"vc": 15461,
 "l": "en",
 "gs": [
 28,
@@ -1195,7 +1195,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 11191,
+"vc": 11194,
 "l": "en",
 "gs": [
 16,
@@ -1226,7 +1226,7 @@
 "coppia"
 ],
 "v": 7.8,
-"vc": 9055,
+"vc": 9058,
 "l": "en",
 "gs": [
 27
@@ -1450,7 +1450,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 11653,
+"vc": 11655,
 "l": "en",
 "gs": [
 36,
@@ -1547,7 +1547,7 @@
 "coppia"
 ],
 "v": 6.7,
-"vc": 7221,
+"vc": 7222,
 "l": "en",
 "gs": [
 80,
@@ -1646,7 +1646,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 2796,
+"vc": 2797,
 "l": "en",
 "gs": [
 18,
@@ -1679,7 +1679,7 @@
 "amici"
 ],
 "v": 7.3,
-"vc": 3145,
+"vc": 3146,
 "l": "en",
 "gs": [
 28,
@@ -1712,7 +1712,7 @@
 "amici"
 ],
 "v": 6.5,
-"vc": 7828,
+"vc": 7829,
 "l": "en",
 "gs": [
 28,
@@ -2109,7 +2109,7 @@
 "amici"
 ],
 "v": 7.7,
-"vc": 299,
+"vc": 300,
 "l": "en",
 "gs": [
 18
@@ -2367,7 +2367,7 @@
 "t": "GP Las Vegas: Qualifiche F1",
 "ty": "sport",
 "s": "now",
-"time": "21:00",
+"time": "20:55",
 "dur": 110,
 "m": [
 "sport"
@@ -2479,6 +2479,32 @@
 "teams": [
 "CIVCA",
 "Misano - Div. 2-1"
+]
+},
+{
+"t": "Igor Gorgonzola Novara - Reale Mutua Fenera Chieri '76",
+"ty": "sport",
+"s": "dazn",
+"time": "20:30",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su DAZN.",
+"teams": [
+"Igor Gorgonzola Novara",
+"Reale Mutua Fenera Chieri '76"
 ]
 }
 ]
