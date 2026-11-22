@@ -145,7 +145,7 @@
 "t": "NCIS - Unità anticrimine",
 "ty": "serie",
 "s": "i1",
-"time": "20:43",
+"time": "20:44",
 "dur": 46,
 "m": [
 "tensione"
@@ -249,7 +249,7 @@
 "amici"
 ],
 "v": 6.2,
-"vc": 273,
+"vc": 276,
 "l": "en",
 "gs": [
 28,
@@ -314,7 +314,7 @@
 "coppia"
 ],
 "v": 6.7,
-"vc": 4288,
+"vc": 4289,
 "l": "en",
 "gs": [
 53,
@@ -624,7 +624,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 9623,
+"vc": 9624,
 "l": "en",
 "gs": [
 35
@@ -1151,7 +1151,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12998,
+"vc": 12999,
 "l": "en",
 "gs": [
 35
@@ -1804,7 +1804,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 11659,
+"vc": 11662,
 "l": "en",
 "gs": [
 36,
@@ -2115,6 +2115,32 @@
 "teams": [
 "Liverpool",
 "Manchester United"
+]
+},
+{
+"t": "ATP Finals · Zverev - Alcaraz Singolare: Finale Tennis:",
+"ty": "sport",
+"s": "now",
+"time": "21:00",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Tennis",
+"e": "🎾",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su Sky Sport.",
+"teams": [
+"Zverev",
+"Alcaraz Singolare: Finale Tennis:"
 ]
 },
 {
