@@ -75,7 +75,7 @@
 "coppia"
 ],
 "v": 8.5,
-"vc": 3630,
+"vc": 3631,
 "l": "en",
 "gs": [
 80,
@@ -145,7 +145,7 @@
 "t": "NCIS - Unità anticrimine",
 "ty": "serie",
 "s": "i1",
-"time": "20:44",
+"time": "20:43",
 "dur": 46,
 "m": [
 "tensione"
@@ -379,7 +379,7 @@
 "coppia"
 ],
 "v": 7.4,
-"vc": 4762,
+"vc": 4763,
 "l": "en",
 "gs": [
 80,
@@ -484,7 +484,7 @@
 "ty": "film",
 "s": "raimovie",
 "time": "21:10",
-"dur": 125,
+"dur": 127,
 "m": [
 "tensione",
 "emozione"
@@ -501,7 +501,7 @@
 "amici"
 ],
 "v": 6.3,
-"vc": 3886,
+"vc": 3887,
 "l": "en",
 "gs": [
 878,
@@ -516,7 +516,7 @@
 "t": "Chloe - Tra seduzione e inganno",
 "ty": "film",
 "s": "raimovie",
-"time": "23:15",
+"time": "23:17",
 "dur": 110,
 "m": [
 "emozione"
@@ -624,7 +624,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 9621,
+"vc": 9623,
 "l": "en",
 "gs": [
 35
@@ -655,7 +655,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 15706,
+"vc": 15707,
 "l": "en",
 "gs": [
 28,
@@ -1307,7 +1307,7 @@
 "amici"
 ],
 "v": 6.8,
-"vc": 4239,
+"vc": 4244,
 "l": "en",
 "gs": [
 878,
@@ -1340,7 +1340,7 @@
 "amici"
 ],
 "v": 7.7,
-"vc": 681,
+"vc": 685,
 "l": "da",
 "gs": [
 28,
@@ -1475,7 +1475,7 @@
 "amici"
 ],
 "v": 6.9,
-"vc": 17327,
+"vc": 17328,
 "l": "en",
 "gs": [
 28,
@@ -1508,7 +1508,7 @@
 "amici"
 ],
 "v": 6.4,
-"vc": 3363,
+"vc": 3364,
 "l": "en",
 "gs": [
 28,
@@ -2166,10 +2166,10 @@
 "d": "In diretta su Sky Sport."
 },
 {
-"t": "GP Macao - FIA FR - Gara",
+"t": "GP Macao - FIA GT - Gara",
 "ty": "sport",
 "s": "now",
-"time": "20:25",
+"time": "20:33",
 "dur": 110,
 "m": [
 "sport"
@@ -2188,33 +2188,7 @@
 "d": "In diretta su Sky Sport.",
 "teams": [
 "GP Macao",
-"FIA FR - Gara"
-]
-},
-{
-"t": "ALMS Cup - Le Castellet - G1",
-"ty": "sport",
-"s": "now",
-"time": "22:01",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su Sky Sport.",
-"teams": [
-"ALMS Cup",
-"Le Castellet - G1"
+"FIA GT - Gara"
 ]
 },
 {
