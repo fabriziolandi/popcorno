@@ -111,8 +111,8 @@
 "t": "La ruota della fortuna",
 "ty": "show",
 "s": "c5",
-"time": "20:38",
-"dur": 42,
+"time": "20:39",
+"dur": 41,
 "m": [
 "relax",
 "risate"
@@ -135,7 +135,7 @@
 "ty": "show",
 "s": "c5",
 "time": "21:20",
-"dur": 249,
+"dur": 250,
 "m": [
 "relax",
 "risate"
@@ -353,7 +353,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12999,
+"vc": 13000,
 "l": "en",
 "gs": [
 35
@@ -449,7 +449,7 @@
 "coppia"
 ],
 "v": 7.7,
-"vc": 1928,
+"vc": 1929,
 "l": "en",
 "gs": [
 80,
@@ -515,7 +515,7 @@
 "amici"
 ],
 "v": 6.5,
-"vc": 2266,
+"vc": 2267,
 "l": "en",
 "gs": [
 878,
@@ -819,7 +819,7 @@
 "amici"
 ],
 "v": 8.4,
-"vc": 9625,
+"vc": 9626,
 "l": "en",
 "gs": [
 35
@@ -1166,7 +1166,7 @@
 "amici"
 ],
 "v": 7.7,
-"vc": 1767,
+"vc": 1768,
 "l": "en",
 "gs": [
 18,
@@ -1484,7 +1484,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 12999,
+"vc": 13000,
 "l": "en",
 "gs": [
 35
@@ -1753,7 +1753,7 @@
 "amici"
 ],
 "v": 7.3,
-"vc": 5456,
+"vc": 5458,
 "l": "en",
 "gs": [
 14,
@@ -1917,7 +1917,7 @@
 "amici"
 ],
 "v": 7.0,
-"vc": 3989,
+"vc": 3990,
 "l": "en",
 "gs": [
 35,
@@ -2029,7 +2029,7 @@
 "ty": "film",
 "s": "skycom",
 "time": "21:00",
-"dur": 230,
+"dur": 210,
 "m": [
 "risate",
 "relax"
@@ -2210,7 +2210,7 @@
 "amici"
 ],
 "v": 7.7,
-"vc": 300,
+"vc": 301,
 "l": "en",
 "gs": [
 18
@@ -2538,28 +2538,6 @@
 ]
 },
 {
-"t": "Qatar Aspettando il GP",
-"ty": "sport",
-"s": "now",
-"time": "20:45",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Motori",
-"e": "🏎️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su Sky Sport."
-},
-{
 "t": "GP Las Vegas: Gara F1",
 "ty": "sport",
 "s": "now",
@@ -2683,6 +2661,32 @@
 "teams": [
 "Welcome Kit",
 "Provedel"
+]
+},
+{
+"t": "Monza - Fiorentina",
+"ty": "sport",
+"s": "dazn",
+"time": "19:57",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su DAZN.",
+"teams": [
+"Monza",
+"Fiorentina"
 ]
 },
 {
