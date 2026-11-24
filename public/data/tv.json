@@ -274,7 +274,7 @@
 "coppia"
 ],
 "v": 6.8,
-"vc": 4374,
+"vc": 4375,
 "l": "en",
 "gs": [
 80,
@@ -764,7 +764,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 1223,
+"vc": 1224,
 "l": "pt",
 "gs": [
 18,
@@ -816,29 +816,28 @@
 "m": [
 "tensione"
 ],
-"g": "Azione",
-"e": "💥",
+"g": "Crime",
+"e": "🕵️",
 "c": [
-"#cb2d3e",
-"#ef473a"
+"#232526",
+"#414345"
 ],
 "w": [
 "solo",
-"coppia",
-"amici"
+"coppia"
 ],
-"v": 7.8,
-"vc": 20,
-"l": "it",
+"v": 7.2,
+"vc": 303,
+"l": "de",
 "gs": [
-10759,
 80,
+9648,
 18
 ],
-"y": "2008",
-"p": "/iqpkxQLqxF7ZQUL6e4nAfLfprif.jpg",
-"tmdb": "tv/95926",
-"d": "Rex è stata una serie televisiva poliziesca di produzione italiana, sequel delle avventure della serie austriaca Il commissario Rex."
+"y": "1994",
+"p": "/rPBqVt6mFU0X5oBEMYPlfG568yN.jpg",
+"tmdb": "tv/994",
+"d": "Il commissario Rex (Kommissar Rex) è una serie televisiva poliziesca di produzione austriaca e tedesca.  La serie è incentrata sulle indagini svolte da una \"squadra…"
 },
 {
 "t": "Elsbeth",
@@ -1031,7 +1030,7 @@
 "ty": "show",
 "s": "focus",
 "time": "20:28",
-"dur": 51,
+"dur": 52,
 "m": [
 "relax"
 ],
@@ -1052,7 +1051,7 @@
 "t": "Segreti della natura",
 "ty": "show",
 "s": "focus",
-"time": "21:19",
+"time": "21:20",
 "dur": 125,
 "m": [
 "relax"
@@ -2641,10 +2640,10 @@
 ]
 },
 {
-"t": "Hornchurch - Sutton",
+"t": "Maui Invitational - Semifinal: BYU vs. Ole Miss",
 "ty": "sport",
 "s": "dazn",
-"time": "20:45",
+"time": "20:30",
 "dur": 110,
 "m": [
 "sport"
@@ -2662,12 +2661,12 @@
 ],
 "d": "In diretta su DAZN.",
 "teams": [
-"Hornchurch",
-"Sutton"
+"Maui Invitational",
+"Semifinal: BYU vs. Ole Miss"
 ]
 },
 {
-"t": "Altrincham - Wealdstone",
+"t": "Woking - Worthing",
 "ty": "sport",
 "s": "dazn",
 "time": "20:45",
@@ -2688,8 +2687,8 @@
 ],
 "d": "In diretta su DAZN.",
 "teams": [
-"Altrincham",
-"Wealdstone"
+"Woking",
+"Worthing"
 ]
 }
 ]
