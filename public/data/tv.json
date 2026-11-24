@@ -59,7 +59,7 @@
 "ty": "show",
 "s": "rai2",
 "time": "21:20",
-"dur": 130,
+"dur": 190,
 "m": [
 "relax",
 "risate"
@@ -115,7 +115,7 @@
 "ty": "show",
 "s": "rai3",
 "time": "21:15",
-"dur": 165,
+"dur": 115,
 "m": [
 "tensione"
 ],
@@ -422,7 +422,7 @@
 "amici"
 ],
 "v": 7.9,
-"vc": 13000,
+"vc": 13001,
 "l": "en",
 "gs": [
 35
@@ -684,7 +684,7 @@
 "ty": "film",
 "s": "rai5",
 "time": "21:21",
-"dur": 133,
+"dur": 134,
 "m": [
 "emozione"
 ],
@@ -714,7 +714,7 @@
 "t": "Acqua e anice",
 "ty": "film",
 "s": "rai5",
-"time": "23:34",
+"time": "23:35",
 "dur": 110,
 "m": [
 "risate",
@@ -1539,7 +1539,7 @@
 "amici"
 ],
 "v": 6.8,
-"vc": 8986,
+"vc": 8988,
 "l": "en",
 "gs": [
 28,
@@ -2641,32 +2641,6 @@
 ]
 },
 {
-"t": "Maui Invitational - Semifinal 1: TBD vs. TBD",
-"ty": "sport",
-"s": "dazn",
-"time": "20:30",
-"dur": 110,
-"m": [
-"sport"
-],
-"w": [
-"amici",
-"solo",
-"coppia"
-],
-"g": "Sport",
-"e": "🏟️",
-"c": [
-"#0b8793",
-"#360033"
-],
-"d": "In diretta su DAZN.",
-"teams": [
-"Maui Invitational",
-"Semifinal 1: TBD vs. TBD"
-]
-},
-{
 "t": "Hornchurch - Sutton",
 "ty": "sport",
 "s": "dazn",
@@ -2690,6 +2664,32 @@
 "teams": [
 "Hornchurch",
 "Sutton"
+]
+},
+{
+"t": "Altrincham - Wealdstone",
+"ty": "sport",
+"s": "dazn",
+"time": "20:45",
+"dur": 110,
+"m": [
+"sport"
+],
+"w": [
+"amici",
+"solo",
+"coppia"
+],
+"g": "Sport",
+"e": "🏟️",
+"c": [
+"#0b8793",
+"#360033"
+],
+"d": "In diretta su DAZN.",
+"teams": [
+"Altrincham",
+"Wealdstone"
 ]
 }
 ]
