@@ -27,7 +27,7 @@
 "ty": "show",
 "s": "rai1",
 "time": "21:30",
-"dur": 180,
+"dur": 185,
 "m": [
 "relax",
 "emozione"
@@ -2170,7 +2170,7 @@
 "coppia"
 ],
 "v": 7.5,
-"vc": 7215,
+"vc": 7217,
 "l": "en",
 "gs": [
 27,
@@ -2683,10 +2683,10 @@
 ]
 },
 {
-"t": "Domotek Reggio Calabria - Union Napoli",
+"t": "Numia Vero Volley Milano - Levallois Paris Saint Cloud",
 "ty": "sport",
 "s": "dazn",
-"time": "20:30",
+"time": "20:00",
 "dur": 110,
 "m": [
 "sport"
@@ -2704,8 +2704,8 @@
 ],
 "d": "In diretta su DAZN.",
 "teams": [
-"Domotek Reggio Calabria",
-"Union Napoli"
+"Numia Vero Volley Milano",
+"Levallois Paris Saint Cloud"
 ]
 }
 ]
