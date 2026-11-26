@@ -5,12 +5,13 @@ Uso: python3 scripts/pagine.py [cartella_sito]   (nel workflow: public)
 Legge data/tv.json, data/meta.json, data/cinema/*.json della cartella del sito e i nomi
 dei canali da src/lib/sources.ts; scrive stasera-in-tv/, film-stasera-in-tv/, sport-stasera-in-tv/,
 serie-tv-stasera/, cinema/ e cinema/<citta>/ (una pagina per ogni citta' di scripts/citta.json,
-anche senza orari), streaming/ e per ogni piattaforma di STREAMING cosa-vedere-su-<p>/,
+anche senza orari, con trame e locandine da data/oggi.json o da TMDB se c'e' TMDB_KEY),
+film-al-cinema/ e film-al-cinema/<film>/ (dove vedere ogni film in sala), streaming/ e per ogni piattaforma di STREAMING cosa-vedere-su-<p>/,
 film-da-vedere-su-<p>/, serie-tv-da-vedere-su-<p>/ (da data/catalogo/*.json e data/trame/*.json)
 e rigenera sitemap.xml.
 Le pagine si rifanno a ogni esecuzione del workflow: stesso indirizzo, contenuto del giorno.
 """
-import html, json, os, re, sys, datetime
+import html, json, os, re, sys, datetime, unicodedata
 
 ROOT = sys.argv[1] if len(sys.argv) > 1 else "."
 BASE = "https://popcorno.it"
@@ -91,6 +92,10 @@ h2{font:700 21px/1.2 "Bricolage Grotesque",sans-serif;margin:28px 0 6px;color:va
 .citta{columns:2;gap:16px}
 .citta a{display:block;padding:6px 0;text-decoration:none;color:var(--testo)}
 .citta a span{color:var(--muto);font-size:13px}
+.it h3 a{color:var(--testo);text-decoration:none}
+.it h3 a:hover{text-decoration:underline}
+.nuovo{font:700 11px Figtree,sans-serif;color:#2a1700;background:var(--onda,#ff4d6d);border-radius:999px;padding:2px 8px;vertical-align:3px;margin-left:6px}
+.muto{color:var(--muto);font-size:13px}
 footer{margin-top:40px;font-size:13px;color:var(--muto)}
 footer a{color:var(--muto)}
 footer p{margin-bottom:8px}"""
@@ -220,6 +225,121 @@ def pagine_tv():
     return urls
 
 
+REGIONI = {
+    "Abruzzo": ["l-aquila", "pescara", "teramo"],
+    "Basilicata": ["matera", "potenza"],
+    "Calabria": ["catanzaro", "cosenza", "reggio-calabria", "vibo-valentia"],
+    "Campania": ["benevento", "napoli", "salerno"],
+    "Emilia-Romagna": ["bologna", "ferrara", "forli", "modena", "parma", "piacenza", "ravenna", "reggio-emilia", "rimini"],
+    "Friuli-Venezia Giulia": ["pordenone", "trieste", "udine"],
+    "Lazio": ["frosinone", "latina", "rieti", "roma"],
+    "Liguria": ["genova", "imperia", "la-spezia", "savona"],
+    "Lombardia": ["bergamo", "brescia", "como", "cremona", "lecco", "lodi", "mantova", "milano", "monza-e-brianza",
+                  "pavia", "varese"],
+    "Marche": ["ancona", "ascoli-piceno", "fermo", "macerata", "pesaro"],
+    "Molise": ["campobasso"],
+    "Piemonte": ["alessandria", "asti", "biella", "cuneo", "novara", "torino", "verbania", "vercelli"],
+    "Puglia": ["bari", "barletta-andria-trani", "brindisi", "foggia", "lecce"],
+    "Sardegna": ["cagliari", "nuoro", "olbia", "oristano", "sassari"],
+    "Sicilia": ["agrigento", "caltanissetta", "catania", "messina", "palermo", "ragusa", "siracusa", "trapani"],
+    "Toscana": ["arezzo", "firenze", "grosseto", "livorno", "lucca", "massa", "pisa", "pistoia", "prato", "siena"],
+    "Trentino-Alto Adige": ["bolzano", "trento"],
+    "Umbria": ["perugia", "terni"],
+    "Valle d'Aosta": ["aosta"],
+    "Veneto": ["belluno", "padova", "rovigo", "treviso", "venezia", "verona", "vicenza"],
+}
+REGIONE = {s: r for r, ss in REGIONI.items() for s in ss}
+
+
+def nrm(t):
+    """Titolo confrontabile: minuscolo, senza accenti e punteggiatura."""
+    t = unicodedata.normalize("NFD", str(t or "").lower())
+    t = "".join(c for c in t if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", " ", t).strip()
+
+
+def slugify(t):
+    return nrm(t).replace(" ", "-")[:80].strip("-") or "film"
+
+
+def data_it(iso):
+    try:
+        d = datetime.date.fromisoformat(iso[:10])
+        return f"{d.day} {MESI[d.month - 1]} {d.year}"
+    except Exception:
+        return ""
+
+
+def info_film_tmdb(titoli):
+    """Titolo normalizzato -> scheda (trama, locandina, genere, durata, voto...).
+    Prima i film in sala di TMDB gia' letti per l'app (data/oggi.json, campo "cinema"); per gli altri,
+    se c'e' TMDB_KEY, una ricerca per titolo esatto (salvata in data/cinema/_tmdb.json per i giorni dopo)."""
+    info = {}
+    for x in (carica("data/oggi.json", {}) or {}).get("cinema") or []:
+        k = nrm(x.get("t"))
+        if k and k not in info:
+            info[k] = {"t": x.get("t"), "d": x.get("d") or "", "p": x.get("p") or "", "g": x.get("g") or "",
+                       "dur": x.get("dur") or 0, "v": x.get("v") or 0, "vc": x.get("vc") or 0,
+                       "y": x.get("y") or "", "uscita": x.get("uscita") or "", "nuovo": bool(x.get("nuovo")),
+                       "kids": bool(x.get("kids")), "tmdb": x.get("tmdb") or ""}
+    cache = carica("data/cinema/_tmdb.json", {}) or {}
+    key = os.environ.get("TMDB_KEY", "")
+    mancano = [t for t in titoli if nrm(t) not in info]
+    nuovi = 0
+    for t in mancano:
+        k = nrm(t)
+        if k in cache:
+            if cache[k]:
+                info[k] = cache[k]
+            continue
+        if not key or nuovi >= 120:
+            continue
+        nuovi += 1
+        cache[k] = cerca_tmdb(t, key)
+        if cache[k]:
+            info[k] = cache[k]
+    if nuovi:
+        try:
+            os.makedirs(P("data/cinema"), exist_ok=True)
+            with open(P("data/cinema/_tmdb.json"), "w", encoding="utf-8") as f:
+                json.dump(cache, f, ensure_ascii=False)
+        except Exception:
+            pass
+    return info
+
+
+def cerca_tmdb(titolo, key):
+    import urllib.parse, urllib.request
+
+    def get(path, **q):
+        q.update(api_key=key, language="it-IT")
+        url = f"https://api.themoviedb.org/3{path}?{urllib.parse.urlencode(q)}"
+        with urllib.request.urlopen(url, timeout=15) as r:
+            return json.load(r)
+
+    try:
+        k = nrm(titolo)
+        res = get("/search/movie", query=titolo, region="IT").get("results", [])
+        # solo titolo identico (italiano o originale): meglio nessuna scheda che quella di un altro film
+        ok = [r for r in res if k in (nrm(r.get("title")), nrm(r.get("original_title")))]
+        if not ok:
+            return None
+        r = max(ok, key=lambda r: (r.get("vote_count", 0), r.get("popularity", 0)))
+        d = get(f"/movie/{r['id']}")
+        gid = [g["id"] for g in d.get("genres", [])]
+        trama = (d.get("overview") or "").strip()
+        if len(trama) > 260:
+            trama = trama[:257].rsplit(" ", 1)[0] + "…"
+        rel = d.get("release_date") or ""
+        return {"t": d.get("title") or titolo, "d": trama, "p": d.get("poster_path") or "",
+                "g": GENERI.get(gid[0], "") if gid else "", "dur": d.get("runtime") or 0,
+                "v": round(d.get("vote_average") or 0, 1), "vc": d.get("vote_count") or 0, "y": rel[:4],
+                "uscita": rel, "nuovo": False, "kids": bool(set(gid) & {16, 10751}) and 27 not in gid,
+                "tmdb": f"movie/{r['id']}"}
+    except Exception:
+        return None
+
+
 def citta_conosciute():
     """slug -> nome: le citta' di scripts/citta.json piu' quelle con orari oggi.
     Le citta' conosciute hanno sempre la loro pagina, cosi' un indirizzo gia' indicizzato non diventa 404
@@ -239,15 +359,106 @@ def citta_conosciute():
     return tutte
 
 
-def pagina_cinema_vuota(slug, nome):
-    h1 = f"Cinema a {nome}: film e orari di oggi"
-    title = f"Cinema {nome}: film in sala e orari, {etichetta} | Popcorno"
+def meta_film(i):
+    """Riga breve sotto il titolo: genere · anno · durata · voto."""
+    if not i:
+        return ""
+    v = [i.get("g") or "", str(i.get("y") or "")]
+    if i.get("dur"):
+        v.append(f"{i['dur'] // 60} h {i['dur'] % 60:02d} min" if i["dur"] >= 60 else f"{i['dur']} min")
+    out = esc(" · ".join(x for x in v if x))
+    if i.get("v") and i.get("vc", 0) >= 50:
+        out = f"<b>★ {i['v']:.1f}</b> " + out
+    return out
+
+
+def locandina(i, t, w=92, wpx=60, hpx=90):
+    if i and i.get("p"):
+        return (f'<img src="https://image.tmdb.org/t/p/w{w}{esc(i["p"])}" alt="Locandina di {esc(t)}" '
+                f'loading="lazy" width="{wpx}" height="{hpx}">')
+    return '<div class="ph">🎬</div>'
+
+
+def ld_film(t, i, url):
+    m = {"@type": "Movie", "name": t, "url": url}
+    if i:
+        if i.get("p"):
+            m["image"] = f"https://image.tmdb.org/t/p/w342{i['p']}"
+        if i.get("d"):
+            m["description"] = i["d"]
+        if i.get("g"):
+            m["genre"] = i["g"]
+        if i.get("uscita"):
+            m["datePublished"] = i["uscita"][:10]
+        if i.get("dur"):
+            m["duration"] = f"PT{i['dur'] // 60}H{i['dur'] % 60}M"
+    return m
+
+
+def leggi_cinema():
+    """Tutte le citta' con i loro film: slug -> (nome, dati, {titolo: [(sala, orari)]})."""
+    out = {}
+    for slug, nome_noto in citta_conosciute().items():
+        d = carica(f"data/cinema/{slug}.json", None) or {}
+        film = {}
+        for s in d.get("sale") or []:
+            for f in s.get("f", []):
+                if f.get("t"):
+                    film.setdefault(f["t"], []).append((s, f.get("o", [])))
+        out[slug] = (d.get("citta") or nome_noto, d, film)
+    return out
+
+
+def introduzione(nome, d, film, info, ord_film):
+    """Qualche frase scritta dai dati della citta': cambia da citta' a citta' e da giorno a giorno."""
+    n_sale = len(d.get("sale") or [])
+    frasi = [f"Oggi, {etichetta}, nei {n_sale} cinema di {nome} sono in programmazione {len(film)} film."
+             if n_sale > 1 else f"Oggi, {etichetta}, l'unico cinema di {nome} che conosciamo ha in programma {len(film)} film."]
+    t0, sale0 = ord_film[0]
+    if n_sale > 1 and len(sale0) > 1:
+        frasi.append(f"{t0} è in tutte le sale." if len(sale0) == n_sale else
+                     f"Il film in più sale è {t0}, in {len(sale0)} cinema su {n_sale}.")
+    nuovi = [t for t, _ in ord_film if (info.get(nrm(t)) or {}).get("nuovo")][:3]
+    if nuovi:
+        frasi.append(("Novità della settimana: " if len(nuovi) > 1 else "Appena uscito: ") + ", ".join(nuovi) + ".")
+    bimbi = [t for t, _ in ord_film if (info.get(nrm(t)) or {}).get("kids")][:2]
+    if bimbi:
+        frasi.append("Per andare al cinema con i bambini: " + " e ".join(bimbi) + ".")
+    orari = sorted(o for _, sale in film.items() for _, oo in sale for o in oo if re.match(r"^\d{1,2}[:.]\d{2}$", o))
+    if orari:
+        frasi.append(f"Il primo spettacolo è alle {orari[0].replace('.', ':')}, l'ultimo alle {orari[-1].replace('.', ':')}.")
+    generi = {}
+    for t, sale in film.items():
+        g = (info.get(nrm(t)) or {}).get("g")
+        if g:
+            generi[g] = generi.get(g, 0) + 1
+    top = sorted(generi.items(), key=lambda kv: -kv[1])[:2]
+    if top and len(film) >= 4:
+        frasi.append("I generi più presenti sono " + " e ".join(g.lower() for g, _ in top) + ".")
+    return " ".join(frasi)
+
+
+def vicine(slug, tutte, conta):
+    """Link alle altre citta' della stessa regione."""
+    reg = REGIONE.get(slug)
+    altre = [s for s in REGIONI.get(reg, []) if s != slug and s in tutte]
+    if not altre:
+        return ""
+    voci = "".join(f'<a href="/cinema/{s}/">Cinema a {esc(tutte[s][0])}'
+                   + (f' <span>· {conta[s]} film</span>' if conta.get(s) else "") + "</a>" for s in altre)
+    return f'<h2>Altre città in {esc(reg)}</h2><div class="citta">{voci}</div>'
+
+
+def pagina_cinema_vuota(slug, nome, tutte, conta):
+    h1 = f"Cinema a {nome}: programmazione di oggi"
+    title = f"Programmazione cinema {nome} oggi: film e orari | Popcorno"
     desc = (f"Film in sala e orari dei cinema a {nome}. Oggi ({etichetta}) gli orari non sono disponibili: "
-            f"torna domani o scegli cosa guardare stasera in TV e in streaming.")[:300]
+            f"guarda le città vicine o scegli cosa guardare stasera in TV e in streaming.")[:300]
     corpo = (f'<p class="lead">Oggi non abbiamo gli orari dei cinema di {esc(nome)}: la nostra fonte non li ha pubblicati. '
              f'Di solito tornano nei prossimi giorni.</p>'
              f'<a class="cta" href="/stasera-in-tv/">📺 Guarda cosa c\'è stasera in TV</a>'
-             '<p class="lead" style="margin-top:20px"><a href="/cinema/">← Tutte le città</a></p>')
+             + vicine(slug, tutte, conta)
+             + '<p class="lead" style="margin-top:20px"><a href="/cinema/">← Tutte le città</a></p>')
     ld = {"@context": "https://schema.org", "@graph": [
         {"@type": "WebPage", "name": h1, "url": f"{BASE}/cinema/{slug}/", "inLanguage": "it", "dateModified": oggi},
         briciole(("Popcorno", "/"), ("Cinema", "/cinema/"), (nome, f"/cinema/{slug}/"))]}
@@ -256,68 +467,167 @@ def pagina_cinema_vuota(slug, nome):
 
 def pagine_cinema():
     urls = []
-    citta_ok = []
-    vuote = []
-    for slug, nome_noto in sorted(citta_conosciute().items(), key=lambda kv: kv[1]):
-        d = carica(f"data/cinema/{slug}.json", None) or {}
-        nome = d.get("citta") or nome_noto
-        # film -> [(cinema, orari)]
-        film = {}
-        for s in d.get("sale") or []:
-            for f in s.get("f", []):
-                film.setdefault(f["t"], []).append((s, f.get("o", [])))
+    tutte = leggi_cinema()
+    titoli = sorted({t for _, _, film in tutte.values() for t in film})
+    info = info_film_tmdb(titoli)
+    conta = {s: len(film) for s, (_, _, film) in tutte.items()}
+
+    # Film -> pagina propria (stesso indirizzo finche' e' in sala), con l'elenco delle citta'
+    film_slug, usati = {}, set()
+    for t in titoli:
+        k = nrm(t)
+        if k in film_slug:
+            continue
+        s = slugify(t)
+        if s in usati:
+            s = f"{s}-{(info.get(k) or {}).get('y') or len(usati)}"
+        usati.add(s)
+        film_slug[k] = s
+    link_film = lambda t: f"/film-al-cinema/{film_slug[nrm(t)]}/"
+
+    citta_ok, vuote = [], []
+    for slug, (nome, d, film) in sorted(tutte.items(), key=lambda kv: kv[1][0]):
         if not film:
             vuote.append((slug, nome))
-            urls.append(pagina_cinema_vuota(slug, nome))
+            urls.append(pagina_cinema_vuota(slug, nome, tutte, conta))
             continue
         citta_ok.append((slug, nome, len(d["sale"]), len(film)))
-        ord_film = sorted(film.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+        ord_film = sorted(film.items(), key=lambda kv: (-len(kv[1]), -((info.get(nrm(kv[0])) or {}).get("vc") or 0), kv[0]))
         righe = []
         for t, sale in ord_film:
+            i = info.get(nrm(t))
             dove = "".join(
                 f'<div class="sala"><a href="{esc(s.get("url", "#"))}" rel="nofollow noopener">{esc(s["n"])}</a>'
                 f'<div class="ore">{"".join(f"<span>{esc(o)}</span>" for o in orari)}</div></div>'
                 for s, orari in sale)
-            righe.append(f'<div class="it"><div class="ph">🎬</div><div><h3>{esc(t)}</h3>'
-                         f'<div class="rg">In {len(sale)} {"cinema" if len(sale) > 1 else "cinema"}</div>{dove}</div></div>')
+            badge = ' <span class="nuovo">Novità</span>' if i and i.get("nuovo") else ""
+            trama = f'<p>{esc(i["d"])}</p>' if i and i.get("d") else ""
+            righe.append(f'<div class="it">{locandina(i, t)}<div><h3><a href="{link_film(t)}">{esc(t)}</a>{badge}</h3>'
+                         f'<div class="rg">{meta_film(i)}</div>{trama}{dove}</div></div>')
         elenco_sale = "".join(f'<li><a href="{esc(s.get("url", "#"))}" rel="nofollow noopener">{esc(s["n"])}</a>'
-                              f' – {esc(s.get("ind", ""))}</li>' for s in d["sale"])
-        h1 = f"Cinema a {nome}: film e orari di oggi"
-        title = f"Cinema {nome}: film in sala e orari oggi, {etichetta} | Popcorno"
-        primi = ", ".join(t for t, _ in ord_film[:4])
-        desc = (f"Cosa danno al cinema a {nome} oggi ({etichetta}): {primi}. "
-                f"{len(film)} film in {len(d['sale'])} sale, con tutti gli orari.")[:300]
+                              f' – {esc(s.get("ind", ""))} <span class="muto">· {len(s.get("f", []))} film</span></li>'
+                              for s in d["sale"])
+        h1 = f"Programmazione cinema {nome} oggi"
+        title = f"Programmazione cinema {nome} oggi: {len(film)} film e orari | Popcorno"
+        primi = ", ".join(t for t, _ in ord_film[:3])
+        desc = (f"Cinema a {nome} oggi, {etichetta}: {primi} e gli altri {len(film)} film in "
+                f"{len(d['sale'])} {'sale' if len(d['sale']) > 1 else 'sala'}, con orari, trame e locandine.")[:300]
         nota = ""
         if d.get("agg") and d["agg"] != oggi:
             nota = f' Orari aggiornati al {d["agg"][8:10]}/{d["agg"][5:7]}: verifica con il cinema.'
-        corpo = (f'<p class="lead">{len(film)} film in programmazione oggi, {esc(etichetta)}, '
-                 f'in {len(d["sale"])} cinema di {esc(nome)}.{esc(nota)}</p>'
+        corpo = (f'<p class="lead">{esc(introduzione(nome, d, film, info, ord_film))}{esc(nota)}</p>'
                  f'<a class="cta" href="/">🍿 Scegli il film giusto per te</a>'
-                 + "".join(righe)
+                 + f'<h2>Film in sala oggi a {esc(nome)}</h2>' + "".join(righe)
                  + f'<h2>Le sale di {esc(nome)}</h2><ul style="padding-left:20px">{elenco_sale}</ul>'
-                 + '<p class="lead" style="margin-top:20px"><a href="/cinema/">← Tutte le città</a></p>')
+                 + vicine(slug, tutte, conta)
+                 + '<p class="lead" style="margin-top:20px"><a href="/cinema/">← Tutte le città</a> · '
+                   '<a href="/film-al-cinema/">Tutti i film in sala</a></p>')
         ld = {"@context": "https://schema.org", "@graph": [
             {"@type": "WebPage", "name": h1, "url": f"{BASE}/cinema/{slug}/", "inLanguage": "it", "dateModified": oggi},
             {"@type": "ItemList", "name": f"Film al cinema a {nome}", "numberOfItems": len(film),
-             "itemListElement": [{"@type": "ListItem", "position": i + 1, "item": {"@type": "Movie", "name": t}}
-                                 for i, (t, _) in enumerate(ord_film[:50])]},
+             "itemListElement": [{"@type": "ListItem", "position": n + 1,
+                                  "item": ld_film(t, info.get(nrm(t)), BASE + link_film(t))}
+                                 for n, (t, _) in enumerate(ord_film[:50])]},
+            *[{"@type": "MovieTheater", "name": s["n"], "address": s.get("ind", "")} for s in d["sale"][:30]],
             briciole(("Popcorno", "/"), ("Cinema", "/cinema/"), (nome, f"/cinema/{slug}/"))]}
         urls.append(pagina(f"cinema/{slug}", title, desc, h1, corpo, "cinema", ld))
 
-    voci = [(n, f'<a href="/cinema/{s}/">{esc(n)} <span>· {nf} film</span></a>') for s, n, ns, nf in citta_ok]
-    voci += [(n, f'<a href="/cinema/{s}/">{esc(n)} <span>· orari non disponibili oggi</span></a>') for s, n in vuote]
-    lista = "".join(v for _, v in sorted(voci))
-    corpo = (f'<p class="lead">Film in sala e orari di oggi, {esc(etichetta)}, in {len(citta_ok)} città italiane. '
-             f'Scegli la tua città.</p><a class="cta" href="/">🍿 Scegli cosa vedere stasera</a>'
-             f'<div class="citta">{lista}</div>')
+    # Pagine dei film
+    per_film = {}
+    for slug, (nome, d, film) in tutte.items():
+        for t, sale in film.items():
+            per_film.setdefault(nrm(t), {"t": t, "citta": []})["citta"].append((slug, nome, sale))
+    elenco_film = []
+    for k, v in per_film.items():
+        t, i = v["t"], info.get(k)
+        cc = sorted(v["citta"], key=lambda c: c[1])
+        n_sale = sum(len(sale) for _, _, sale in cc)
+        elenco_film.append((t, k, len(cc), n_sale, i))
+        path = f"film-al-cinema/{film_slug[k]}"
+        blocchi = []
+        for reg in sorted({REGIONE.get(s, "Altre città") for s, _, _ in cc}):
+            dentro = [c for c in cc if REGIONE.get(c[0], "Altre città") == reg]
+            html_c = ""
+            for s, nome, sale in dentro:
+                html_c += (f'<div class="sala"><b><a href="/cinema/{s}/">{esc(nome)}</a></b>'
+                           + "".join(f'<div style="margin-top:4px">{esc(sa["n"])}<div class="ore">'
+                                     f'{"".join(f"<span>{esc(o)}</span>" for o in orari)}</div></div>'
+                                     for sa, orari in sale) + '</div>')
+            blocchi.append(f'<h2>{esc(reg)}</h2>{html_c}')
+        info_txt = ""
+        if i:
+            pezzi = []
+            if i.get("uscita"):
+                pezzi.append(f"Uscita: {data_it(i['uscita'])}")
+            info_txt = f'<div class="rg">{meta_film(i)}</div>' + (f'<p>{esc(i["d"])}</p>' if i.get("d") else "") \
+                + (f'<p class="muto">{esc(" · ".join(pezzi))}</p>' if pezzi else "")
+        testa = (f'<div class="it" style="grid-template-columns:120px 1fr">'
+                 + (locandina(i, t, 185, 120, 180).replace('<img ', '<img style="width:120px;height:180px" ')
+                    .replace('class="ph"', 'class="ph" style="width:120px;height:180px"'))
+                 + f'<div>{info_txt}</div></div>')
+        h1 = f"{t}: dove vederlo al cinema oggi"
+        title = f"{t} al cinema oggi: orari in {len(cc)} {'città' if len(cc) > 1 else 'città'} | Popcorno"
+        nomi = ", ".join(c[1] for c in sorted(cc, key=lambda c: -len(c[2]))[:5])
+        desc = (f"Dove vedere {t} al cinema oggi, {etichetta}: orari in {n_sale} "
+                f"{'sale' if n_sale > 1 else 'sala'} a {nomi}" + (" e altre città." if len(cc) > 5 else ".")
+                + (f" {i['d']}" if i and i.get("d") else ""))[:300]
+        corpo = (f'<p class="lead">Oggi, {esc(etichetta)}, {esc(t)} è in programmazione in {n_sale} '
+                 f'{"sale" if n_sale > 1 else "sala"} di {len(cc)} {"città" if len(cc) > 1 else "città"}.</p>'
+                 + testa + "".join(blocchi)
+                 + '<p class="lead" style="margin-top:20px"><a href="/film-al-cinema/">← Tutti i film in sala</a> · '
+                   '<a href="/cinema/">Tutte le città</a></p>')
+        ld = {"@context": "https://schema.org", "@graph": [
+            {"@type": "WebPage", "name": h1, "url": f"{BASE}/{path}/", "inLanguage": "it", "dateModified": oggi},
+            ld_film(t, i, f"{BASE}/{path}/"),
+            briciole(("Popcorno", "/"), ("Film al cinema", "/film-al-cinema/"), (t, f"/{path}/"))]}
+        urls.append(pagina(path, title, desc, h1, corpo, "cinema", ld))
+
+    # Indice dei film in sala
+    elenco_film.sort(key=lambda f: (-f[2], -f[3], f[0]))
+    schede = "".join(
+        f'<div class="it">{locandina(i, t)}<div><h3><a href="/film-al-cinema/{film_slug[k]}/">{esc(t)}</a></h3>'
+        f'<div class="rg">{meta_film(i)}</div><p class="muto">In {nc} {"città" if nc > 1 else "città"}, {ns} '
+        f'{"sale" if ns > 1 else "sala"}</p></div></div>' for t, k, nc, ns, i in elenco_film)
     ld = {"@context": "https://schema.org", "@graph": [
-        {"@type": "CollectionPage", "name": "Cinema: film e orari di oggi", "url": f"{BASE}/cinema/", "inLanguage": "it"},
+        {"@type": "CollectionPage", "name": "Film al cinema oggi", "url": f"{BASE}/film-al-cinema/", "inLanguage": "it"},
+        {"@type": "ItemList", "name": "Film al cinema oggi in Italia", "numberOfItems": len(elenco_film),
+         "itemListElement": [{"@type": "ListItem", "position": n + 1,
+                              "item": ld_film(t, i, f"{BASE}/film-al-cinema/{film_slug[k]}/")}
+                             for n, (t, k, _, _, i) in enumerate(elenco_film[:60])]},
+        briciole(("Popcorno", "/"), ("Film al cinema", "/film-al-cinema/"))]}
+    primi = ", ".join(f[0] for f in elenco_film[:4])
+    urls.insert(0, pagina("film-al-cinema", f"Film al cinema oggi: {len(elenco_film)} film in sala e dove vederli | Popcorno",
+                          (f"I film al cinema oggi in Italia ({etichetta}): {primi} e gli altri, con trame, "
+                           f"locandine e orari città per città.")[:300],
+                          "Film al cinema oggi",
+                          f'<p class="lead">I {len(elenco_film)} film in programmazione oggi, {esc(etichetta)}, nei cinema '
+                          f'delle {len(citta_ok)} città che seguiamo, dal più programmato. Tocca un film per vedere dove e a che ora.</p>'
+                          f'<a class="cta" href="/cinema/">🎟️ Cerca per città</a>{schede}', "cinema", ld))
+
+    # Indice delle citta', per regione
+    blocchi = []
+    for reg in sorted(REGIONI) + ["Altre città"]:
+        ss = sorted([s for s in tutte if REGIONE.get(s, "Altre città") == reg], key=lambda s: tutte[s][0])
+        if not ss:
+            continue
+        voci = "".join(f'<a href="/cinema/{s}/">{esc(tutte[s][0])} <span>· '
+                       + (f'{conta[s]} film' if conta[s] else 'orari non disponibili oggi') + '</span></a>' for s in ss)
+        blocchi.append(f'<h2>{esc(reg)}</h2><div class="citta">{voci}</div>')
+    top = "".join(f'<a href="/film-al-cinema/{film_slug[k]}/">{esc(t)} <span>· {nc} città</span></a>'
+                  for t, k, nc, _, _ in elenco_film[:10])
+    corpo = (f'<p class="lead">Film in sala e orari di oggi, {esc(etichetta)}, in {len(citta_ok)} città italiane. '
+             f'Scegli la tua città o il film che vuoi vedere.</p><a class="cta" href="/">🍿 Scegli cosa vedere stasera</a>'
+             + (f'<h2>I film più programmati oggi</h2><div class="citta">{top}</div>'
+                f'<p class="lead" style="margin-top:10px"><a href="/film-al-cinema/">Tutti i film in sala →</a></p>' if top else "")
+             + "".join(blocchi))
+    ld = {"@context": "https://schema.org", "@graph": [
+        {"@type": "CollectionPage", "name": "Programmazione dei cinema di oggi", "url": f"{BASE}/cinema/", "inLanguage": "it"},
         briciole(("Popcorno", "/"), ("Cinema", "/cinema/"))]}
-    urls.insert(0, pagina("cinema", f"Cinema oggi: film e orari in {len(citta_ok)} città | Popcorno",
-                          f"Programmazione dei cinema di oggi ({etichetta}) a "
-                          f"{', '.join(n for _, n, _, _ in sorted(citta_ok, key=lambda c: -c[2])[:5])} e "
-                          f"in altre città: film in sala e orari.",
-                          "Cinema: film e orari di oggi", corpo, "cinema", ld))
+    grandi = ", ".join(n for _, n, _, _ in sorted(citta_ok, key=lambda c: -c[2])[:5])
+    urls.insert(0, pagina("cinema", f"Programmazione cinema oggi: film e orari in {len(citta_ok)} città | Popcorno",
+                          f"Programmazione dei cinema di oggi ({etichetta}) a {grandi} e in altre città italiane: "
+                          f"film in sala, trame e orari.",
+                          "Programmazione dei cinema di oggi", corpo, "cinema", ld))
     return urls
 
 

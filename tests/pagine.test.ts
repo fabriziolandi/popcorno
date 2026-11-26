@@ -67,6 +67,15 @@ describe("pagine dei cinema per ogni città conosciuta", () => {
       expect(mi).toContain("Film di Prova");
       expect(mi).toContain("21:00");
       expect(mi).not.toContain("Oggi non abbiamo gli orari");
+      expect(mi).toContain("<title>Programmazione cinema Milano oggi");
+      expect(mi).toContain('href="/film-al-cinema/film-di-prova/"');
+      expect(mi).toContain("Altre città in Lombardia");
+      const film = readFileSync(join(d2, "film-al-cinema", "film-di-prova", "index.html"), "utf8");
+      expect(film).toContain("Film di Prova: dove vederlo al cinema oggi");
+      expect(film).toContain('href="/cinema/milano/"');
+      expect(film).toContain("21:00");
+      expect(readFileSync(join(d2, "film-al-cinema", "index.html"), "utf8")).toContain('href="/film-al-cinema/film-di-prova/"');
+      expect(readFileSync(join(d2, "sitemap.xml"), "utf8")).toContain("<loc>https://popcorno.it/film-al-cinema/film-di-prova/</loc>");
       const altra = slugs.find((s) => s !== "milano")!;
       expect(readFileSync(join(d2, "cinema", altra, "index.html"), "utf8")).toContain("Oggi non abbiamo gli orari");
       const indice = readFileSync(join(d2, "cinema", "index.html"), "utf8");

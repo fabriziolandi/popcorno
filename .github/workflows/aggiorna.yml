@@ -121,6 +121,8 @@ jobs:
       # Dopo il salvataggio della guida: rigenera public/sitemap.xml, che e' nel repository.
       - name: Pagine per Google (TV di stasera e cinema per citta')
         continue-on-error: true
+        env:
+          TMDB_KEY: ${{ secrets.TMDB_KEY }}
         run: python3 scripts/pagine.py public
 
       - run: npm ci
