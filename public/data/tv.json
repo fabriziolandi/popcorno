@@ -65,8 +65,8 @@
 "coppia",
 "amici"
 ],
-"v": 6.4,
-"vc": 31,
+"v": 6.2,
+"vc": 32,
 "l": "en",
 "gs": [
 18,
@@ -587,7 +587,7 @@
 "ty": "film",
 "s": "raimovie",
 "time": "21:10",
-"dur": 110,
+"dur": 112,
 "m": [
 "tensione"
 ],
@@ -619,7 +619,7 @@
 "t": "Blow",
 "ty": "film",
 "s": "raimovie",
-"time": "23:00",
+"time": "23:02",
 "dur": 110,
 "m": [
 "tensione"
@@ -699,7 +699,7 @@
 "amici"
 ],
 "v": 6.4,
-"vc": 11105,
+"vc": 11106,
 "l": "en",
 "gs": [
 28,
@@ -1073,7 +1073,7 @@
 "amici"
 ],
 "v": 7.2,
-"vc": 7936,
+"vc": 7937,
 "l": "en",
 "gs": [
 12,
@@ -1609,7 +1609,7 @@
 "amici"
 ],
 "v": 7.0,
-"vc": 9518,
+"vc": 9519,
 "l": "en",
 "gs": [
 16,
@@ -1677,7 +1677,7 @@
 "amici"
 ],
 "v": 8.2,
-"vc": 21957,
+"vc": 21958,
 "l": "en",
 "gs": [
 28,
@@ -2568,10 +2568,10 @@
 ]
 },
 {
-"t": "JV Gioia Del Colle - Gruppo Fisiomed Alema Energy Macerata",
+"t": "Cda Volley Talmassons Fvg - Numia Vero Volley Milano",
 "ty": "sport",
 "s": "dazn",
-"time": "20:30",
+"time": "20:00",
 "dur": 110,
 "m": [
 "sport"
@@ -2589,8 +2589,8 @@
 ],
 "d": "In diretta su DAZN.",
 "teams": [
-"JV Gioia Del Colle",
-"Gruppo Fisiomed Alema Energy Macerata"
+"Cda Volley Talmassons Fvg",
+"Numia Vero Volley Milano"
 ]
 }
 ]
