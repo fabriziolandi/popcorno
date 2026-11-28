@@ -451,7 +451,7 @@ def vicine(slug, tutte, conta):
 
 def pagina_cinema_vuota(slug, nome, tutte, conta):
     h1 = f"Cinema a {nome}: programmazione di oggi"
-    title = f"Programmazione cinema {nome} oggi: film e orari | Popcorno"
+    title = f"Programmazione cinema {nome} oggi – orari e film | Popcorno"
     desc = (f"Film in sala e orari dei cinema a {nome}. Oggi ({etichetta}) gli orari non sono disponibili: "
             f"guarda le città vicine o scegli cosa guardare stasera in TV e in streaming.")[:300]
     corpo = (f'<p class="lead">Oggi non abbiamo gli orari dei cinema di {esc(nome)}: la nostra fonte non li ha pubblicati. '
@@ -508,7 +508,7 @@ def pagine_cinema():
                               f' – {esc(s.get("ind", ""))} <span class="muto">· {len(s.get("f", []))} film</span></li>'
                               for s in d["sale"])
         h1 = f"Programmazione cinema {nome} oggi"
-        title = f"Programmazione cinema {nome} oggi: {len(film)} film e orari | Popcorno"
+        title = f"Programmazione cinema {nome} oggi – orari e film | Popcorno"
         primi = ", ".join(t for t, _ in ord_film[:3])
         desc = (f"Cinema a {nome} oggi, {etichetta}: {primi} e gli altri {len(film)} film in "
                 f"{len(d['sale'])} {'sale' if len(d['sale']) > 1 else 'sala'}, con orari, trame e locandine.")[:300]
@@ -624,7 +624,7 @@ def pagine_cinema():
         {"@type": "CollectionPage", "name": "Programmazione dei cinema di oggi", "url": f"{BASE}/cinema/", "inLanguage": "it"},
         briciole(("Popcorno", "/"), ("Cinema", "/cinema/"))]}
     grandi = ", ".join(n for _, n, _, _ in sorted(citta_ok, key=lambda c: -c[2])[:5])
-    urls.insert(0, pagina("cinema", f"Programmazione cinema oggi: film e orari in {len(citta_ok)} città | Popcorno",
+    urls.insert(0, pagina("cinema", f"Programmazione cinema oggi – orari e film in {len(citta_ok)} città | Popcorno",
                           f"Programmazione dei cinema di oggi ({etichetta}) a {grandi} e in altre città italiane: "
                           f"film in sala, trame e orari.",
                           "Programmazione dei cinema di oggi", corpo, "cinema", ld))
