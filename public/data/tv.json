@@ -1216,7 +1216,7 @@
 "amici"
 ],
 "v": 8.0,
-"vc": 11201,
+"vc": 11202,
 "l": "en",
 "gs": [
 16,
@@ -1277,7 +1277,7 @@
 "coppia"
 ],
 "v": 6.2,
-"vc": 3158,
+"vc": 3159,
 "l": "en",
 "gs": [
 53,
@@ -2471,7 +2471,7 @@
 "t": "Ruka | Sprint TC",
 "ty": "sport",
 "s": "now",
-"time": "21:45",
+"time": "21:50",
 "dur": 110,
 "m": [
 "sport"
@@ -2568,10 +2568,10 @@
 ]
 },
 {
-"t": "Cda Volley Talmassons Fvg - Numia Vero Volley Milano",
+"t": "JV Gioia Del Colle - Gruppo Fisiomed Alema Energy Macerata",
 "ty": "sport",
 "s": "dazn",
-"time": "20:00",
+"time": "20:30",
 "dur": 110,
 "m": [
 "sport"
@@ -2589,8 +2589,8 @@
 ],
 "d": "In diretta su DAZN.",
 "teams": [
-"Cda Volley Talmassons Fvg",
-"Numia Vero Volley Milano"
+"JV Gioia Del Colle",
+"Gruppo Fisiomed Alema Energy Macerata"
 ]
 }
 ]
